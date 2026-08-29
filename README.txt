@@ -1,13 +1,14 @@
-MIRED360SERVICIOS WEB V7
-Novedad: sección Recargas Móviles.
-Operadores incluidos:
+MIRED360SERVICIOS WEB V8
+Novedad: sección Pago de Facturas.
+Empresas incluidas:
 - Claro
-- Movistar
-- Tigo
-- WOM
 - ETB
-- Virgin Mobile
-- Éxito Móvil
+- Movistar
+- WOM
+- EPM
+- Tigo
+- Enel Codensa
+- Vanti
 
-Cada tarjeta abre WhatsApp con el operador identificado y campos para número y valor.
+Cada tarjeta abre WhatsApp con la empresa identificada y campos para referencia y valor.
 WhatsApp configurado: 322 943 2085.
