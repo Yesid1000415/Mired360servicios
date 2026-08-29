@@ -7,3 +7,7 @@
 .advisor-box h3{font-size:27px;margin:8px 0}.advisor-box p{color:#64788b;line-height:1.55}
 @media(max-width:900px){.datafono-grid{grid-template-columns:repeat(2,1fr)}.advisor-box{display:block}.advisor-box .primary{display:inline-block;margin-top:18px}}
 @media(max-width:600px){.datafono-grid{grid-template-columns:1fr}}
+
+.device-photo{height:190px;display:flex;align-items:center;justify-content:center;margin:8px 0 14px;background:linear-gradient(180deg,#f8fbfd,#fff);border-radius:15px;overflow:hidden}
+.device-photo img{max-width:88%;max-height:175px;width:auto;height:auto;object-fit:contain;display:block}
+@media(max-width:600px){.device-photo{height:210px}.device-photo img{max-height:195px}}
