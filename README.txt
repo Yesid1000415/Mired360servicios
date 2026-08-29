@@ -1,5 +1,13 @@
-MIRED360SERVICIOS WEB V6
-Mejora visual Datáfonos Bold:
-- Se agregan fotos oficiales de producto a Neo, SonoQR, Plus, Smart y Smart Pro.
-- Se mantienen precios, características y botones de WhatsApp.
-- Las imágenes se cargan desde la tienda oficial de Bold.
+MIRED360SERVICIOS WEB V7
+Novedad: sección Recargas Móviles.
+Operadores incluidos:
+- Claro
+- Movistar
+- Tigo
+- WOM
+- ETB
+- Virgin Mobile
+- Éxito Móvil
+
+Cada tarjeta abre WhatsApp con el operador identificado y campos para número y valor.
+WhatsApp configurado: 322 943 2085.

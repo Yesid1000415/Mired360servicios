@@ -11,3 +11,21 @@
 .device-photo{height:190px;display:flex;align-items:center;justify-content:center;margin:8px 0 14px;background:linear-gradient(180deg,#f8fbfd,#fff);border-radius:15px;overflow:hidden}
 .device-photo img{max-width:88%;max-height:175px;width:auto;height:auto;object-fit:contain;display:block}
 @media(max-width:600px){.device-photo{height:210px}.device-photo img{max-height:195px}}
+
+.recargas-section{background:#f7fbff}
+.operator-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+.operator-card{background:#fff;border:1px solid #dce7ee;border-radius:18px;padding:18px;text-align:center;color:#0b2036;transition:.2s;box-shadow:0 8px 24px #0b20360a}
+.operator-card:hover{transform:translateY(-3px);box-shadow:0 15px 34px #0b203615;border-color:#b9d7e7}
+.operator-logo{height:92px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-weight:900;font-size:25px;letter-spacing:-1px}
+.operator-card h3{margin:5px 0 3px;font-size:20px}.operator-card p{margin:0;color:#168be8;font-weight:900;font-size:13px}
+.op-claro .operator-logo{background:#e51b23;color:#fff;border-radius:50%;width:92px;margin-left:auto;margin-right:auto}
+.op-movistar .operator-logo{background:#eaf8ff;color:#0b90d8}.op-tigo .operator-logo{background:#eef3ff;color:#2559b8}
+.op-wom .operator-logo{background:#f4edff;color:#5f259f}.op-etb .operator-logo{background:#eaf9f5;color:#07986d}
+.op-virgin .operator-logo{background:#fff0f0;color:#dc222b}.op-exito .operator-logo{background:#fff9d9;color:#222}
+.recarga-how{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:28px 0}
+.recarga-how>div{background:#fff;border:1px solid #dce7ee;border-radius:16px;padding:18px;display:flex;align-items:center;gap:13px}
+.recarga-how b{width:34px;height:34px;border-radius:50%;background:#168be8;color:#fff;display:grid;place-items:center}.recarga-how span{font-weight:800;color:#40566b}
+.recarga-help{background:#fff}
+@media(max-width:900px){.operator-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.operator-grid{grid-template-columns:repeat(2,1fr)}.recarga-how{grid-template-columns:1fr}}
+@media(max-width:430px){.operator-grid{grid-template-columns:1fr 1fr}.operator-logo{height:78px}.op-claro .operator-logo{width:78px}.operator-card{padding:14px}}
