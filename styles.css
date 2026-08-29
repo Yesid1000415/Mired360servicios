@@ -75,3 +75,16 @@
 .trust-strip{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin-top:25px;padding:16px;border-top:1px solid #e5edf2;color:#587084;font-size:13px;font-weight:800}
 @media(max-width:900px){.hub-top{grid-template-columns:1fr}.hub-copy h1{font-size:49px}.hub-services{grid-template-columns:repeat(2,1fr);margin-top:34px}}
 @media(max-width:600px){.hub-hero{padding:48px 0 25px}.hub-copy h1{font-size:40px;letter-spacing:-2px}.hub-services{grid-template-columns:repeat(2,1fr);gap:10px}.hub-card{padding:14px;display:block;position:relative}.hub-icon{margin-bottom:11px}.hub-card b{position:absolute;right:13px;top:13px}.hub-card h3{font-size:15px}.hub-card p{font-size:11px}.trust-strip{justify-content:flex-start;gap:12px 20px}}
+
+.conversion-section{background:#071a2e;color:#fff}
+.conversion-section .head p{color:#bdd0df}
+.conversion-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:28px}
+.conversion-card{background:#0d2740;border:1px solid #183c5b;border-radius:18px;padding:22px}
+.conversion-card>span{width:46px;height:46px;display:grid;place-items:center;background:#123653;border-radius:13px;font-size:22px;margin-bottom:16px}
+.conversion-card h3{margin:0 0 8px;font-size:18px}.conversion-card p{color:#bdd0df;font-size:13px;line-height:1.55;margin:0}
+.final-cta{margin-top:28px;background:#fff;color:#0b2036;border-radius:20px;padding:26px 30px;display:flex;justify-content:space-between;align-items:center;gap:30px}
+.final-cta h2{margin:7px 0}.final-cta p{margin:0;color:#63788a}.final-cta .primary{white-space:nowrap}
+.floating-whatsapp{position:fixed;right:20px;bottom:20px;z-index:999;background:#0b2036;color:#fff;border:2px solid #fff;border-radius:999px;padding:10px 11px 10px 17px;display:flex;align-items:center;gap:10px;font-weight:900;box-shadow:0 10px 30px #0004}
+.floating-whatsapp b{width:38px;height:38px;background:#25d366;border-radius:50%;display:grid;place-items:center}
+@media(max-width:900px){.conversion-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.final-cta{display:block}.final-cta .primary{display:block;text-align:center;margin-top:18px}.floating-whatsapp span{display:none}.floating-whatsapp{padding:7px;right:14px;bottom:14px}.floating-whatsapp b{width:44px;height:44px}.conversion-grid{grid-template-columns:1fr 1fr;gap:10px}.conversion-card{padding:16px}.conversion-card h3{font-size:15px}.conversion-card p{font-size:12px}}
