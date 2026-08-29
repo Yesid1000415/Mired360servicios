@@ -48,3 +48,17 @@
 @media(max-width:900px){.biller-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:700px){.biller-grid{grid-template-columns:repeat(2,1fr)}.factura-how{grid-template-columns:1fr}}
 @media(max-width:430px){.biller-grid{grid-template-columns:1fr 1fr}.biller-logo{height:78px}.bill-claro .biller-logo{width:78px}.biller-card{padding:14px}}
+
+.digital-section{background:#f5f9fc}
+.digital-alert{display:flex;align-items:center;gap:14px;background:#071a2e;color:#fff;border-radius:16px;padding:16px 20px;margin:22px 0 28px}
+.digital-alert strong{color:#65e6ff;white-space:nowrap}.digital-alert span{color:#d6e3ec;font-size:14px}
+.digital-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.digital-card{background:#fff;border:1px solid #dce7ee;border-radius:18px;padding:20px;display:flex;flex-direction:column;min-height:300px;box-shadow:0 8px 24px #0b20360a}
+.digital-brand{font-size:11px;font-weight:900;letter-spacing:1.1px;color:#168be8;margin-bottom:13px}
+.digital-card h3{font-size:21px;margin:0 0 8px}.digital-price{font-size:29px;font-weight:900;color:#071a2e;margin-bottom:10px}
+.digital-card p{color:#64788b;line-height:1.5;flex:1}.digital-card a{background:#0b2036;color:#fff;text-align:center;padding:13px;border-radius:11px;font-weight:900}
+.digital-card.ai{border-top:4px solid #6d5dfc}.digital-card.streaming{border-top:4px solid #e51b23}.digital-card.tools{border-top:4px solid #16a5d9}.digital-card.software{border-top:4px solid #168be8}.digital-card.accounts{border-top:4px solid #5f7183}
+.digital-help{background:#fff;margin-top:26px}
+@media(max-width:1000px){.digital-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.digital-grid{grid-template-columns:repeat(2,1fr)}.digital-alert{display:block}.digital-alert strong{display:block;margin-bottom:5px}}
+@media(max-width:480px){.digital-grid{grid-template-columns:1fr}}

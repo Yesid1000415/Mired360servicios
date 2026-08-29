@@ -1,14 +1,9 @@
-MIRED360SERVICIOS WEB V8
-Novedad: sección Pago de Facturas.
-Empresas incluidas:
-- Claro
-- ETB
-- Movistar
-- WOM
-- EPM
-- Tigo
-- Enel Codensa
-- Vanti
+MIRED360SERVICIOS WEB V9
+Novedad: Streaming, IA y Herramientas Digitales.
+Productos:
+Netflix, CapCut Pro, Canva Pro, Windows 10/11 Pro, Microsoft 365,
+YouTube Premium, Spotify Premium, Prime Video, Gemini AI Pro,
+Claude AI, creación/configuración Hotmail-Outlook y Leonardo AI Pro.
 
-Cada tarjeta abre WhatsApp con la empresa identificada y campos para referencia y valor.
-WhatsApp configurado: 322 943 2085.
+Se destaca que solo se manejan productos/licencias legítimas y originales.
+Cada tarjeta tiene precio y botón Comprar por WhatsApp.
