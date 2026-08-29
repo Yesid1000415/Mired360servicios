@@ -14,6 +14,14 @@
     <a class="wa top" target="_blank" href="https://wa.me/573229432085?text=Hola%20MIRED360SERVICIOS,%20quiero%20informaci%C3%B3n">WhatsApp</a>
   </div>
 </header>
+<div class="mobile-quick-nav" aria-label="Accesos rápidos">
+  <a href="#planes"><span>🌐</span>Internet</a>
+  <a href="#datafonos"><span>💳</span>Datáfonos</a>
+  <a href="#recargas"><span>📲</span>Recargas</a>
+  <a href="#facturas"><span>🧾</span>Facturas</a>
+  <a href="#digital"><span>🎬</span>Digital</a>
+</div>
+
 
 <main id="inicio">
 <section class="hero hub-hero">
@@ -295,7 +303,16 @@
       <span>No vendemos cuentas hackeadas, compartidas de forma no autorizada ni licencias piratas.</span>
     </div>
 
-    <div class="digital-grid">
+    
+<div class="digital-mobile-filters">
+  <button type="button" data-filter="all" class="active">Todos</button>
+  <button type="button" data-filter="streaming">Streaming</button>
+  <button type="button" data-filter="ai">IA</button>
+  <button type="button" data-filter="tools">Herramientas</button>
+  <button type="button" data-filter="software">Software</button>
+</div>
+
+<div class="digital-grid">
       <article class="digital-card streaming">
         <div class="digital-brand">NETFLIX</div>
         <h3>Netflix Original</h3>
@@ -446,5 +463,19 @@ function filterPlans(cat,btn){
 href="https://wa.me/573229432085?text=Hola%20MIRED360SERVICIOS,%20necesito%20asesor%C3%ADa.">
   <span>WhatsApp</span><b>💬</b>
 </a>
+
+
+<script>
+document.querySelectorAll('.digital-mobile-filters button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.digital-mobile-filters button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const f=btn.dataset.filter;
+    document.querySelectorAll('.digital-grid .digital-card').forEach(card=>{
+      card.style.display=(f==='all'||card.classList.contains(f))?'flex':'none';
+    });
+  });
+});
+</script>
 
 </body></html>
