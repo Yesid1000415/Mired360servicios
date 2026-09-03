@@ -30,3 +30,48 @@ footer{background:#061326;color:#a8bed4;padding:36px 0}.footer-grid{display:flex
 .foot{display:flex;justify-content:space-between;gap:24px;align-items:center}.foot .brand{min-width:auto}.foot p{margin:8px 0 0}
 @media(max-width:980px){.datafono-grid{grid-template-columns:repeat(2,1fr)}.biller-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.datafono-grid,.biller-grid,.recarga-how,.factura-how{grid-template-columns:1fr}.foot{flex-direction:column;align-items:flex-start}.floating-whatsapp span{display:none}.floating-whatsapp{padding:12px}}
+
+/* Ajuste móvil final MIRED360 - 2026-09-03 */
+@media(max-width:700px){
+  body{overflow-x:hidden}
+  .wrap{width:calc(100% - 28px);max-width:100%;margin-inline:auto}
+  .hero{padding:36px 0 24px}
+  .hub-top{gap:26px}
+  .pill{font-size:.68rem;letter-spacing:.07em;padding:7px 10px;max-width:100%;white-space:normal}
+  .hero h1{font-size:clamp(2.25rem,10.6vw,3rem);line-height:1.02;letter-spacing:-.035em;margin:16px 0 16px}
+  .lead{font-size:1rem;line-height:1.55}
+  .hero-device{border-radius:22px}
+  .hero-device img{height:auto;aspect-ratio:1.08/1;object-fit:cover;object-position:63% 66%}
+  .hero-badge{position:static;margin:12px 0 0;width:100%;text-align:center;border-radius:14px}
+  .hub-services{grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:26px}
+  .hub-card{min-width:0;width:100%;padding:14px 12px;gap:8px;min-height:104px;align-items:flex-start}
+  .hub-card>div{min-width:0;flex:1}
+  .hub-card h3{font-size:.92rem;line-height:1.25;overflow-wrap:anywhere}
+  .hub-card p{font-size:.74rem;line-height:1.35;overflow-wrap:anywhere}
+  .hub-card b{flex:0 0 auto;margin-left:2px}
+  .hub-icon{font-size:1.15rem;flex:0 0 auto}
+  .trust-strip{display:grid;grid-template-columns:1fr;gap:8px;font-size:.9rem;margin-top:18px}
+  .brand-showcase{padding:54px 0}
+  .brand-showcase-grid{gap:24px}
+  .brand-showcase h2{font-size:clamp(2rem,9vw,2.7rem);line-height:1.08}
+  .brand-points{grid-template-columns:1fr;gap:10px}
+  .brand-showcase img{width:100%;height:auto;max-height:none;object-fit:contain}
+  .section{padding:48px 0}
+  .head{margin-bottom:24px}
+  .head h2{font-size:clamp(2rem,9vw,2.7rem)}
+  .plan,.operator-card,.bill-card,.biller-card,.digital-card,.conversion-card{padding:20px}
+  .plan h3{font-size:1.35rem}
+  .planprice{font-size:1.9rem}
+  .plan>a{width:100%;min-height:50px}
+  .device-photo{height:145px}
+  .device-photo img{max-height:135px}
+  .floating-whatsapp{right:12px;bottom:12px}
+}
+@media(max-width:420px){
+  .hub-services{grid-template-columns:1fr 1fr}
+  .hub-card{padding:12px 10px;min-height:98px}
+  .hub-card h3{font-size:.86rem}
+  .hub-card p{font-size:.7rem}
+  .mobile-quick-nav a{font-size:.61rem}
+  .mobile-quick-nav span{font-size:1rem}
+}
