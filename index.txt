@@ -19,15 +19,15 @@ window.MIRED360_ANALYTICS = {
 <!-- Vista previa oficial para Facebook, WhatsApp y redes sociales -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MIRED360SERVICIOS">
-<meta property="og:title" content="MIRED360SERVICIOS | Conectamos soluciones">
-<meta property="og:description" content="Internet, tecnología, pagos, entretenimiento y soluciones digitales con atención personalizada.">
+<meta property="og:title" content="MIRED360SERVICIOS | Todo lo que necesitas en un solo lugar">
+<meta property="og:description" content="Internet, datáfonos, recargas, pago de facturas, streaming, inteligencia artificial y herramientas digitales.">
 <meta property="og:url" content="https://yesid1000415.github.io/Mired360servicios/">
 <meta property="og:image" content="https://yesid1000415.github.io/Mired360servicios/mired360-social-preview.png">
 <meta property="og:image:secure_url" content="https://yesid1000415.github.io/Mired360servicios/mired360-social-preview.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:alt" content="MIRED360SERVICIOS - Todo lo que necesitas en un solo lugar">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MIRED360SERVICIOS | Conectamos soluciones">
+<meta name="twitter:title" content="MIRED360SERVICIOS | Todo lo que necesitas en un solo lugar">
 <meta name="twitter:description" content="Internet, datáfonos, recargas, facturas, streaming, IA y herramientas digitales.">
 <meta name="twitter:image" content="https://yesid1000415.github.io/Mired360servicios/mired360-social-preview.png">
 
@@ -55,46 +55,41 @@ window.MIRED360_ANALYTICS = {
  <div class="wrap">
   <div class="hub-top">
    <div class="hub-copy">
-    <div class="pill">MIRED360SERVICIOS · CONECTAMOS SOLUCIONES</div>
-    <h1>Internet y soluciones para <span>tu hogar o negocio.</span></h1>
-    <p class="lead">Conectividad, tecnología, pagos y entretenimiento en un solo lugar. Te ayudamos a validar cobertura, comparar opciones y elegir la solución adecuada para ti.</p>
+    <div class="pill">MIRED360SERVICIOS</div>
+    <h1>Todo lo que necesitas,<br><span>en un solo lugar.</span></h1>
+    <p class="lead">Internet, datáfonos, recargas, pago de facturas, streaming, inteligencia artificial y herramientas digitales con atención personalizada.</p>
     <div class="actions">
-      <a class="primary" target="_blank" data-track="whatsapp_click" href="https://wa.me/573229432085?text=Hola%20MIRED360SERVICIOS,%20quiero%20validar%20cobertura%20y%20conocer%20las%20opciones%20de%20Internet.">Validar cobertura por WhatsApp</a>
-      <a class="secondary" href="#hub-services">Ver todos los servicios</a>
+      <a class="primary" href="#hub-services">Explorar servicios</a>
+      <a class="secondary" target="_blank" data-track="whatsapp_click" href="https://wa.me/573229432085?text=Hola%20MIRED360SERVICIOS,%20necesito%20asesor%C3%ADa%20sobre%20sus%20servicios.">Hablar con un asesor</a>
     </div>
    </div>
-   <div class="hero-visual">
-     <div class="hero-device"><img src="mired360-devices.png" alt="MIRED360SERVICIOS en computador y celular"></div>
-     <div class="hero-badge"><span>ATENCIÓN PERSONALIZADA</span>WhatsApp 322 943 2085</div>
-   </div>
+   <aside class="spotlight compact-spotlight">
+    <div class="claro">CLARO</div><div class="label">OFERTA DESTACADA</div>
+    <div class="speed">900 <small>MEGAS</small></div>
+    <div class="fiber">Fibra óptica*</div>
+    <div class="price">$79.900 <small>/ mes</small></div>
+    <a target="_blank" data-track="whatsapp_click" href="https://wa.me/573229432085?text=Hola,%20me%20interesa%20la%20oferta%20de%20900%20megas%20por%20$79.900.%20Quiero%20validar%20cobertura.">Validar cobertura →</a>
+   </aside>
   </div>
 
   <div id="hub-services" class="hub-services">
-    <a href="#planes" data-track="categoria_internet" class="hub-card"><span class="hub-icon">🌐</span><div><h3>Internet Hogar</h3><p>Planes y cobertura</p></div><b>→</b></a>
-    <a href="#datafonos" data-track="categoria_datafonos" class="hub-card"><span class="hub-icon">💳</span><div><h3>Datáfonos</h3><p>Soluciones de pago</p></div><b>→</b></a>
-    <a href="#recargas" data-track="categoria_recargas" class="hub-card"><span class="hub-icon">📲</span><div><h3>Recargas</h3><p>Operadores móviles</p></div><b>→</b></a>
-    <a href="#facturas" data-track="categoria_facturas" class="hub-card"><span class="hub-icon">🧾</span><div><h3>Pago de facturas</h3><p>Servicios y convenios</p></div><b>→</b></a>
-    <a href="#digital" data-track="categoria_digital" class="hub-card"><span class="hub-icon">🎬</span><div><h3>Streaming</h3><p>Entretenimiento digital</p></div><b>→</b></a>
-    <a href="#digital" data-track="categoria_digital" class="hub-card"><span class="hub-icon">🤖</span><div><h3>IA y herramientas</h3><p>Productividad digital</p></div><b>→</b></a>
+    <a href="#planes" data-track="categoria_internet" class="hub-card"><span class="hub-icon">🌐</span><div><h3>Internet Claro</h3><p>Planes y cobertura</p></div><b>→</b></a>
+    <a href="#datafonos" data-track="categoria_datafonos" class="hub-card"><span class="hub-icon">💳</span><div><h3>Datáfonos</h3><p>Equipos para tu negocio</p></div><b>→</b></a>
+    <a href="#recargas" data-track="categoria_recargas" class="hub-card"><span class="hub-icon">📲</span><div><h3>Recargas</h3><p>Recarga sin salir de casa</p></div><b>→</b></a>
+    <a href="#facturas" data-track="categoria_facturas" class="hub-card"><span class="hub-icon">🧾</span><div><h3>Pago de facturas</h3><p>Paga servicios por WhatsApp</p></div><b>→</b></a>
+    <a href="#digital" data-track="categoria_digital" class="hub-card"><span class="hub-icon">🎬</span><div><h3>Streaming</h3><p>Suscripciones originales</p></div><b>→</b></a>
+    <a href="#digital" data-track="categoria_digital" class="hub-card"><span class="hub-icon">🤖</span><div><h3>IA y herramientas</h3><p>Software y productividad</p></div><b>→</b></a>
   </div>
 
   <div class="trust-strip">
-    <span>✓ Atención personalizada</span><span>✓ Validación de cobertura</span><span>✓ Soporte por WhatsApp</span><span>✓ Soluciones para hogar y negocio</span>
+    <span>✓ Atención personalizada</span>
+    <span>✓ Compra fácil</span>
+    <span>✓ Productos originales</span>
+    <span>✓ Soporte por WhatsApp</span>
   </div>
  </div>
 </section>
 
-<section class="brand-showcase">
- <div class="wrap brand-showcase-grid">
-  <div>
-   <div class="pill">NUEVA IDENTIDAD MIRED360</div>
-   <h2>Una marca para conectar todas tus soluciones.</h2>
-   <p>MIRED360SERVICIOS integra conectividad, tecnología, pagos y entretenimiento con una atención comercial más clara, rápida y cercana.</p>
-   <div class="brand-points"><div>🌐 Internet hogar y negocios</div><div>💳 Datáfonos y pagos</div><div>🎬 Streaming y servicios digitales</div><div>🤝 Asesoría personalizada</div></div>
-  </div>
-  <img src="mired360-hero-brand.png" alt="Nueva identidad corporativa MIRED360SERVICIOS">
- </div>
-</section>
 <section id="planes" class="section">
  <div class="wrap">
   <div class="head"><div class="pill">PLANES DESTACADOS</div><h2>Elige según lo que realmente necesitas</h2><p>Organizamos las ofertas por tipo de servicio para que comparar sea más fácil.</p></div>
