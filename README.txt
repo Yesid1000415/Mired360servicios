@@ -16,9 +16,3 @@ Imagen: portada oficial MIRED360SERVICIOS.
 IMPORTANTE:
 Facebook puede conservar en caché la imagen anterior durante un tiempo.
 Después de publicar V15, si sigue apareciendo la foto antigua, usa el Sharing Debugger de Meta para volver a rastrear la URL.
-
-
-ACTUALIZACION 2026-09-04:
-- Se agrega sección OFERTAS CLARO DESTACADAS con piezas locales optimizadas desde el catálogo comercial.
-- Cada pieza enlaza a WhatsApp para validar cobertura.
-- Se conserva MIRED360SERVICIOS como marca principal.
