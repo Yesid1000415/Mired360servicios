@@ -44,16 +44,17 @@ const SB_URL='https://lpiusomsuswdcraoozdn.supabase.co';
 const SB_KEY='sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 function limpio(v){return String(v||'').trim()}
 function soloNum(v){return limpio(v).replace(/\D/g,'')}
+async function sha256(v){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 function codigoSeguro(){const a=new Uint32Array(2);crypto.getRandomValues(a);return 'MR360-'+Array.from(a,x=>x.toString(36).toUpperCase()).join('').slice(0,14)}
 document.getElementById('refForm').addEventListener('submit',async function(e){
  e.preventDefault();
  const btn=this.querySelector('button'), s=document.getElementById('success'), f=new FormData(this);
- const data={codigo:codigoSeguro(),nombre:limpio(f.get('nombre')),cedula:soloNum(f.get('cedula')),correo:limpio(f.get('correo')).toLowerCase(),whatsapp:soloNum(f.get('whatsapp')),nequi:soloNum(f.get('nequi'))};
+ const pin=soloNum(f.get('pin')); const data={codigo:codigoSeguro(),nombre:limpio(f.get('nombre')),cedula:soloNum(f.get('cedula')),correo:limpio(f.get('correo')).toLowerCase(),whatsapp:soloNum(f.get('whatsapp')),nequi:soloNum(f.get('nequi')),pin_hash:await sha256(pin)};
  btn.disabled=true;btn.textContent='REGISTRANDO...';s.style.display='none';
  try{
   const r=await fetch(SB_URL+'/rest/v1/referidores',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(data)});
   if(!r.ok){const er=await r.text();if(r.status===409||er.includes('duplicate'))throw new Error('Ya existe un registro con esta cédula.');throw new Error('No fue posible completar el registro. Verifica los datos e intenta nuevamente.')}
-  s.innerHTML='<strong>¡Registro exitoso!</strong><br>Tu código de referidor es <strong>'+data.codigo+'</strong>.<br>Guárdalo: lo necesitarás para registrar tus referidos.';
+  s.innerHTML='<strong>¡Registro exitoso!</strong><br>Tu código es <strong>'+data.codigo+'</strong>.<br>Guarda tu código y tu clave. <a href="panel-referidor.html" style="font-weight:900">ENTRAR A MI PANEL</a>';
   s.style.display='block';this.reset();
  }catch(err){s.innerHTML='<strong>No se pudo registrar.</strong><br>'+err.message;s.style.display='block'}
  finally{btn.disabled=false;btn.textContent='REGISTRARME COMO REFERIDOR'}
