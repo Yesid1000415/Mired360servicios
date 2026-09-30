@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin-referidos.html
+Disallow: /admin.html
+
+Sitemap: https://mired360servicios.com/sitemap.xml
