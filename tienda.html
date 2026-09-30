@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MIRED360 | Tienda de servicios</title>
+<meta name="description" content="Recargas, pagos, servicios digitales, datáfonos e internet en un solo lugar.">
+<style>
+:root{--blue:#0866df;--navy:#083b86;--bg:#f5f8fc;--text:#142033;--muted:#68758a;--card:#fff;--line:#e7edf5}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1120px;margin:auto;padding:0 18px}.top{background:linear-gradient(135deg,#075bc8,#0b77ed);color:#fff;padding:18px 0 42px}
+nav{display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{font-weight:900;font-size:22px;letter-spacing:-.6px}.brand span{color:#b9dcff}
+.login{background:#fff;color:var(--blue);padding:10px 15px;border-radius:12px;text-decoration:none;font-weight:800}
+.hero{padding:42px 0 10px;max-width:720px}.hero h1{font-size:clamp(32px,6vw,58px);line-height:1.02;margin:0 0 14px;letter-spacing:-1.8px}.hero p{font-size:18px;line-height:1.5;margin:0;opacity:.94}
+main{margin-top:-20px;padding-bottom:90px}.section-title{font-size:24px;margin:34px 0 15px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;text-decoration:none;color:inherit;box-shadow:0 8px 25px rgba(15,50,90,.06);transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(15,50,90,.11)}.icon{font-size:34px}.card h2{font-size:18px;margin:13px 0 7px}.card p{margin:0;color:var(--muted);line-height:1.45;font-size:14px}.action{display:inline-block;margin-top:16px;color:var(--blue);font-weight:800;font-size:14px}
+.internet{margin-top:20px;background:linear-gradient(135deg,#071b45,#0b4b9e);color:#fff;border-radius:24px;padding:28px;display:flex;justify-content:space-between;align-items:center;gap:20px}.internet p{opacity:.85;max-width:650px}.internet a{white-space:nowrap;background:#fff;color:#075bc8;text-decoration:none;font-weight:900;padding:13px 18px;border-radius:13px}
+.notice{margin-top:22px;padding:15px 18px;border-radius:16px;background:#eef6ff;color:#244b78;font-size:14px;line-height:1.45}.bottom{display:none}
+@media(max-width:760px){.top{padding-bottom:34px}.hero{padding-top:34px}.hero h1{font-size:38px}.grid{grid-template-columns:1fr 1fr}.card{padding:18px}.internet{display:block}.internet a{display:inline-block;margin-top:10px}.bottom{display:flex;position:fixed;z-index:5;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);justify-content:space-around;padding:9px 4px 12px}.bottom a{text-decoration:none;color:#607086;font-size:11px;text-align:center}.bottom b{display:block;font-size:20px;margin-bottom:2px}.bottom .active{color:var(--blue)}}
+@media(max-width:390px){.grid{grid-template-columns:1fr}.hero h1{font-size:34px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+<nav><div class="brand">MIRED<span>360</span>SERVICIOS</div><a class="login" href="#cuenta">Mi cuenta</a></nav>
+<div class="hero"><h1>Todo lo que necesitas, en un solo lugar.</h1><p>Recargas, pagos, soluciones digitales y servicios para tu hogar o negocio desde una experiencia simple y segura.</p></div>
+</div></header>
+<main class="wrap">
+<h2 class="section-title">¿Qué necesitas hoy?</h2>
+<section class="grid">
+<a class="card" href="#proximamente"><div class="icon">📱</div><h2>Recargas</h2><p>Recarga tu línea móvil de forma rápida.</p><span class="action">Recargar →</span></a>
+<a class="card" href="#proximamente"><div class="icon">🧾</div><h2>Paga tus facturas</h2><p>Centraliza el pago de tus servicios en MIRED360.</p><span class="action">Pagar factura →</span></a>
+<a class="card" href="#proximamente"><div class="icon">🎬</div><h2>Servicios digitales</h2><p>Encuentra entretenimiento y soluciones digitales.</p><span class="action">Explorar →</span></a>
+<a class="card" href="#proximamente"><div class="icon">💳</div><h2>Datáfonos</h2><p>Soluciones de cobro para emprendedores y negocios.</p><span class="action">Ver opciones →</span></a>
+<a class="card" href="../referidores.html"><div class="icon">🤝</div><h2>Refiere y gana</h2><p>Recomienda nuestros servicios y haz seguimiento a tus referidos.</p><span class="action">Ir a referidos →</span></a>
+<a class="card" href="#cuenta"><div class="icon">👤</div><h2>Mi cuenta</h2><p>Próximamente: movimientos, solicitudes y comprobantes.</p><span class="action">Conocer →</span></a>
+</section>
+<section class="internet">
+<div><div class="icon">🌐</div><h2>Internet Hogar y Empresas</h2><p>Internet se gestiona de manera diferente: consulta las ofertas y solicita validación de cobertura. Un asesor continúa contigo el proceso.</p></div>
+<a href="../catalogo-interactivo.html">Ver planes de Internet</a>
+</section>
+<div class="notice" id="proximamente"><strong>MIRED360 Tienda 1.0 — modo demostración.</strong> Los módulos transaccionales aún no procesan dinero real. Se habilitarán de forma progresiva cuando estén conectadas y probadas las APIs y medios de pago.</div>
+<div class="notice" id="cuenta"><strong>Mi cuenta está en construcción.</strong> La siguiente etapa incorporará acceso de clientes, historial y estados de operaciones.</div>
+</main>
+<div class="bottom"><a class="active" href="#"><b>⌂</b>Inicio</a><a href="#proximamente"><b>▣</b>Servicios</a><a href="../referidores.html"><b>♧</b>Referidos</a><a href="#cuenta"><b>◉</b>Mi cuenta</a></div>
+</body></html>
