@@ -18,7 +18,7 @@
 <label>Número de cédula</label><input name="cedula" required inputmode="numeric">
 <label>Correo electrónico</label><input name="correo" required type="email" autocomplete="email">
 <label>WhatsApp</label><input name="whatsapp" required inputmode="tel" autocomplete="tel">
-<label>Cuenta Nequi</label><input name="nequi" required inputmode="tel">
+<label>Cuenta Nequi</label><input name="nequi" required inputmode="tel"><label>Crea tu clave de acceso</label><input name="pin" required inputmode="numeric" minlength="4" maxlength="6" pattern="[0-9]{4,6}" placeholder="4 a 6 números" autocomplete="new-password"><label>Confirma tu clave</label><input name="pin2" required inputmode="numeric" minlength="4" maxlength="6" pattern="[0-9]{4,6}" placeholder="Repite tu clave" autocomplete="new-password"><p class="note">Guarda esta clave. Junto con tu código MR360 te permitirá entrar a tu panel personal.</p>
 <label class="check"><input type="checkbox" required><span>Autorizo el tratamiento de mis datos personales para gestionar mi registro, referidos y pagos, y acepto las condiciones del programa.</span></label>
 <button type="submit">REGISTRARME COMO REFERIDOR</button>
 <div class="success" id="success"></div>
@@ -49,7 +49,7 @@ function codigoSeguro(){const a=new Uint32Array(2);crypto.getRandomValues(a);ret
 document.getElementById('refForm').addEventListener('submit',async function(e){
  e.preventDefault();
  const btn=this.querySelector('button'), s=document.getElementById('success'), f=new FormData(this);
- const pin=soloNum(f.get('pin')); const data={codigo:codigoSeguro(),nombre:limpio(f.get('nombre')),cedula:soloNum(f.get('cedula')),correo:limpio(f.get('correo')).toLowerCase(),whatsapp:soloNum(f.get('whatsapp')),nequi:soloNum(f.get('nequi')),pin_hash:await sha256(pin)};
+ const pin=soloNum(f.get('pin')), pin2=soloNum(f.get('pin2')); if(!/^[0-9]{4,6}$/.test(pin)){s.innerHTML='<strong>La clave debe tener entre 4 y 6 números.</strong>';s.style.display='block';return} if(pin!==pin2){s.innerHTML='<strong>Las claves no coinciden.</strong>';s.style.display='block';return} const data={codigo:codigoSeguro(),nombre:limpio(f.get('nombre')),cedula:soloNum(f.get('cedula')),correo:limpio(f.get('correo')).toLowerCase(),whatsapp:soloNum(f.get('whatsapp')),nequi:soloNum(f.get('nequi')),pin_hash:await sha256(pin)};
  btn.disabled=true;btn.textContent='REGISTRANDO...';s.style.display='none';
  try{
   const r=await fetch(SB_URL+'/rest/v1/referidores',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(data)});
