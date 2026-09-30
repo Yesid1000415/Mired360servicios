@@ -12,7 +12,7 @@
 <div class="top"><div class="wrap"><div class="brand">MIRED<span>360</span>SERVICIOS</div></div></div>
 <section class="hero"><div class="wrap"><span class="pill">PROGRAMA DE REFERIDOS</span><h1>Refiere Internet Claro y <span class="money">gana $140.000</span></h1><p>Regístrate como referidor MIRED360SERVICIOS. Por cada referido que contrate Internet Claro Hogar y tenga su servicio instalado, recibes $140.000, sujeto a las condiciones del programa.</p><a class="back" href="index.html">← Volver a MIRED360SERVICIOS</a></div></section>
 <main class="wrap grid">
-<section class="card"><h2>¿Cómo funciona?</h2><div class="steps"><div><b>1</b><span>Te registras como referidor.</span></div><div><b>2</b><span>Recibes tu código de referidor.</span></div><div><b>3</b><span>Registras personas interesadas en Internet Claro Hogar.</span></div><div><b>4</b><span>MIRED360 gestiona cobertura, solicitud e instalación.</span></div><div><b>5</b><span>Cuando el servicio quede instalado y cumpla las condiciones, se habilita tu pago de <strong>$140.000</strong>.</span></div></div><p class="note">Próximamente podrás consultar desde aquí el estado de tus referidos y pagos.</p></section>
+<section class="card"><h2>¿Cómo funciona?</h2><div class="steps"><div><b>1</b><span>Te registras como referidor.</span></div><div><b>2</b><span>Recibes tu código de referidor.</span></div><div><b>3</b><span>Registras personas interesadas en Internet Claro Hogar.</span></div><div><b>4</b><span>MIRED360 gestiona cobertura, solicitud e instalación.</span></div><div><b>5</b><span>Cuando el servicio quede instalado y cumpla las condiciones, se habilita tu pago de <strong>$140.000</strong>.</span></div></div><p class="note"><strong>Estados:</strong> Recibido → Contactado → Venta → Instalado → Pago disponible → Pagado.</p><a href="#nuevoReferido" style="display:block;text-align:center;background:#071a32;color:#fff;padding:14px;border-radius:12px;text-decoration:none;font-weight:900;margin-top:18px">YA TENGO CÓDIGO · REGISTRAR REFERIDO</a></section>
 <section class="card"><h2>Regístrate como referidor</h2><form id="refForm">
 <label>Nombre y apellidos</label><input name="nombre" required autocomplete="name">
 <label>Número de cédula</label><input name="cedula" required inputmode="numeric">
@@ -23,6 +23,20 @@
 <button type="submit">REGISTRARME COMO REFERIDOR</button>
 <div class="success" id="success"></div>
 </form><p class="note">Tus datos no deben publicarse ni compartirse con otros referidores. La información se registra de forma segura en MIRED360 y no queda disponible públicamente.</p></section>
+<section class="wrap" id="nuevoReferido" style="padding-bottom:34px"><div class="card">
+<h2>Registra tu referido de Internet Claro</h2><p>Ingresa tu código MIRED360 y los datos de la persona interesada. Nosotros continuamos con la validación de cobertura y la gestión comercial.</p>
+<form id="clienteForm">
+<div class="grid" style="padding:0">
+<div><label>Tu código de referidor</label><input name="referidor_codigo" required placeholder="MR360-..."></div>
+<div><label>Nombre del referido</label><input name="nombre_referido" required></div>
+<div><label>WhatsApp del referido</label><input name="whatsapp_referido" required inputmode="tel"></div>
+<div><label>Ciudad / municipio</label><input name="ciudad" required></div>
+<div><label>Barrio / conjunto</label><input name="barrio"></div>
+<div><label>Dirección donde requiere Internet</label><input name="direccion"></div>
+</div>
+<label class="check"><input type="checkbox" required><span>Confirmo que cuento con autorización de esta persona para compartir sus datos con MIRED360SERVICIOS con el fin de contactarla sobre su solicitud de Internet.</span></label>
+<button type="submit">REGISTRAR REFERIDO</button><div class="success" id="clienteSuccess"></div>
+</form></div></section>
 </main>
 <div class="wrap legal">MIRED360SERVICIOS · El incentivo aplica únicamente a servicios que cumplan las condiciones comerciales vigentes del programa. El registro por sí solo no genera pago.</div>
 <script>
@@ -43,6 +57,21 @@ document.getElementById('refForm').addEventListener('submit',async function(e){
   s.style.display='block';this.reset();
  }catch(err){s.innerHTML='<strong>No se pudo registrar.</strong><br>'+err.message;s.style.display='block'}
  finally{btn.disabled=false;btn.textContent='REGISTRARME COMO REFERIDOR'}
+});
+</script>
+<script>
+document.getElementById('clienteForm').addEventListener('submit',async function(e){
+ e.preventDefault();
+ const f=new FormData(this), btn=this.querySelector('button'), s=document.getElementById('clienteSuccess');
+ const data={referidor_codigo:limpio(f.get('referidor_codigo')).toUpperCase(),nombre_referido:limpio(f.get('nombre_referido')),whatsapp_referido:soloNum(f.get('whatsapp_referido')),ciudad:limpio(f.get('ciudad')),barrio:limpio(f.get('barrio'))||null,direccion:limpio(f.get('direccion'))||null,estado:'recibido',valor_comision:140000};
+ btn.disabled=true;btn.textContent='REGISTRANDO...';s.style.display='none';
+ try{
+  const r=await fetch(SB_URL+'/rest/v1/referidos_internet',{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error('No fue posible registrar el referido. Verifica el código y los datos.');
+  s.innerHTML='<strong>¡Referido recibido!</strong><br>Quedó registrado con estado <strong>Recibido</strong>. MIRED360SERVICIOS continuará la gestión.';
+  s.style.display='block';this.reset();
+ }catch(err){s.innerHTML='<strong>No se pudo registrar.</strong><br>'+err.message;s.style.display='block'}
+ finally{btn.disabled=false;btn.textContent='REGISTRAR REFERIDO'}
 });
 </script>
 </body></html>
