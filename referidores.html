@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Refiere y gana $140.000 | MIRED360SERVICIOS</title>
+<meta name="description" content="Regístrate como referidor de Internet Claro Hogar y gana $140.000 por cada servicio referido que sea instalado.">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#10233d}.top{background:#071a32;color:white;padding:18px}.wrap{max-width:920px;margin:auto;padding:0 18px}.brand{font-size:24px;font-weight:900}.brand span{color:#20d4e7}.hero{background:linear-gradient(135deg,#071a32,#0a3970);color:#fff;padding:48px 0}.hero h1{font-size:clamp(34px,7vw,58px);margin:8px 0}.money{color:#58e8a4}.hero p{font-size:18px;line-height:1.5;max-width:720px}.pill{display:inline-block;background:#e51b23;color:#fff;border-radius:999px;padding:8px 13px;font-weight:800;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:32px 0}.card{background:#fff;border-radius:22px;padding:26px;box-shadow:0 12px 35px #0b2a4b16}.card h2{margin-top:0}.steps div{display:flex;gap:12px;margin:16px 0;align-items:flex-start}.steps b{min-width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#e51b23;color:white}label{display:block;font-weight:700;margin:13px 0 6px}input{width:100%;padding:14px;border:1px solid #cad6e3;border-radius:12px;font-size:16px}button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:12px;background:#e51b23;color:white;font-size:17px;font-weight:900;cursor:pointer}.check{display:flex;gap:9px;margin-top:16px;font-size:13px;line-height:1.4}.check input{width:auto}.note{font-size:13px;color:#53677d;margin-top:15px}.success{display:none;background:#eafbf2;border:1px solid #8cddb1;padding:18px;border-radius:14px;margin-top:18px}.back{color:#fff;text-decoration:none;font-weight:700}.legal{font-size:12px;color:#68798d;padding-bottom:30px}@media(max-width:720px){.grid{grid-template-columns:1fr}.hero{padding:34px 0}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><div class="brand">MIRED<span>360</span>SERVICIOS</div></div></div>
+<section class="hero"><div class="wrap"><span class="pill">PROGRAMA DE REFERIDOS</span><h1>Refiere Internet Claro y <span class="money">gana $140.000</span></h1><p>Regístrate como referidor MIRED360SERVICIOS. Por cada referido que contrate Internet Claro Hogar y tenga su servicio instalado, recibes $140.000, sujeto a las condiciones del programa.</p><a class="back" href="index.html">← Volver a MIRED360SERVICIOS</a></div></section>
+<main class="wrap grid">
+<section class="card"><h2>¿Cómo funciona?</h2><div class="steps"><div><b>1</b><span>Te registras como referidor.</span></div><div><b>2</b><span>Recibes tu código de referidor.</span></div><div><b>3</b><span>Registras personas interesadas en Internet Claro Hogar.</span></div><div><b>4</b><span>MIRED360 gestiona cobertura, solicitud e instalación.</span></div><div><b>5</b><span>Cuando el servicio quede instalado y cumpla las condiciones, se habilita tu pago de <strong>$140.000</strong>.</span></div></div><p class="note">Próximamente podrás consultar desde aquí el estado de tus referidos y pagos.</p></section>
+<section class="card"><h2>Regístrate como referidor</h2><form id="refForm">
+<label>Nombre y apellidos</label><input name="nombre" required autocomplete="name">
+<label>Número de cédula</label><input name="cedula" required inputmode="numeric">
+<label>Correo electrónico</label><input name="correo" required type="email" autocomplete="email">
+<label>WhatsApp</label><input name="whatsapp" required inputmode="tel" autocomplete="tel">
+<label>Cuenta Nequi</label><input name="nequi" required inputmode="tel">
+<label class="check"><input type="checkbox" required><span>Autorizo el tratamiento de mis datos personales para gestionar mi registro, referidos y pagos, y acepto las condiciones del programa.</span></label>
+<button type="submit">REGISTRARME COMO REFERIDOR</button>
+<div class="success" id="success"></div>
+</form><p class="note">Tus datos no deben publicarse ni compartirse con otros referidores. El registro definitivo quedará conectado al backend MIRED360.</p></section>
+</main>
+<div class="wrap legal">MIRED360SERVICIOS · El incentivo aplica únicamente a servicios que cumplan las condiciones comerciales vigentes del programa. El registro por sí solo no genera pago.</div>
+<script>
+document.getElementById('refForm').addEventListener('submit',function(e){
+e.preventDefault();
+const f=new FormData(this), n=(f.get('nombre')||'').trim(), c=(f.get('cedula')||'').trim();
+const code='MR360-'+c.slice(-4)+'-'+Math.floor(100+Math.random()*900);
+const s=document.getElementById('success');
+s.innerHTML='<strong>Registro preparado</strong><br>Tu código provisional es <strong>'+code+'</strong>.<br><small>La activación definitiva se realizará cuando conectemos el backend MIRED360. Por ahora no se almacenan tus datos en esta página.</small>';
+s.style.display='block';
+});
+</script>
+</body></html>
