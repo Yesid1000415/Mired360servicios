@@ -18,7 +18,7 @@
 <div><span class="tag">INTERNET CLARO HOGAR</span><h1>¿Necesitas Internet en tu hogar?</h1><p>Consulta cobertura de forma rápida. Déjanos tres datos y continuamos contigo por WhatsApp.</p><div class="checks"><span>✓ Validamos cobertura</span><span>✓ Te mostramos las opciones disponibles</span><span>✓ Acompañamiento hasta la instalación</span></div></div>
 <div class="card"><h2>Consulta cobertura</h2><p class="sub">No necesitas elegir un plan todavía.</p>
 <form id="leadForm">
-<div class="field"><label for="city">Municipio / ciudad</label><input id="city" required autocomplete="address-level2" placeholder="Ej. Madrid"></div>
+<div class="field"><label for="name">Nombre</label><input id="name" required autocomplete="name" placeholder="Tu nombre"></div>\n<div class="field"><label for="city">Municipio / ciudad</label><input id="city" required autocomplete="address-level2" placeholder="Ej. Madrid"></div>
 <div class="field"><label for="zone">Barrio / conjunto</label><input id="zone" required placeholder="Ej. La Prosperidad"></div>
 <div class="field"><label for="phone">WhatsApp</label><input id="phone" required inputmode="tel" autocomplete="tel" placeholder="Ej. 3001234567"></div>
 <button class="cta" type="submit" data-track="cobertura_submit">Consultar cobertura por WhatsApp</button>
@@ -35,9 +35,9 @@
   ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{if(qs.get(k))p.push(k.replace('utm_','')+': '+qs.get(k));});
   return p.join(' | ')||'directo';
  }
- document.getElementById('leadForm').addEventListener('submit',function(e){
+ document.getElementById('leadForm').addEventListener('submit',async function(e){
   e.preventDefault();
-  const city=document.getElementById('city').value.trim(),zone=document.getElementById('zone').value.trim(),phone=document.getElementById('phone').value.trim();
+  const name=document.getElementById('name').value.trim(),city=document.getElementById('city').value.trim(),zone=document.getElementById('zone').value.trim(),phone=document.getElementById('phone').value.trim();
   const msg='Hola MIRED360SERVICIOS, quiero consultar cobertura de Internet Claro Hogar.\n\nMunicipio/ciudad: '+city+'\nBarrio/conjunto: '+zone+'\nMi WhatsApp: '+phone+'\nOrigen: '+origin();
   if(typeof window.gtag==='function')gtag('event','lead_form_submit',{lead_type:'internet_claro_hogar',source:qs.get('utm_source')||'directo',campaign:qs.get('utm_campaign')||''});
   location.href='https://wa.me/573229432085?text='+encodeURIComponent(msg);
