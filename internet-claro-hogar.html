@@ -38,9 +38,22 @@
  document.getElementById('leadForm').addEventListener('submit',async function(e){
   e.preventDefault();
   const name=document.getElementById('name').value.trim(),city=document.getElementById('city').value.trim(),zone=document.getElementById('zone').value.trim(),phone=document.getElementById('phone').value.trim();
-  const msg='Hola MIRED360SERVICIOS, quiero consultar cobertura de Internet Claro Hogar.\n\nMunicipio/ciudad: '+city+'\nBarrio/conjunto: '+zone+'\nMi WhatsApp: '+phone+'\nOrigen: '+origin();
-  if(typeof window.gtag==='function')gtag('event','lead_form_submit',{lead_type:'internet_claro_hogar',source:qs.get('utm_source')||'directo',campaign:qs.get('utm_campaign')||''});
-  location.href='https://wa.me/573229432085?text='+encodeURIComponent(msg);
+  const btn=this.querySelector('button[type="submit"]'),original=btn.textContent;
+  btn.disabled=true; btn.textContent='Registrando...';
+  try{
+    const res=await fetch('https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/captar-lead-web',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nombre:name,telefono:phone,ciudad:city,barrio:zone,source:qs.get('utm_source')||'Landing web',medium:qs.get('utm_medium')||'',campaign:qs.get('utm_campaign')||'',content:qs.get('utm_content')||''})
+    });
+    if(!res.ok) throw new Error('No se pudo registrar');
+    const msg='Hola MIRED360SERVICIOS, quiero consultar cobertura de Internet Claro Hogar.\\n\\nNombre: '+name+'\\nMunicipio/ciudad: '+city+'\\nBarrio/conjunto: '+zone+'\\nMi WhatsApp: '+phone+'\\nOrigen: '+origin();
+    if(typeof window.gtag==='function')gtag('event','lead_form_submit',{lead_type:'internet_claro_hogar',source:qs.get('utm_source')||'directo',campaign:qs.get('utm_campaign')||''});
+    location.href='https://wa.me/573229432085?text='+encodeURIComponent(msg);
+  }catch(err){
+    btn.disabled=false; btn.textContent=original;
+    alert('No pudimos registrar tu solicitud. Por favor intenta nuevamente.');
+  }
  });
 })();
 </script>
