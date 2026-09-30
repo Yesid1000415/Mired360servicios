@@ -61,6 +61,14 @@ document.getElementById('refForm').addEventListener('submit',async function(e){
 });
 </script>
 <script>
+if(new URLSearchParams(location.search).get('modo')==='nuevo'){
+ document.querySelector('.hero').style.display='none';
+ const main=document.querySelector('main.grid');
+ [...main.children].forEach((el,i)=>{if(i<2)el.style.display='none'});
+ main.style.display='block';main.style.paddingTop='22px';
+ const code=sessionStorage.getItem('mr360_codigo');
+ if(code){const inp=document.querySelector('#clienteForm [name="referidor_codigo"]');inp.value=code;inp.readOnly=true}
+}
 document.getElementById('clienteForm').addEventListener('submit',async function(e){
  e.preventDefault();
  const f=new FormData(this), btn=this.querySelector('button'), s=document.getElementById('clienteSuccess');
