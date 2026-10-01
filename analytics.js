@@ -80,7 +80,8 @@
     if(trackName){
       event(trackName, {
         link_text: (link.innerText || '').trim().slice(0,100),
-        link_url: link.href
+        link_url: link.href,
+        destination_number: link.href.startsWith('https://wa.me/') ? new URL(link.href).pathname.slice(1) : undefined
       });
     }
 
@@ -100,7 +101,9 @@
 
       event('lead_whatsapp', {
         link_text: (link.innerText || '').trim().slice(0,100),
-        destination: 'whatsapp'
+        destination: 'whatsapp',
+        destination_number: new URL(link.href).pathname.slice(1),
+        contact_channel: 'whatsapp_contacto_publico'
       });
     }
   }, true);
