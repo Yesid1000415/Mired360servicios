@@ -9,9 +9,9 @@
 <script>
 const ENDPOINT="https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/tienda-checkout-sandbox";
 const q=new URLSearchParams(location.search);if(q.get("tipo"))document.getElementById("tipo").value=q.get("tipo");
-const f=document.getElementById("f"),btn=document.getElementById("go"),s=document.getElementById("status");
+const f=document.getElementById("f"),btn=document.getElementById("go"),s=document.getElementById("status"),tipoEl=document.getElementById("tipo"),operadorEl=document.getElementById("operador"),refEl=document.getElementById("ref"),valorEl=document.getElementById("valor"),nombreEl=document.getElementById("nombre"),telEl=document.getElementById("tel"),emailEl=document.getElementById("email");
 f.onsubmit=async e=>{e.preventDefault();btn.disabled=true;s.style.display="block";s.textContent="Creando pedido seguro…";
-try{const body={tipo:tipo.value,operador:operador.value,referencia:ref.value,valor:Number(valor.value),nombre:nombre.value,telefono:tel.value,email:email.value};
+try{const body={tipo:tipoEl.value,operador:operadorEl.value,referencia:refEl.value,valor:Number(valorEl.value),nombre:nombreEl.value,telefono:telEl.value,email:emailEl.value};
 const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}),j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||"No fue posible crear el pedido");
 s.textContent="Pedido "+j.order.numero+" creado. Abriendo Bold Sandbox…";
 new BoldCheckout(j.checkout).open();
