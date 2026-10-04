@@ -1,1 +1,23 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prueba Bold | MIRED360</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f8fc;font-family:system-ui;color:#172033}.top{background:linear-gradient(135deg,#075bc8,#0b7aee);color:#fff;padding:18px}.bar,.wrap{max-width:650px;margin:auto}.card{background:#fff;border:1px solid #e2eaf3;border-radius:22px;padding:22px;margin-top:22px;box-shadow:0 8px 25px #173a6510}button{width:100%;padding:16px;border:0;border-radius:14px;background:#0874e8;color:#fff;font-weight:900;font-size:16px}.status{white-space:pre-wrap;margin-top:16px;background:#eef7ff;padding:14px;border-radius:12px}small{color:#65758b}</style></head><body><header class="top"><div class="bar"><b>MIRED360 · BOLD SANDBOX</b></div></header><main class="wrap"><div class="card"><h1>Prueba segura de conexión</h1><p>Esta prueba crea una intención de pago Sandbox por <b>$555.001</b>. No mueve dinero real y no ejecuta Practi.</p><button id="go">Crear intención de prueba</button><div id="s" class="status">Lista para probar.</div><p><small>La prueba se limita a los montos oficiales de simulación de Bold.</small></p></div></main><script>go.onclick=async()=>{go.disabled=true;s.textContent="Conectando con Bold Sandbox…";try{const reference_id="MRTEST-"+Date.now();const r=await fetch("https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/bold-sandbox",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reference_id,total_amount:555001})});const j=await r.json();s.textContent=r.ok?"✅ Intención creada correctamente.\nReferencia: "+reference_id+"\nEstado: "+(j.data?.status||j.data?.payload?.status||"recibido"):"❌ "+JSON.stringify(j); }catch(e){s.textContent="❌ No fue posible conectar: "+e.message}finally{go.disabled=false}}</script></body></html>
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prueba Bold | MIRED360</title>
+<script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;background:#f5f8fc;font-family:system-ui;color:#172033}.top{background:linear-gradient(135deg,#075bc8,#0b7aee);color:#fff;padding:18px}.bar,.wrap{max-width:650px;margin:auto}.card{background:#fff;border:1px solid #e2eaf3;border-radius:22px;padding:22px;margin-top:22px;box-shadow:0 8px 25px #173a6510}button{width:100%;padding:16px;border:0;border-radius:14px;background:#0874e8;color:#fff;font-weight:900;font-size:16px}.status{white-space:pre-wrap;margin-top:16px;background:#eef7ff;padding:14px;border-radius:12px}small{color:#65758b}</style>
+</head><body><header class="top"><div class="bar"><b>MIRED360 · BOLD PRUEBAS</b></div></header>
+<main class="wrap"><div class="card"><h1>Prueba del Botón de Pagos</h1>
+<p>Esta prueba usa las <b>llaves de pruebas</b> de Bold. La firma se genera en nuestro servidor; la llave secreta nunca se expone.</p>
+<button id="go">Preparar pago de prueba</button><div id="s" class="status">Lista para probar.</div>
+<p><small>Prueba técnica. No ejecuta Practi. No uses datos reales de pago.</small></p></div></main>
+<script>
+const go=document.getElementById("go"),s=document.getElementById("s");
+go.onclick=async()=>{go.disabled=true;s.textContent="Preparando checkout seguro…";
+try{
+ const order_id="MRTEST-"+Date.now();
+ const r=await fetch("https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/bold-sandbox",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({order_id,amount:1000})});
+ const j=await r.json(); if(!r.ok||!j.ok) throw new Error(JSON.stringify(j));
+ s.textContent="✅ Checkout preparado. Abriendo Bold…";
+ const c=j.checkout;
+ const checkout=new BoldCheckout({orderId:c.orderId,currency:c.currency,amount:c.amount,apiKey:c.apiKey,integritySignature:c.integritySignature,description:c.description,redirectionUrl:c.redirectionUrl,renderMode:c.renderMode});
+ checkout.open();
+}catch(e){s.textContent="❌ "+e.message}finally{go.disabled=false}};
+</script></body></html>
