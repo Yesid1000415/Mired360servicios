@@ -7,7 +7,19 @@ async function verify(){
  try{
   const r=await fetch("https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/bold-verificar-pago-production",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pedido:order})});
   const x=await r.json();
-  if(x.estado==="aprobado"){state.textContent="✅ Pago confirmado por Bold";note.textContent="Tu pago fue verificado directamente con Bold y el pedido quedó aprobado en MIRED360."}
+  if(x.estado==="aprobado"){
+   state.textContent="✅ Pago confirmado por Bold";note.textContent="Tu pago fue verificado directamente con Bold y el pedido quedó aprobado en MIRED360.";
+   if(String(x.producto_codigo||"").startsWith("BEAUTY-")){
+    note.textContent="Pago confirmado. Estamos activando tu plan MIRED360 Beauty…";
+    try{
+     const ar=await fetch("https://lyefgbckvzfxkjjumvmp.supabase.co/functions/v1/activar-suscripcion-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pedido:order})});
+     const ax=await ar.json();
+     if(ax.estado==="activado"){state.textContent="✅ MIRED360 Beauty activado";note.textContent="Tu plan de "+ax.meses+" mes(es) quedó activo"+(ax.vence?" hasta "+new Date(ax.vence).toLocaleDateString("es-CO"):"")+"."}
+     else if(ax.estado==="requiere_cuenta"){state.textContent="✅ Pago confirmado";note.textContent="El pago está aprobado. Para activar el plan, la cuenta de la barbería debe usar el mismo correo registrado en la compra."}
+     else note.textContent="El pago está aprobado. La activación del plan está pendiente.";
+    }catch(_){note.textContent="El pago está aprobado. La activación del plan está pendiente y puede completarse después."}
+   }
+  }
   else if(["rechazado","fallido","anulado"].includes(x.estado)){state.textContent="Pago "+x.estado;note.textContent="Bold no confirmó el pago como aprobado."}
   else{state.textContent="Pago en verificación";note.textContent="Bold todavía no refleja un estado definitivo. Puede tardar unos minutos. Actualiza esta página para consultar nuevamente."}
  }catch(e){state.textContent="Pago en verificación";note.textContent="No pudimos consultar Bold en este momento. El pedido no será marcado como pagado sin confirmación."}
