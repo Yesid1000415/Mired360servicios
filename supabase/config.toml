@@ -1,0 +1,8 @@
+[functions.tienda-admin-pedidos]
+verify_jwt = true
+
+[functions.carrito-checkout-production]
+verify_jwt = false
+
+[functions.consultar-pedido]
+verify_jwt = false

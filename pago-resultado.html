@@ -1,5 +1,6 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resultado del pago | MIRED360</title><style>body{margin:0;background:#f5f8fc;font-family:system-ui;color:#172033}.wrap{max-width:620px;margin:40px auto;padding:20px}.card{background:#fff;border:1px solid #e2eaf3;border-radius:22px;padding:24px;box-shadow:0 8px 25px #173a6510}.badge{display:inline-block;padding:8px 12px;border-radius:999px;background:#eef7ff;font-weight:800}a{display:block;margin-top:20px;padding:14px;border-radius:12px;background:#0874e8;color:white;text-decoration:none;text-align:center;font-weight:800}</style></head><body><main class="wrap"><div class="card"><h1>Resultado del pago</h1><div id="state" class="badge">Verificando directamente con Bold…</div><p id="detail"></p><p id="note">No cerramos el pedido basándonos únicamente en la URL de regreso. MIRED360 confirma el estado directamente con Bold.</p><a href="/tienda.html">Volver a la tienda</a></div></main><script>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Resultado del pago | MIRED360</title><style>body{margin:0;background:#f5f8fc;font-family:system-ui;color:#172033}.wrap{max-width:620px;margin:40px auto;padding:20px}.card{background:#fff;border:1px solid #e2eaf3;border-radius:22px;padding:24px;box-shadow:0 8px 25px #173a6510}.badge{display:inline-block;padding:8px 12px;border-radius:999px;background:#eef7ff;font-weight:800}a{display:block;margin-top:20px;padding:14px;border-radius:12px;background:#0874e8;color:white;text-decoration:none;text-align:center;font-weight:800}</style></head><body><main class="wrap"><div class="card"><h1>Resultado del pago</h1><div id="state" class="badge">Verificando directamente con Bold…</div><p id="detail"></p><p id="note">No cerramos el pedido basándonos únicamente en la URL de regreso. MIRED360 confirma el estado directamente con Bold.</p><a href="mis-pedidos.html">Consultar mi pedido</a><a href="index.html#tienda">Volver a la tienda</a></div></main><script>
 const q=new URLSearchParams(location.search), order=q.get("bold-order-id")||q.get("pedido")||"";
+if(order)localStorage.setItem("mired360_last_order",order);
 const state=document.getElementById("state"),detail=document.getElementById("detail"),note=document.getElementById("note");
 detail.textContent=order?"Orden: "+order:"No recibimos la referencia del pedido.";
 async function verify(){
@@ -7,7 +8,8 @@ async function verify(){
  try{
   const r=await fetch("https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/bold-verificar-pago-production",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pedido:order})});
   const x=await r.json();
-  if(x.estado==="aprobado"){
+  if(r.ok&&x.ok&&x.estado==="aprobado"){
+   clearPaidCart(order);
    state.textContent="✅ Pago confirmado por Bold";note.textContent="Tu pago fue verificado directamente con Bold y el pedido quedó aprobado en MIRED360.";
    if(String(x.producto_codigo||"").startsWith("BEAUTY-")){
     note.textContent="Pago confirmado. Estamos activando tu plan MIRED360 Beauty…";
@@ -24,5 +26,14 @@ async function verify(){
   else{state.textContent="Pago en verificación";note.textContent="Bold todavía no refleja un estado definitivo. Puede tardar unos minutos. Actualiza esta página para consultar nuevamente."}
  }catch(e){state.textContent="Pago en verificación";note.textContent="No pudimos consultar Bold en este momento. El pedido no será marcado como pagado sin confirmación."}
 }
+function clearPaidCart(pedido){try{
+ const snapshot=JSON.parse(localStorage.getItem('mired360_pending_cart')||'null');
+ if(!snapshot||snapshot.pedido!==pedido)return;
+ const c=JSON.parse(localStorage.getItem('mired360_cart')||'[]');
+ if(!Array.isArray(c))return;
+ for(const i of snapshot.items){const row=c.find(x=>x.sku===i.sku);if(row)row.cantidad=Math.max(0,Number(row.cantidad)-i.cantidad)}
+ localStorage.setItem('mired360_cart',JSON.stringify(c.filter(i=>i.cantidad>0)));
+ localStorage.removeItem('mired360_pending_cart');localStorage.removeItem('mired360_checkout_attempt');
+ }catch(_){}}
 verify();
 </script></body></html>
