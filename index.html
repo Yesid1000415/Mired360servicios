@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MIRED360SERVICIOS | Internet Claro y más</title>
-<meta name="description" content="Internet hogar y PYMES, datáfonos, recargas, pago de facturas y servicios digitales en MIRED360SERVICIOS. Consulta cobertura y recibe asesoría personalizada.">\n<link rel="canonical" href="https://mired360servicios.com/">\n<meta name="robots" content="index,follow,max-image-preview:large">
-<link rel="stylesheet" href="styles.css?v=20260903-1815">
+<meta name="description" content="Internet hogar y PYMES, datáfonos, recargas, pago de facturas y servicios digitales en MIRED360SERVICIOS. Consulta cobertura y recibe asesoría personalizada.">
+<link rel="canonical" href="https://mired360servicios.com/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="stylesheet" href="styles.css?v=20261004-ecommerce">
 
 <!-- MIRED360SERVICIOS V13 - Analítica comercial -->
 <script>
@@ -51,6 +53,16 @@ window.MIRED360_ANALYTICS = {
 @media(max-width:980px){#facturas .biller-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:700px){#facturas .biller-grid{grid-template-columns:1fr!important}}
 </style>
+<style id="ecommerce-navigation">
+.shop-quick-nav{display:none}
+#tienda .hub-card{background:#f5f9ff;border-color:#dce7f2;color:#071a33}
+#tienda .hub-card p,#tienda .trust-strip{color:#42546a}
+@media(max-width:980px){
+.shop-quick-nav{display:flex;justify-content:center;gap:8px;padding:10px 14px;background:#071a33;color:#fff}
+.shop-quick-nav a{flex:1;max-width:260px;text-align:center;padding:10px 6px;border:1px solid #42546a;border-radius:10px;font-size:.85rem;font-weight:800}
+.shop-quick-nav a:focus-visible{outline:2px solid #5fe2ff;outline-offset:2px}
+}
+</style>
 </head>
 <body>
 <header>
@@ -60,6 +72,9 @@ window.MIRED360_ANALYTICS = {
     <a class="wa top" target="_blank" data-track="whatsapp_click" href="https://wa.me/573133938312?text=Hola%20MIRED360SERVICIOS,%20quiero%20informaci%C3%B3n">WhatsApp</a>
   </div>
 </header>
+<nav class="shop-quick-nav" aria-label="Tienda y cuenta">
+<a href="#tienda">🛍️ Tienda</a><a href="carrito.html">🛒 Carrito</a><a href="mi-cuenta.html">👤 Mi cuenta</a>
+</nav>
 <div class="mobile-quick-nav" aria-label="Accesos rápidos">
   <a href="#planes" data-track="categoria_internet"><span>🌐</span>Internet</a>
   <a href="#datafonos" data-track="categoria_datafonos"><span>💳</span>Datáfonos</a>
