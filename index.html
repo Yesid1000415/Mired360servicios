@@ -6,7 +6,7 @@
 <meta name="description" content="Internet hogar y PYMES, datáfonos, recargas, pago de facturas y servicios digitales en MIRED360SERVICIOS. Consulta cobertura y recibe asesoría personalizada.">
 <link rel="canonical" href="https://mired360servicios.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
-<link rel="stylesheet" href="styles.css?v=20261004-ecommerce">
+<link rel="stylesheet" href="styles.css?v=20261004-store-design">
 
 <!-- MIRED360SERVICIOS V13 - Analítica comercial -->
 <script>
@@ -63,6 +63,32 @@ window.MIRED360_ANALYTICS = {
 .shop-quick-nav a:focus-visible{outline:2px solid #5fe2ff;outline-offset:2px}
 }
 </style>
+<style id="store-product-design">
+#tienda{background:linear-gradient(180deg,#edf6ff,#fff)}
+#tienda .hub-services{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:26px}
+#tienda .hub-card{padding:22px 18px;min-height:112px;box-shadow:0 8px 24px rgba(7,26,51,.06);transition:transform .2s,box-shadow .2s}
+#tienda .hub-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(7,26,51,.12)}
+#tienda .hub-icon{font-size:1.9rem}
+#tienda .hub-card h3{font-size:1.05rem}
+#datafonos{background:#f5f9ff}
+#datafonos .plan{overflow:hidden;border-color:#dce7f2;transition:box-shadow .2s}
+#datafonos .plan:hover{box-shadow:0 18px 42px rgba(7,26,51,.12)}
+#datafonos .device-photo{height:210px;background:linear-gradient(145deg,#edf6ff,#fff);border-radius:18px;margin:18px 0 8px;padding:18px}
+#datafonos .device-photo img{width:100%;height:100%;max-height:180px;object-fit:contain}
+#datafonos .planprice{font-size:clamp(1.75rem,3vw,2.1rem);margin:6px 0}
+#datafonos .plan>a{display:flex;align-items:center;justify-content:center;min-height:52px;background:#087bff;border-radius:12px;font-weight:800;text-align:center}
+#datafonos .plan>a:hover{background:#0562ce}
+#datafonos .plan>button.secondary{width:100%;min-height:48px;margin-top:10px;border:1px solid #087bff;border-radius:12px;background:#fff;color:#075bb6;font:inherit;font-weight:800;cursor:pointer}
+#datafonos .plan>button.secondary:hover{background:#edf6ff}
+#datafonos .plan>a:focus-visible,#datafonos .plan>button:focus-visible{outline:3px solid #071a33;outline-offset:3px}
+.shop-hero-cta{background:#5fe2ff!important;color:#071a33!important}
+@media(max-width:700px){
+#tienda .hub-services{grid-template-columns:1fr}
+#tienda .hub-card{min-height:88px;align-items:center}
+#datafonos .device-photo{height:220px}
+}
+@media(prefers-reduced-motion:reduce){#tienda .hub-card,#datafonos .plan{transition:none}#tienda .hub-card:hover{transform:none}}
+</style>
 </head>
 <body>
 <header>
@@ -94,7 +120,7 @@ window.MIRED360_ANALYTICS = {
     <p class="lead">Conectividad, tecnología, pagos y entretenimiento en un solo lugar. Te ayudamos a validar cobertura, comparar opciones y elegir la solución adecuada para ti.</p>
     <div class="actions">
       <a class="primary" target="_blank" data-track="whatsapp_click" href="https://wa.me/573133938312?text=Hola%20MIRED360SERVICIOS,%20quiero%20validar%20cobertura%20y%20conocer%20las%20opciones%20de%20Internet.">Validar cobertura por WhatsApp</a>
-      <a class="secondary" href="#hub-services">Ver todos los servicios</a>
+      <a class="primary shop-hero-cta" href="#tienda">🛍️ Explorar la tienda</a>
       <a class="secondary" href="catalogo-interactivo.html" data-track="catalogo_interactivo">Ver catálogo interactivo</a>
     </div>
    </div>
