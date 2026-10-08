@@ -11,6 +11,17 @@ async function verify(){
   if(r.ok&&x.ok&&x.estado==="aprobado"){
    clearPaidCart(order);
    state.textContent="✅ Pago confirmado por Bold";note.textContent="Tu pago fue verificado directamente con Bold y el pedido quedó aprobado en MIRED360.";
+   if(String(x.producto_codigo||"").startsWith("NEGOCIOS-")){
+    note.textContent="Pago confirmado. Estamos activando MIRED360 NEGOCIOS IA…";
+    try{
+     const ar=await fetch("https://egjrmtcgnbpktixotudo.supabase.co/functions/v1/activar-suscripcion-bold",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pedido:order})});
+     const ax=await ar.json();
+     const go=document.createElement("a");go.href="https://mired360-negocios-web-production.up.railway.app/?pedido="+encodeURIComponent(order);go.textContent=ax.estado==="activado"?"ABRIR MIRED360 NEGOCIOS IA":"CREAR MI CUENTA Y ACTIVAR";document.querySelector(".card").appendChild(go);
+     if(ax.estado==="activado"){state.textContent="✅ MIRED360 NEGOCIOS IA activado";note.textContent="Tu plan quedó activo"+(ax.vence?" hasta "+new Date(ax.vence).toLocaleDateString("es-CO"):"")+"."}
+     else if(ax.estado==="requiere_cuenta"){state.textContent="✅ Pago confirmado";note.textContent="Crea tu cuenta y comercio con el mismo correo usado en la compra. La activación se completará automáticamente."}
+     else note.textContent="El pago está aprobado. Puedes entrar a MIRED360 NEGOCIOS IA para completar la activación.";
+    }catch(_){note.textContent="El pago está aprobado. Entra a MIRED360 NEGOCIOS IA para completar la activación."}
+   }
    if(String(x.producto_codigo||"").startsWith("BEAUTY-")){
     note.textContent="Pago confirmado. Estamos activando tu plan MIRED360 Beauty…";
     try{
