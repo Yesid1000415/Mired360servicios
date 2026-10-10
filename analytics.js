@@ -85,6 +85,15 @@
       });
     }
 
+    if(link.href && link.href.indexOf('tel:') === 0){
+      event('lead_call_click', {
+        destination: 'phone',
+        destination_number: link.href.replace(/^tel:\\+?/, ''),
+        contact_channel: 'call_center',
+        link_text: (link.innerText || '').trim().slice(0,100)
+      });
+    }
+
     if(link.href && link.href.indexOf('https://wa.me/') === 0){
       const info = attrLabel();
       if(info){
