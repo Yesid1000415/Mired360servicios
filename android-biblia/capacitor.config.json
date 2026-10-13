@@ -1,0 +1,8 @@
+{
+  "appId": "com.yesidrojas.bibliaipuic",
+  "appName": "Biblia IPUIC",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#173d35"
+  }
+}
