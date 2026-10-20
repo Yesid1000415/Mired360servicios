@@ -1,107 +1,64 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Encuentra tu plan Claro Hogar | MIRED360SERVICIOS</title>
-<meta name="description" content="Compara opciones de internet Claro Hogar con y sin televisión y consulta cobertura por WhatsApp.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulador Claro Hogar | MIRED360SERVICIOS</title>
+<meta name="description" content="Compara los 13 planes del catálogo Claro Hogar y consulta cobertura por WhatsApp.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9T387J7YVH"></script>
-<script>
-window.dataLayer=window.dataLayer||[];
-function gtag(){dataLayer.push(arguments)}
-gtag("js",new Date());
-gtag("config","G-9T387J7YVH");
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-9T387J7YVH');</script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f3f5f9;color:#192638;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{width:min(100% - 32px,700px);margin:28px auto 45px}
-a{color:#a91d28}
-h1{font-size:clamp(1.85rem,5vw,2.6rem);line-height:1.16;color:#b91e2b;margin:20px 0 12px}
-.intro{color:#546176}
-.benefits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:24px 0}
-.benefits div{background:#fff;padding:13px;border-radius:12px;font-size:.92rem}
-.card{background:#fff;padding:26px;border-radius:20px;box-shadow:0 8px 30px #162b4a12}
-fieldset{border:0;margin:0 0 22px;padding:0}
-legend{font-weight:800;font-size:1.06rem;margin-bottom:10px}
-.choice{display:block;border:1px solid #d9dfe7;border-radius:12px;padding:12px;margin:8px 0;cursor:pointer}
-.choice:has(input:checked){background:#fff4f5;border-color:#c21e2a}
-input[type=radio]{accent-color:#c21e2a;margin-right:9px}
-select{width:100%;font:inherit;padding:13px;border:1px solid #cad3df;border-radius:11px;background:#fff}
-.price{font-size:2rem;font-weight:850;color:#bf1f2c;margin:8px 0}
-.summary{color:#44536b;margin:8px 0}
-.small{color:#58677c;font-size:.85rem}
-button{width:100%;min-height:54px;background:#c51e2c;border:0;color:#fff;border-radius:12px;font:800 1rem system-ui;cursor:pointer;padding:14px}
-button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #1c77d3;outline-offset:3px}
-.result{background:#f7f9fc;border-radius:14px;padding:17px;margin:20px 0}
-[hidden]{display:none!important}
-@media(max-width:520px){main{width:calc(100% - 24px);margin:16px auto 35px}.card{padding:18px}.benefits{grid-template-columns:1fr 1fr;gap:8px}.benefits div{font-size:.82rem;padding:10px}}
-</style>
-</head>
-<body>
-<main>
-<a href="/">← Volver a MIRED360SERVICIOS</a>
-<h1>Encuentra tu plan Claro Hogar</h1>
-<p class="intro">Elige lo que necesitas y consulta la disponibilidad con un asesor.</p>
-<div class="benefits"><div>✓ Planes para tu hogar</div><div>✓ Asesoría personalizada</div><div>✓ Consulta de cobertura</div><div>✓ Atención por WhatsApp</div></div>
-<section class="card" aria-label="Simulador Claro Hogar">
-<fieldset><legend>1. ¿Para qué necesitas internet?</legend>
-<label class="choice"><input type="radio" name="uso" value="Familia" checked>Familia</label>
-<label class="choice"><input type="radio" name="uso" value="Trabajo y estudio">Trabajo y estudio</label>
-<label class="choice"><input type="radio" name="uso" value="Entretenimiento">Entretenimiento</label>
-</fieldset>
-<fieldset><legend>2. ¿Quieres televisión?</legend>
-<label class="choice"><input type="radio" name="tv" value="no" checked>Solo internet</label>
-<label class="choice"><input type="radio" name="tv" value="si">Internet + televisión</label>
-</fieldset>
-<fieldset id="internetField"><legend>3. Elige un plan de solo internet</legend>
-<select id="internetPlan" aria-label="Plan de solo internet">
-<option value="65900">$65.900 /mes</option>
-<option value="79900" selected>$79.900 /mes</option>
-<option value="89900">$89.900 /mes</option>
-<option value="99900">$99.900 /mes</option>
-</select></fieldset>
-<fieldset id="tvField" hidden><legend>3. Elige un plan con televisión</legend>
-<select id="tvPlan" aria-label="Plan con televisión">
-<option value="104900">$104.900 /mes · Internet + TV</option>
-<option value="109900">$109.900 /mes · Internet + TV</option>
-<option value="119900">$119.900 /mes · Internet + TV</option>
-<option value="129900">$129.900 /mes · Internet + TV avanzada</option>
-</select></fieldset>
-<fieldset><legend>4. Municipio de instalación</legend>
-<select id="city"><option>Madrid</option><option>Mosquera</option><option>Funza</option><option>Facatativá</option><option>Bogotá</option><option>Soacha</option><option>Otro municipio</option></select>
-</fieldset>
-<div class="result"><strong>Tu selección</strong><p id="summary" class="summary"></p><div id="price" class="price"></div><p class="small">Precios de referencia sujetos a vigencia y cobertura. Velocidad, canales, instalación y promociones deben confirmarse antes de contratar. Este simulador no valida cobertura automáticamente.</p></div>
-<button type="button" id="send">Consultar cobertura por WhatsApp</button>
-<p class="small">WhatsApp abrirá con tu selección. No se envía ningún mensaje sin tu confirmación.</p>
-</section>
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#172438;background:#f3f5f9}main{max-width:900px;margin:24px auto;padding:0 16px 40px}a{color:#aa1d2b}h1{color:#b91e2b;font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.12;margin:18px 0 10px}p{color:#4d5a6d}.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0 15px}.tabs button{flex:1;min-width:170px;border:1px solid #d3d9e4;background:#fff;color:#172438;border-radius:12px;padding:13px 10px;font-weight:800;cursor:pointer}.tabs button[aria-pressed=true]{background:#be1e2c;color:#fff;border-color:#be1e2c}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.plan{background:white;border:2px solid transparent;border-radius:16px;padding:18px;box-shadow:0 5px 20px #1a29400c}.plan.active{border-color:#c21e2a}.plan h3{margin:0 0 8px;font-size:1.1rem}.price{font-weight:850;color:#bd1e2b;font-size:1.5rem;margin:7px 0}.after{font-size:.87rem;color:#526174}.plan ul{padding-left:20px;margin:12px 0}.plan li{font-size:.87rem;margin:5px 0}.pick{border:0;border-radius:10px;padding:12px 14px;width:100%;background:#b91e2b;color:white;font-weight:800;cursor:pointer}.plan.active .pick{background:#153b2d}.panel{background:#fff;border-radius:18px;padding:22px;margin:24px 0;box-shadow:0 5px 20px #1a29400c}select{font:inherit;width:100%;border:1px solid #cdd5e1;border-radius:10px;padding:12px;margin:7px 0 15px}.summary{background:#f5f7fb;border-radius:12px;padding:14px;margin:12px 0}.wa{width:100%;border:0;border-radius:12px;background:#b91e2b;color:#fff;font:800 1rem system-ui;padding:16px;cursor:pointer}.wa:disabled{opacity:.5;cursor:not-allowed}.note{font-size:.84rem;color:#59677a}button:focus-visible,select:focus-visible{outline:3px solid #277ce2;outline-offset:3px}@media(max-width:600px){.grid{grid-template-columns:1fr}.tabs button{min-width:100%}.plan{padding:15px}main{padding:0 12px 30px}}
+</style></head>
+<body><main><a href="/">← Volver a MIRED360SERVICIOS</a><h1>Encuentra tu plan Claro Hogar</h1><p>Compara planes del catálogo oficial de MIRED360SERVICIOS y consulta disponibilidad en tu dirección.</p>
+<div class="tabs" role="group" aria-label="Tipo de servicio">
+<button type="button" data-type="internet" aria-pressed="true">Solo internet (4)</button>
+<button type="button" data-type="tv" aria-pressed="false">Internet + TV (6)</button>
+<button type="button" data-type="voz" aria-pressed="false">Internet + TV + voz (3)</button>
+</div><div id="grid" class="grid" aria-live="polite"></div>
+<section class="panel"><h2>Tu plan seleccionado</h2><div id="selection" class="summary">Selecciona un plan para continuar.</div><label for="city"><strong>Municipio de instalación</strong></label><select id="city"><option>Madrid</option><option>Mosquera</option><option>Funza</option><option>Facatativá</option><option>Bogotá</option><option>Soacha</option><option>Otro municipio</option></select><button id="send" class="wa" disabled>Consultar cobertura por WhatsApp</button><p class="note">Las ofertas, precios promocionales, instalación, aplicaciones y velocidades dependen de vigencia y cobertura. Un asesor confirma las condiciones antes de contratar. El simulador no valida cobertura automáticamente.</p></section>
 </main>
 <script>
 (function(){
-"use strict";
-const el=id=>document.getElementById(id);
-const selected=name=>document.querySelector('input[name="'+name+'"]:checked').value;
-const amount=n=>'$'+Number(n).toLocaleString('es-CO');
+'use strict';
+const plans=[
+{id:1,cat:'internet',name:'300 Megas',price:'$65.900 /mes',tags:['price'],features:['Internet hogar 300 MB','Instalación indicada en oferta: $52.000','Internet estable y rápido','Navegación, streaming HD, juegos en línea y múltiples dispositivos']},
+{id:2,cat:'internet',name:'900 Megas Fibra',price:'$89.900 /mes',tags:['stream'],features:['Fibra óptica y velocidad simétrica según cobertura','50% de descuento en la primera factura','Elige 1 app: Disney+, Amazon Prime, Win Play o Netflix','Instalación sin costo en toda Colombia según oferta']},
+{id:3,cat:'internet',name:'900 Megas Fibra',price:'$79.900 /mes',tags:['stream','price'],features:['Internet 900 Megas en fibra óptica según cobertura','Incluye Prime Video','Incluye Claro Video con Universal+ y Paramount+','Consulta ofertas vigentes']},
+{id:4,cat:'internet',name:'900 Megas + 2 Streaming',price:'$99.900 /mes',tags:['stream','premium'],features:['Internet 900 MB','50% de descuento en la primera factura','Instalación sin costo','Elige 2 aplicaciones: Netflix, Disney+, Prime Video o Win+','Incluye Claro Video con Universal+ y Paramount+']},
+{id:5,cat:'tv',name:'900 Megas + TV',price:'$52.450 x 2 meses',after:'Después $104.900 /mes',tags:['price','stream'],features:['TV 89 canales','50% de descuento los primeros 2 meses','Precio después de 2 meses: $104.900','Elige 1 plataforma: Netflix, Prime Video, Disney+ o HBO Max']},
+{id:6,cat:'tv',name:'900 Megas + TV + Streaming',price:'$59.950 x 2 meses',after:'Después $119.900 /mes',tags:['stream','premium'],features:['TV 89 canales','1 dongle + 1 decodificador','50% de descuento los primeros 2 meses','Precio después de 2 meses: $119.900','Escoge 2 apps: Prime Video, HBO Max, Win Sports o Netflix','McAfee Antivirus + Multiasistencia']},
+{id:7,cat:'tv',name:'900 Megas + TV + Streaming',price:'$60.950 x 2 meses',after:'Después $121.900 /mes',tags:['stream','premium'],features:['TV 89 canales','1 dongle + 1 decodificador','50% de descuento los primeros 2 meses','Precio después de 2 meses: $121.900','Escoge 2 apps','McAfee Antivirus + Multiasistencia']},
+{id:8,cat:'tv',name:'900 Megas + TV HD',price:'$99.900 /mes',tags:['stream'],features:['Internet 900 MB','TV 89 canales HD','Elige 2 apps: Disney+, Amazon Prime, Win+ o Netflix','Instalación sin costo indicada en oferta','Cobertura nacional según disponibilidad']},
+{id:9,cat:'tv',name:'500 a 900 Megas + TV',price:'$109.900 /mes',tags:['premium'],features:['500 a 900 Megas según conexión','TV básica con canales nacionales','1 deco HD + 1 deco digital (dongle)','Netflix, Prime Video y Disney+ indicados en la pieza','McAfee Antivirus, multiassistencias y telefonía fija nacional ilimitada indicados en la oferta']},
+{id:10,cat:'tv',name:'900 Megas + TV Avanzada',price:'$129.900 /mes',tags:['premium','stream'],features:['TV avanzada','Netflix o Amazon Prime + Win+ fútbol según oferta','McAfee Premium para 3 equipos','Elige una asistencia: salud, mascotas, nutrición o reuniones en casa']},
+{id:11,cat:'tv',name:'900 Megas + TV + Voz',price:'$111.900 /mes',tags:['voice','stream'],features:['Internet 900 MB','TV canales nacionales + 1 deco HD','Telefonía con llamadas ilimitadas a todo el país','Elige 1 app: Disney+, Amazon Prime, Win+ o Netflix','Prorrateo + 2 meses al 50% (PCAM 1001) indicado en la oferta','McAfee']},
+{id:12,cat:'tv',name:'500/900 Megas + TV + Voz',price:'$106.900 /mes después de 2 meses',tags:['voice','price','stream'],features:['Internet 500 y 900 Megas según oferta/cobertura','50% los primeros 2 meses','La pieza indica $106.900 como precio mensual después de los 2 primeros meses','TV 89 canales + 1 deco','Elige 1 plataforma: Netflix, Prime Video, Disney+ o HBO Max','Incluye Win+ con fútbol colombiano']},
+{id:13,cat:'tv',name:'900 Megas + TV + Voz Premium',price:'$131.900 /mes',tags:['voice','premium','stream'],features:['Internet 900 MB','Televisión avanzada','Telefonía ilimitada a todo el país','Netflix básico o Amazon Prime básico + Win+ fútbol','McAfee Premium para 3 equipos','Elige una asistencia: salud, mascotas, reuniones en casa o nutrición']}
+];
+let category='internet',selectedId=null;
+const grid=document.getElementById('grid'),selection=document.getElementById('selection'),send=document.getElementById('send'),city=document.getElementById('city');
+function group(p){return p.cat==='internet'?'internet':p.tags.includes('voice')?'voz':'tv'}
+function node(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
 function render(){
-const hasTV=selected('tv')==='si';
-el('internetField').hidden=hasTV;
-el('tvField').hidden=!hasTV;
-const price=hasTV?el('tvPlan').value:el('internetPlan').value;
-el('price').textContent=amount(price)+' /mes';
-el('summary').textContent=(hasTV?'Internet + televisión':'Solo internet')+' · '+selected('uso')+' · '+el('city').value;
+document.querySelectorAll('[data-type]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.type===category)));
+grid.replaceChildren();
+plans.filter(p=>group(p)===category).forEach(p=>{
+const card=node('article',undefined,'plan'+(p.id===selectedId?' active':''));
+card.append(node('h3',p.name),node('div',p.price,'price'));
+if(p.after)card.append(node('div',p.after,'after'));
+const list=node('ul');p.features.forEach(feature=>list.append(node('li',feature)));card.append(list);
+const button=node('button',p.id===selectedId?'✓ Plan seleccionado':'Elegir este plan','pick');
+button.type='button';button.addEventListener('click',()=>{selectedId=p.id;update();render();});card.append(button);grid.append(card);
+});update();
 }
-document.querySelectorAll('input[name="uso"],input[name="tv"]').forEach(input=>input.addEventListener('change',render));
-['internetPlan','tvPlan','city'].forEach(id=>el(id).addEventListener('change',render));
-el('send').addEventListener('click',function(){
-const hasTV=selected('tv')==='si';
-const price=hasTV?el('tvPlan').value:el('internetPlan').value;
-const city=el('city').value;
-const message='Hola MIRED360SERVICIOS. Solicito cobertura Claro Hogar. Plan de referencia: '+amount(price)+'/mes. Tipo: '+(hasTV?'Internet + TV':'Solo internet')+'. Uso: '+selected('uso')+'. Municipio: '+city+'. Por favor confirmen velocidad, canales, instalación, promociones y disponibilidad.';
-if(typeof window.gtag==='function')window.gtag('event','simulador_claro_whatsapp',{event_category:'leads',plan_precio:Number(price),tipo_plan:hasTV?'internet_tv':'solo_internet',municipio:city});
-window.open('https://wa.me/573229432085?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+function update(){const p=plans.find(x=>x.id===selectedId);selection.replaceChildren();if(!p){selection.textContent='Selecciona un plan para continuar.';send.disabled=true;return}selection.append(node('strong',p.name),node('div',p.price,'price'));if(p.after)selection.append(node('div',p.after,'after'));send.disabled=false}
+document.querySelectorAll('[data-type]').forEach(button=>button.addEventListener('click',()=>{category=button.dataset.type;selectedId=null;render()}));
+send.addEventListener('click',()=>{
+const p=plans.find(x=>x.id===selectedId);if(!p)return;
+const msg='Hola MIRED360SERVICIOS. Quiero validar cobertura del plan '+p.name+'. Precio del catálogo: '+p.price+(p.after?' ('+p.after+')':'')+'. Municipio: '+city.value+'. Por favor confirmen velocidad, promoción, instalación, beneficios y disponibilidad.';
+if(typeof window.gtag==='function')window.gtag('event','simulador_claro_whatsapp',{event_category:'leads',plan_nombre:p.name,plan_id:p.id,tipo_plan:group(p),municipio:city.value});
+window.open('https://wa.me/573229432085?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
 });
 render();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
