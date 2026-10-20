@@ -7,7 +7,7 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9T387J7YVH"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-9T387J7YVH');</script>
 <style>
-*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#172438;background:#f3f5f9}main{max-width:900px;margin:24px auto;padding:0 16px 40px}a{color:#aa1d2b}h1{color:#b91e2b;font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.12;margin:18px 0 10px}p{color:#4d5a6d}.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0 15px}.tabs button{flex:1;min-width:170px;border:1px solid #d3d9e4;background:#fff;color:#172438;border-radius:12px;padding:13px 10px;font-weight:800;cursor:pointer}.tabs button[aria-pressed=true]{background:#be1e2c;color:#fff;border-color:#be1e2c}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.plan{background:white;border:2px solid transparent;border-radius:16px;padding:18px;box-shadow:0 5px 20px #1a29400c}.plan.active{border-color:#c21e2a}.plan h3{margin:0 0 8px;font-size:1.1rem}.price{font-weight:850;color:#bd1e2b;font-size:1.5rem;margin:7px 0}.after{font-size:.87rem;color:#526174}.plan ul{padding-left:20px;margin:12px 0}.plan li{font-size:.87rem;margin:5px 0}.pick{border:0;border-radius:10px;padding:12px 14px;width:100%;background:#b91e2b;color:white;font-weight:800;cursor:pointer}.plan.active .pick{background:#153b2d}.panel{background:#fff;border-radius:18px;padding:22px;margin:24px 0;box-shadow:0 5px 20px #1a29400c}select{font:inherit;width:100%;border:1px solid #cdd5e1;border-radius:10px;padding:12px;margin:7px 0 15px}.summary{background:#f5f7fb;border-radius:12px;padding:14px;margin:12px 0}.wa{width:100%;border:0;border-radius:12px;background:#b91e2b;color:#fff;font:800 1rem system-ui;padding:16px;cursor:pointer}.wa:disabled{opacity:.5;cursor:not-allowed}.note{font-size:.84rem;color:#59677a}button:focus-visible,select:focus-visible{outline:3px solid #277ce2;outline-offset:3px}@media(max-width:600px){.grid{grid-template-columns:1fr}.tabs button{min-width:100%}.plan{padding:15px}main{padding:0 12px 30px}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#172438;background:#f3f5f9}main{max-width:900px;margin:24px auto;padding:0 16px 40px}a{color:#aa1d2b}h1{color:#b91e2b;font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.12;margin:18px 0 10px}p{color:#4d5a6d}.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:24px 0 15px}.tabs button{flex:1;min-width:170px;border:1px solid #d3d9e4;background:#fff;color:#172438;border-radius:12px;padding:13px 10px;font-weight:800;cursor:pointer}.tabs button[aria-pressed=true]{background:#be1e2c;color:#fff;border-color:#be1e2c}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.plan{background:white;border:2px solid transparent;border-radius:16px;padding:18px;box-shadow:0 5px 20px #1a29400c}.plan.active{border-color:#c21e2a}.plan h3{margin:0 0 8px;font-size:1.1rem}.price{font-weight:850;color:#bd1e2b;font-size:1.5rem;margin:7px 0}.after{font-size:.87rem;color:#526174}.plan .introplan{color:#4b5a6d;font-size:.92rem;margin:9px 0 12px}.plan details{border-top:1px solid #e1e5eb;margin:12px 0;padding-top:10px}.plan summary{font-weight:750;color:#a51b29;cursor:pointer}.plan ul{padding-left:20px;margin:12px 0}.plan li{font-size:.87rem;margin:5px 0}.pick{border:0;border-radius:10px;padding:12px 14px;width:100%;background:#b91e2b;color:white;font-weight:800;cursor:pointer}.plan.active .pick{background:#153b2d}.panel{background:#fff;border-radius:18px;padding:22px;margin:24px 0;box-shadow:0 5px 20px #1a29400c}select{font:inherit;width:100%;border:1px solid #cdd5e1;border-radius:10px;padding:12px;margin:7px 0 15px}.summary{background:#f5f7fb;border-radius:12px;padding:14px;margin:12px 0}.wa{width:100%;border:0;border-radius:12px;background:#b91e2b;color:#fff;font:800 1rem system-ui;padding:16px;cursor:pointer}.wa:disabled{opacity:.5;cursor:not-allowed}.note{font-size:.84rem;color:#59677a}button:focus-visible,select:focus-visible{outline:3px solid #277ce2;outline-offset:3px}@media(max-width:600px){.grid{grid-template-columns:1fr}.tabs button{min-width:100%}.plan{padding:15px}main{padding:0 12px 30px}}
 </style></head>
 <body><main><a href="/">← Volver a MIRED360SERVICIOS</a><h1>Encuentra tu plan Claro Hogar</h1><p>Compara planes del catálogo oficial de MIRED360SERVICIOS y consulta disponibilidad en tu dirección.</p>
 <div class="tabs" role="group" aria-label="Tipo de servicio">
@@ -39,6 +39,21 @@ let category='internet',selectedId=null;
 const grid=document.getElementById('grid'),selection=document.getElementById('selection'),send=document.getElementById('send'),city=document.getElementById('city');
 function group(p){return p.cat==='internet'?'internet':p.tags.includes('voice')?'voz':'tv'}
 function node(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e}
+const descriptions={
+1:'Internet de 300 megas para navegación, clases, películas y dispositivos del hogar.',
+2:'Fibra óptica de 900 megas con promoción inicial y una plataforma de entretenimiento a elegir.',
+3:'Internet de 900 megas con Prime Video y contenido de Claro Video, según cobertura.',
+4:'Internet de 900 megas con dos aplicaciones de entretenimiento a elegir.',
+5:'Internet de 900 megas con televisión de 89 canales y descuento durante los primeros dos meses.',
+6:'Internet de 900 megas con TV, dos aplicaciones y beneficios adicionales de seguridad y asistencia.',
+7:'Internet de 900 megas con televisión, dos aplicaciones y promoción durante los primeros dos meses.',
+8:'Internet de 900 megas con televisión HD y dos aplicaciones de entretenimiento.',
+9:'Internet de 500 a 900 megas según cobertura, con televisión y servicios adicionales.',
+10:'Internet de 900 megas con televisión avanzada, entretenimiento y beneficios de asistencia.',
+11:'Internet de 900 megas con televisión, telefonía y una aplicación a elegir.',
+12:'Internet de 500 o 900 megas según cobertura, con televisión, voz y promoción inicial.',
+13:'Internet de 900 megas con televisión avanzada, telefonía y entretenimiento premium.'
+};
 function render(){
 document.querySelectorAll('[data-type]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.type===category)));
 grid.replaceChildren();
@@ -46,7 +61,8 @@ plans.filter(p=>group(p)===category).forEach(p=>{
 const card=node('article',undefined,'plan'+(p.id===selectedId?' active':''));
 card.append(node('h3',p.name),node('div',p.price,'price'));
 if(p.after)card.append(node('div',p.after,'after'));
-const list=node('ul');p.features.forEach(feature=>list.append(node('li',feature)));card.append(list);
+card.append(node('p',descriptions[p.id],'introplan'));
+const details=node('details');const summary=node('summary','Ver características y condiciones');const list=node('ul');p.features.forEach(feature=>list.append(node('li',feature)));details.append(summary,list);card.append(details);
 const button=node('button',p.id===selectedId?'✓ Plan seleccionado':'Elegir este plan','pick');
 button.type='button';button.addEventListener('click',()=>{selectedId=p.id;update();render();});card.append(button);grid.append(card);
 });update();
