@@ -192,3 +192,39 @@ td strong{color:#263d58}
 
 .contact-pager{border-top:1px solid #edf0f4;display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:14px;margin-top:10px;color:#8393a9;font-size:.78rem}
 @media(max-width:620px){.contact-pager{flex-direction:column;align-items:stretch}.contact-pager .btn{width:100%}}
+
+
+/* Destinatarios por campaña: gestión completa y adaptable */
+.campaign-detail-header{align-items:flex-start;flex-wrap:wrap}
+.campaign-detail-header>div:first-child{flex:1;min-width:220px}
+.campaign-detail-header h2{margin:8px 0}
+.campaign-detail-header .muted{margin-bottom:0}
+.campaign-detail-header .detail-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.campaign-detail-header .detail-actions .btn{white-space:normal;text-align:center}
+.campaign-picker{padding:22px;background:linear-gradient(150deg,#f3fcf9,#f9fbff);border:1px solid #bdebe0;border-radius:14px;margin:20px 0}
+.picker-intro{display:flex;justify-content:space-between;gap:15px}
+.picker-intro h3,.campaign-assigned-header h3{font:800 1.12rem 'Manrope',sans-serif;letter-spacing:-.025em;color:#1f3650;margin:7px 0}
+.picker-intro p{color:#7b8c9f;font-size:.83rem;line-height:1.55;margin:7px 0 18px}
+.picker-toolbar{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.75fr);gap:11px;margin-bottom:11px}
+.picker-toolbar input,.picker-toolbar select{width:100%;min-width:0}
+.picker-selection-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+.picker-selection-bar strong{margin-left:auto;color:#0c967d;font-size:.8rem}
+.picker-rows{background:#fff;border:1px solid #e6ebf2;border-radius:12px;max-height:390px;overflow:auto}
+.picker-person{display:flex;align-items:center;gap:13px;padding:12px 14px;cursor:pointer;border-bottom:1px solid #edf1f5}
+.picker-person:last-child{border-bottom:0}
+.picker-person:hover{background:#f3faf8}
+.picker-person input{width:18px;height:18px;accent-color:#0cbaa0;flex-shrink:0}
+.picker-person-info{display:flex;flex-direction:column;flex:1;min-width:0;gap:3px;overflow-wrap:anywhere}
+.picker-person-info strong{font-size:.83rem;color:#274054}
+.picker-person-info small{font-size:.73rem;color:#8da0af}
+.picker-person .tag{white-space:nowrap}
+.picker-footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.picker-footer span{flex:1}
+.campaign-assigned-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 10px}
+.campaign-actions{min-width:220px}
+.campaign-tile-count{display:flex;flex-direction:column;gap:4px;border-radius:10px;background:#f2faf8;padding:9px 12px}
+.campaign-tile-count strong{font-size:.86rem;color:#0a8075}
+.campaign-tile-count small{font-size:.7rem;color:#7d909e}
+.campaign-target-pager{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0;font-size:.78rem;color:#8797aa}
+@media(max-width:850px){.picker-toolbar{grid-template-columns:1fr}.campaign-detail-header .detail-actions{width:100%}.campaign-detail-header .detail-actions .btn{flex:1}}
+@media(max-width:600px){.campaign-picker{padding:14px}.picker-selection-bar{align-items:stretch}.picker-selection-bar .btn{width:100%}.picker-selection-bar strong{margin:0}.picker-person{gap:9px;padding:10px}.picker-person .tag{font-size:.59rem;padding:5px 7px}.picker-footer{flex-direction:column;align-items:stretch}.picker-footer .btn{width:100%}.campaign-target-pager{flex-direction:column;align-items:stretch}.campaign-target-pager .btn{width:100%}}
