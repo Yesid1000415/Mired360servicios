@@ -16,7 +16,8 @@ Los archivos están guardados en GitHub, pero se requiere validar manualmente qu
 - Revocación de colaboradores y cancelación de invitaciones por parte del propietario.
 - Contactos, importación Excel XLSX y CSV, detección de nombre y celular entre primeras 20 filas, y exportación CSV.
 - Consentimiento declarado, registro de fuente, exclusiones y historial básico de cambios.
-- Creación de campañas asistidas, apertura individual del chat desde WhatsApp; no hay envíos automáticos desde la aplicación normal.
+- Creación de campañas asistidas, selección de contactos por campaña y apertura individual del chat desde WhatsApp; no hay envíos automáticos desde la aplicación normal.
+- Tandas personales de 10, 25 o 50 contactos autorizados, con intervalo de 120 segundos **después de confirmar manualmente el envío**, pausa, continuación, omisión y progreso persistido en Supabase.
 - Gestiones manuales y resumen comercial.
 - Período de prueba de 14 días por propietario (no reinicia por crear otra empresa).
 - Estado de licencias, solicitud de plan Emprendedor y activación manual después de verificar el pago; historial.
@@ -37,9 +38,18 @@ Los archivos están guardados en GitHub, pero se requiere validar manualmente qu
 - La web solo incluye una llave pública de Supabase, no llaves privadas.
 - Los controles de acceso críticos se ejecutan en PostgreSQL.
 - Las funciones de mayor privilegio verifican la identidad y el rol en el servidor.
-- Contactos sin consentimiento no aparecen en campañas.
+- Los contactos sin consentimiento pueden organizarse dentro de campañas, pero no se habilitan para abrir WhatsApp ni para las tandas sin autorización verificable.
 - Abrir una conversación por WhatsApp no implica enviado ni entregado.
 - Las bibliotecas de navegador son externas y tienen versiones especificadas.
+
+## Tandas asistidas
+1. Crear o abrir una campaña y asignarle contactos.
+2. Registrar solo las autorizaciones comerciales verificables.
+3. Preparar una tanda de 10, 25 o 50 contactos habilitados.
+4. Pulsar «Abrir chat», enviar personalmente desde WhatsApp y volver para confirmar «Ya envié el mensaje».
+5. Tras confirmar, comienza el reloj de 120 segundos. Nunca se abre otra conversación ni se envía un mensaje automáticamente.
+6. Pausar, continuar y omitir no requieren reiniciar la campaña. El avance por usuario y campaña se conserva en la base de datos.
+7. El sistema NO conoce el estado real de entrega de WhatsApp normal. El usuario debe respetar el consentimiento y los horarios.
 
 ## Importación
 Excel .xlsx o CSV UTF-8 con encabezados nombre y celular. Las filas inválidas y repetidas se omiten.
