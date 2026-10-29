@@ -109,7 +109,7 @@
             <div id="campaignFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nueva campaña asistida</h2><button class="icon-btn" type="button" data-hide="campaignFormPanel">✕</button></div>
               <form id="campaignForm"><div class="field"><label for="campaignName">Nombre de la campaña</label><input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Clientes interesados de octubre"></div><div class="field"><label for="campaignText">Mensaje</label><textarea id="campaignText" required minlength="3" maxlength="4000" rows="5" placeholder="Hola {nombre}, te escribimos porque solicitaste información..."></textarea><small class="hint">Usa <code>{nombre}</code> para personalizar. Cada conversación se abre manualmente.</small></div><button class="btn btn-primary" type="submit">Guardar campaña</button></form></div>
             <div class="campaign-grid" id="campaignCards"></div><div id="campaignsEmpty" class="card empty-state" hidden>Aún no tienes campañas. Crea la primera para comenzar.</div>
-            <div id="campaignDetail" class="card" hidden><div class="card-header"><div><span class="eyebrow">SEGUIMIENTO MANUAL</span><h2 id="detailTitle">Campaña</h2><p id="detailHint" class="muted"></p></div><button class="btn btn-secondary" id="closeDetail">Cerrar detalle</button></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table></div><p class="small-notice">Abrir WhatsApp no equivale a enviar o entregar el mensaje. Registra «Contactado» solo cuando lo confirmes. Respeta los canales, la frecuencia y los horarios de contacto comercial de cada país.</p></div>
+            <div id="campaignDetail" class="card" hidden><div class="card-header"><div><span class="eyebrow">SEGUIMIENTO MANUAL</span><h2 id="detailTitle">Campaña</h2><p id="detailHint" class="muted"></p></div><div class="detail-actions"><button class="btn btn-secondary" id="exportCampaignReport">↓ Exportar informe</button><button class="btn btn-secondary" id="closeDetail">Cerrar detalle</button></div></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table></div><p class="small-notice">Abrir WhatsApp no equivale a enviar o entregar el mensaje. Registra «Contactado» solo cuando lo confirmes. Para números colombianos, el sistema verifica el horario de lunes a viernes (7 a. m. a 7 p. m.) y sábados (8 a. m. a 3 p. m.); no contactes domingos ni festivos. Respeta también las normas de otros países.</p></div>
           </section>
 
 
@@ -145,6 +145,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=4"></script>
+  <script type="module" src="./app.js?v=5"></script>
 </body>
 </html>
