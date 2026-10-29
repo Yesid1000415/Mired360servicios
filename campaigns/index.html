@@ -39,6 +39,7 @@
           <div class="field"><label for="authPassword">Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo 8 caracteres"></div>
           <button class="btn btn-primary btn-wide" id="authSubmit" type="submit">Ingresar a la plataforma <span>→</span></button>
         </form>
+        <button id="resetPassword" type="button" class="text-btn" style="display:block;margin:15px auto 0">¿Olvidaste tu contraseña?</button>
         <p class="fine-print">La plataforma requiere cuentas autorizadas. Las campañas se realizan únicamente con contactos que dieron su consentimiento.</p>
         <p class="auth-bottom"><span id="authPrompt">¿Aún no tienes cuenta?</span> <button id="authToggle" class="text-btn" type="button">Crear cuenta</button></p>
       </div>
@@ -55,6 +56,7 @@
         <button data-page="campanas" class="nav-btn"><span class="nav-ico">◈</span> Campañas</button>
         <div class="sidebar-sep"></div>
         <div class="sidebar-label">ADMINISTRACIÓN</div>
+        <button data-page="equipo" class="nav-btn"><span class="nav-ico">♙</span> Equipo</button>
         <button data-page="integraciones" class="nav-btn"><span class="nav-ico">⚙</span> Integraciones</button>
         <button data-page="planes" class="nav-btn"><span class="nav-ico">◇</span> Suscripción</button>
       </nav>
@@ -91,7 +93,7 @@
             <div id="contactFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nuevo contacto</h2><button type="button" class="icon-btn" data-hide="contactFormPanel">✕</button></div>
               <form id="contactForm" class="form-grid"><div class="field"><label for="contactName">Nombre completo</label><input id="contactName" required minlength="2" maxlength="160" placeholder="Nombre del contacto"></div><div class="field"><label for="contactPhone">Celular con indicativo</label><input id="contactPhone" required placeholder="+573229432085 o 3229432085"></div><div class="field"><label for="contactOrigin">Origen de los datos</label><input id="contactOrigin" placeholder="Formulario, compra, referido..."></div><div class="field"><label for="contactSource">Prueba o fuente del consentimiento</label><input id="contactSource" placeholder="Formulario web 29/10, solicitud del cliente..."></div><label class="check-row span-all"><input id="contactConsent" type="checkbox"> Confirmo que esta persona autorizó expresamente a la empresa a enviarle mensajes por WhatsApp.</label><div class="span-all"><button type="submit" class="btn btn-primary">Guardar contacto</button></div></form>
             </div>
-            <div class="card import-panel"><div><strong>Importación desde Excel</strong><p class="muted">Abre tu archivo en Excel y guárdalo como <b>CSV UTF-8</b>. Detectamos encabezados de nombre y celular en las primeras 20 filas.</p><label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label><div class="field import-source"><label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label><input id="importSource" placeholder="Ej. Formulario web, fecha y enlace"></div></div><label class="btn btn-secondary file-button">↑ Importar CSV<input id="csvFile" type="file" accept=".csv,.txt,text/csv" hidden></label></div>
+            <div class="card import-panel"><div><strong>Importación desde Excel</strong><p class="muted">Aceptamos <b>Excel .xlsx</b> y <b>CSV UTF-8</b>. Detectamos columnas de nombre y celular en las primeras 20 filas.</p><label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label><div class="field import-source"><label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label><input id="importSource" placeholder="Ej. Formulario web, fecha y enlace"></div></div><label class="btn btn-secondary file-button">↑ Importar CSV<input id="csvFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label></div>
             <div class="card"><div class="table-head"><h2>Base de contactos <span id="contactsCount" class="count-badge">0</span></h2><input id="contactSearch" class="search-box" type="search" placeholder="Buscar nombre o teléfono..."></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>TELÉFONO</th><th>AUTORIZACIÓN</th><th>ESTADO</th><th></th></tr></thead><tbody id="contactRows"></tbody></table></div><div id="contactsEmpty" class="empty-state" hidden>No hay contactos para mostrar.</div></div>
           </section>
 
@@ -103,6 +105,23 @@
             <div id="campaignDetail" class="card" hidden><div class="card-header"><div><span class="eyebrow">SEGUIMIENTO MANUAL</span><h2 id="detailTitle">Campaña</h2><p id="detailHint" class="muted"></p></div><button class="btn btn-secondary" id="closeDetail">Cerrar detalle</button></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table></div><p class="small-notice">Abrir WhatsApp no significa que el mensaje fue enviado ni recibido. El estado «Contactado» se registra únicamente cuando tú lo confirmas.</p></div>
           </section>
 
+
+          <section data-section="equipo" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">COLABORADORES</span><h1>Equipo comercial</h1><p class="muted">Invita asesores o administradores a trabajar en la misma empresa.</p></div></div>
+            <div class="two-col">
+              <div class="card" id="teamInvitePanel"><h2>Invitar colaborador</h2><p class="muted">El enlace solo funcionará si el invitado entra con el correo indicado y lo confirma.</p>
+                <form id="inviteForm">
+                  <div class="field"><label for="inviteEmail">Correo del colaborador</label><input id="inviteEmail" type="email" required placeholder="asesor@empresa.com"></div>
+                  <div class="field"><label for="inviteRole">Rol</label><select id="inviteRole"><option value="asesor">Asesor · gestionar contactos y campañas</option><option value="admin">Administrador · gestionar equipo comercial</option></select></div>
+                  <button type="submit" class="btn btn-primary">Generar invitación</button>
+                </form>
+                <div id="inviteLinkPanel" hidden class="invite-link-box"><div class="field"><label for="inviteLink">Enlace de invitación</label><input id="inviteLink" readonly></div><button id="copyInvite" type="button" class="btn btn-secondary">Copiar enlace</button></div>
+              </div>
+              <div class="card"><h2>Acceso y seguridad</h2><p class="muted">El propietario administra la empresa. Un asesor puede ver los contactos autorizados y crear campañas asistidas; no puede borrar bases completas.</p><div class="channel-status"><div class="channel-icon">✓</div><div><strong>Tu rol actual</strong><small id="memberRoleLabel">Consultando permisos...</small></div></div><div class="channel-status"><div class="channel-icon">☏</div><div><strong>Acceso por correo confirmado</strong><small>Las invitaciones caducan después de 7 días</small></div></div></div>
+            </div>
+            <div class="card" style="margin-top:20px" id="invitesPanel"><div class="card-header"><h2>Invitaciones</h2><span class="mini-badge">Acceso restringido</span></div><div class="table-scroll"><table><thead><tr><th>CORREO</th><th>ROL</th><th>FECHA DE INVITACIÓN</th><th>ESTADO</th></tr></thead><tbody id="inviteRows"></tbody></table></div></div>
+          </section>
+
           <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
             <div class="two-col"><div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div><div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Próxima integración: plantillas aprobadas, webhooks, bandeja multiagente y estados de entrega. Los tokens deberán configurarse únicamente en un servidor seguro.</p><span class="status pending">En desarrollo · no conectada</span></div></div>
           </section>
@@ -111,6 +130,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=1"></script>
+  <script type="module" src="./app.js?v=2"></script>
 </body>
 </html>
