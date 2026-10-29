@@ -1,38 +1,48 @@
-# MIRED360 CAMPAIGNS
+# MIRED360 CAMPAIGNS — control de entregas
+29 de octubre de 2026
 
-Módulo web independiente para gestionar empresas, contactos y campañas asistidas. Implementación inicial del 29 de octubre de 2026.
+## Enlaces
+- Panel: https://mired360servicios.com/campaigns/
+- Página comercial: https://mired360servicios.com/campaigns/ventas.html
+- Código: https://github.com/Yesid1000415/Mired360servicios/tree/main/campaigns
 
-## Estado real
+Los archivos están guardados en GitHub, pero se requiere validar manualmente que la ruta nueva carga en GitHub Pages con computador y celular.
 
-**Funciona con Supabase Auth y PostgreSQL**: registro y acceso de usuario, creación de empresa, separación de registros por propietario mediante RLS, contactos manuales, importación CSV UTF-8 (nombres y celulares detectados en las primeras 20 filas), registro de consentimiento declarado, exclusión de contactos, campañas asistidas y seguimiento manual de las gestiones.
+## Implementado
+- Interfaz corporativa responsive.
+- Inicio de sesión y registro mediante Supabase Auth; flujo de recuperación de contraseña.
+- Empresas separadas mediante RLS, con roles de propietario, admin y asesor.
+- Invitación a colaboradores mediante enlace y correo confirmado; caducidad a 7 días.
+- Revocación de colaboradores y cancelación de invitaciones por parte del propietario.
+- Contactos, importación Excel XLSX y CSV, detección de nombre y celular entre primeras 20 filas, y exportación CSV.
+- Consentimiento declarado, registro de fuente, exclusiones y historial básico de cambios.
+- Creación de campañas asistidas, apertura individual del chat desde WhatsApp; no hay envíos automáticos desde la aplicación normal.
+- Gestiones manuales y resumen comercial.
+- Período de prueba de 14 días por propietario (no reinicia por crear otra empresa).
+- Estado de licencias, solicitud de plan Emprendedor y activación manual después de verificar el pago; historial.
+- Página comercial separada con publicidad de prestaciones efectivamente implementadas.
 
-**No implementado**: envíos automáticos desde WhatsApp normal, API oficial de Meta, envío/recepción programático, webhooks, bandeja multiagente, invitación de asesores, suscripciones cobradas, facturación, controles de cuotas, importación directa XLSX, panel de superadministración. No vender como disponible.
+## Por terminar ANTES de comercializar masivamente
+1. **Acceso real:** comprobar las URL publicadas y un flujo completo con usuario y correo de prueba.
+2. **Supabase Auth Redirect URLs:** autorizar https://mired360servicios.com/campaigns/ en Authentication > URL Configuration. Si se usa enlace de GitHub Pages, autorizar también su ruta.
+3. **Correo SMTP:** el dominio mired360servicios.com ya está verificado para enviar correo mediante Resend, pero falta instalar las credenciales SMTP en la configuración privada de Auth. Datos de Resend: host smtp.resend.com, usuario resend, puerto 465 o 587 según TLS, contraseña mediante API key de Resend, remitente corporativo. Nunca publicar una key en GitHub. La configuración Auth es compartida con MIRED360CRM; revisar efectos antes de cambiarla.
+4. **Legales:** completar términos de servicio, política de tratamiento de datos con razón social y NIT, autorizaciones comerciales, exclusiones, gestión de reclamaciones y tratamiento por terceros. Aplican reglas colombianas de Ley 1581 de 2012 y Ley 2300 de 2023 para comunicaciones comerciales.
+5. **Infraestructura:** migrar a un proyecto Supabase dedicado al SaaS; configurar copias de seguridad, retención, controles antiabuso y límites por plan. El núcleo actual se aloja temporalmente en la instancia MIRED360SERVICIOS en tablas prefijadas wa_.
+6. **Seguridad preexistente:** la instancia compartida contiene avisos sobre funciones antiguas SECURITY DEFINER públicas y protección de contraseñas filtradas. Auditar sin desconfigurar el CRM.
+7. **Meta Cloud API:** no está conectada. Requiere cuenta y permisos de Meta, configuración de app y tokens seguros por cliente, plantillas, webhooks y control de tarifas.
+8. **Cobros automatizados:** no disponibles; hoy la venta Emprendedor se realiza por WhatsApp y la licencia se activa tras verificar el pago.
+9. **Pruebas E2E:** pendientes en navegador; pruebas transaccionales SQL superadas para creación de empresa, invitación, revocación, aislamiento RLS y licencia.
 
-La interfaz se sirve desde GitHub Pages bajo /campaigns/. El backend usa temporalmente la instancia Supabase existente de MIRED360SERVICIOS, pero con tablas **wa_** y políticas independientes. No consulta las tablas del CRM clásico. Antes de comercializar masivamente, migrar a un proyecto dedicado y configurar backups y SMTP propio.
+## Consideraciones de seguridad
+- La web solo incluye una llave pública de Supabase, no llaves privadas.
+- Los controles de acceso críticos se ejecutan en PostgreSQL.
+- Las funciones de mayor privilegio verifican la identidad y el rol en el servidor.
+- Contactos sin consentimiento no aparecen en campañas.
+- Abrir una conversación por WhatsApp no implica enviado ni entregado.
+- Las bibliotecas de navegador son externas y tienen versiones especificadas.
 
-## Seguridad y cumplimiento
+## Importación
+Excel .xlsx o CSV UTF-8 con encabezados nombre y celular. Las filas inválidas y repetidas se omiten.
 
-- La llave de cliente embebida es **publishable** (pública), nunca es service-role.
-- RLS en todas las tablas nuevas.
-- Datos por propietario/organización; miembros y roles registrados para ampliación posterior.
-- Las campañas asistidas solo muestran contactos con consentimiento declarado y sin exclusión.
-- La plataforma NO envía automáticamente mensajes por WhatsApp normal: abre un chat individual prellenado en wa.me. El usuario decide si envía.
-- Abrir un chat registra **preparado** y nunca equivale a **enviado** o **entregado**.
-- Para Cloud API: plantillas aprobadas por Meta, registro de opt-in, secretos exclusivamente del lado del servidor y estados recibidos por webhook.
-- En producción, configurar SMTP propio de Supabase, correos de verificación, redirects, límites de registro, privacidad, política de tratamiento de datos, derecho de revocación y controles antiabuso.
-
-## Primer uso
-
-1. Ingresa en /campaigns/ con una cuenta de Supabase Auth ya confirmada, o crea una cuenta y confírmala por correo.
-2. Crea tu empresa desde el formulario inicial.
-3. Agrega contactos o usa "Importar CSV". Excel permite guardar el archivo como CSV UTF-8; encabezados sugeridos: nombre, celular.
-4. Registra prueba o fuente de autorización cuando corresponda. Los contactos sin permiso no aparecen en campañas.
-5. Crea campaña en el módulo Campañas y abre cada chat individualmente.
-
-## Próximas entregas
-
-1. SMTP transaccional, restablecimiento de contraseña, controles de privacidad y límites.
-2. Importación directa .xlsx con mapeo de columnas, deduplicación avanzada y paginación server-side.
-3. Miembros, invitaciones, sucursales, aislamiento entre usuarios de una misma empresa.
-4. WhatsApp Cloud API vía servidor/Edge Functions: conexión segura, plantillas, webhooks, tracking y exclusiones.
-5. Facturación y planes SaaS con estado real, roles de administración y costos medidos.
+## Contacto comercial
+WhatsApp 3229432085 · ventas@mired360servicios.com
