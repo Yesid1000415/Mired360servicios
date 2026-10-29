@@ -119,14 +119,18 @@
               <div class="card" id="teamInvitePanel"><h2>Invitar colaborador</h2><p class="muted">El enlace solo funcionará si el invitado entra con el correo indicado y lo confirma.</p>
                 <form id="inviteForm">
                   <div class="field"><label for="inviteEmail">Correo del colaborador</label><input id="inviteEmail" type="email" required placeholder="asesor@empresa.com"></div>
-                  <div class="field"><label for="inviteRole">Rol</label><select id="inviteRole"><option value="asesor">Asesor · gestionar contactos y campañas</option><option value="admin">Administrador · gestionar equipo comercial</option></select></div>
+                  <div class="field"><label for="inviteRole">Rol</label><select id="inviteRole"><option value="asesor">Asesor · gestionar contactos y campañas</option><option value="admin">Administrador · gestionar contactos y campañas</option></select></div>
                   <button type="submit" class="btn btn-primary">Generar invitación</button>
                 </form>
                 <div id="inviteLinkPanel" hidden class="invite-link-box"><div class="field"><label for="inviteLink">Enlace de invitación</label><input id="inviteLink" readonly></div><button id="copyInvite" type="button" class="btn btn-secondary">Copiar enlace</button></div>
               </div>
               <div class="card"><h2>Acceso y seguridad</h2><p class="muted">El propietario administra la empresa. Un asesor puede ver los contactos autorizados y crear campañas asistidas; no puede borrar bases completas.</p><div class="channel-status"><div class="channel-icon">✓</div><div><strong>Tu rol actual</strong><small id="memberRoleLabel">Consultando permisos...</small></div></div><div class="channel-status"><div class="channel-icon">☏</div><div><strong>Acceso por correo confirmado</strong><small>Las invitaciones caducan después de 7 días</small></div></div></div>
             </div>
-            <div class="card" style="margin-top:20px" id="invitesPanel"><div class="card-header"><h2>Invitaciones</h2><span class="mini-badge">Acceso restringido</span></div><div class="table-scroll"><table><thead><tr><th>CORREO</th><th>ROL</th><th>FECHA DE INVITACIÓN</th><th>ESTADO</th></tr></thead><tbody id="inviteRows"></tbody></table></div></div>
+            <div class="card" style="margin-top:20px" id="membersPanel">
+              <div class="card-header"><h2>Colaboradores activos</h2><span class="mini-badge">Permisos por empresa</span></div>
+              <div class="table-scroll"><table><thead><tr><th>USUARIO</th><th>ROL</th><th>FECHA DE ACCESO</th><th>ACCESO</th></tr></thead><tbody id="memberRows"></tbody></table></div>
+            </div>
+            <div class="card" style="margin-top:20px" id="invitesPanel"><div class="card-header"><h2>Invitaciones</h2><span class="mini-badge">Acceso restringido</span></div><div class="table-scroll"><table><thead><tr><th>CORREO</th><th>ROL</th><th>FECHA DE INVITACIÓN</th><th>ESTADO</th><th>ACCIÓN</th></tr></thead><tbody id="inviteRows"></tbody></table></div></div>
           </section>
 
           <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
@@ -141,6 +145,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=3"></script>
+  <script type="module" src="./app.js?v=4"></script>
 </body>
 </html>
