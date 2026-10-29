@@ -4,7 +4,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], member: null, selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -52,7 +52,7 @@ async function submitAuth(event) {
     if (state.authMode === 'register') {
       const company = $('authOrg').value.trim();
       if (company.length < 2) throw new Error('Escribe el nombre de la empresa.');
-      const {data,error} = await db.auth.signUp({email,password});
+      const {data,error} = await db.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin + window.location.pathname}});
       if (error) throw error;
       localStorage.setItem('wa_pending_org',company);
       if (data?.session && data?.user) {
@@ -73,6 +73,13 @@ async function boot() {
   if (!state.user) return;
   $('authScreen').hidden = true; $('appScreen').hidden = false;
   $('userAvatar').textContent = (state.user.email || 'M').slice(0,1).toUpperCase();
+  const invite = new URLSearchParams(window.location.search).get('invite');
+  if(invite){
+    const {data:accepted,error} = await db.rpc('wa_aceptar_invitacion',{p_id:invite});
+    if(error) reportError(error,'No fue posible aceptar la invitación.');
+    else {localStorage.setItem('wa_current_org',accepted);toast('Invitación aceptada. Bienvenido al equipo.');}
+    window.history.replaceState({},'',window.location.pathname);
+  }
   await loadOrgs();
 }
 async function loadOrgs() {
@@ -111,6 +118,9 @@ async function createOrg(event) {
 async function selectOrg(id) {
   state.org = state.orgs.find(o => o.id === id) || null;
   if (!state.org) return;
+  const {data:membership,error:membershipError}=await db.from('wa_miembros').select('rol').eq('organizacion_id',id).eq('usuario_id',state.user.id).maybeSingle();
+  if(membershipError){reportError(membershipError);return;}
+  state.member=membership;
   localStorage.setItem('wa_current_org',id);
   $('orgSelect').value = id;
   state.selectedCampaign = null;
@@ -132,10 +142,11 @@ async function allRows(table) {
 async function loadData() {
   if (!state.org) return;
   try {
-    const [contacts,campaigns,actions] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones')]);
+    const [contacts,campaigns,actions,invites] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([])]);
     state.contacts = contacts.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.campaigns = campaigns.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.actions = actions;
+    state.invites = invites;
     renderAll();
   } catch(error) { reportError(error,'Error al consultar los datos de la empresa.'); }
 }
@@ -147,11 +158,12 @@ function renderAll() {
   $('contactsCount').textContent = state.contacts.length.toLocaleString('es-CO');
   renderContacts();
   renderCampaigns();
+  renderTeam();
   if(state.selectedCampaign) renderCampaignDetail();
 }
 function navigate(page) {
   state.page = page;
-  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',integraciones:'Integraciones',planes:'Suscripción'};
+  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción'};
   document.querySelectorAll('[data-section]').forEach(el => el.hidden = el.dataset.section !== page);
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active',el.dataset.page === page));
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
@@ -229,6 +241,48 @@ function detectCSVHeaders(rows) {
   }
   return null;
 }
+
+let excelPromise;
+function loadExcelJS() {
+  if(window.ExcelJS)return Promise.resolve(window.ExcelJS);
+  if(!excelPromise)excelPromise=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+    script.onload=()=>window.ExcelJS?resolve(window.ExcelJS):reject(new Error('No fue posible inicializar el lector de Excel.'));
+    script.onerror=()=>reject(new Error('No fue posible cargar el lector de Excel. Comprueba tu conexión.'));
+    document.head.appendChild(script);
+  });
+  return excelPromise;
+}
+function excelCellText(value) {
+  if(value === null || value === undefined) return '';
+  if(typeof value === 'object') {
+    if(value.text !== undefined)return String(value.text);
+    if(value.result !== undefined)return String(value.result);
+    if(Array.isArray(value.richText))return value.richText.map(x=>x.text||'').join('');
+    if(value instanceof Date)return value.toISOString().slice(0,10);
+  }
+  return String(value);
+}
+async function readContactRows(file) {
+  if(/\.xlsx$/i.test(file.name)) {
+    const ExcelJS=await loadExcelJS();
+    const book=new ExcelJS.Workbook();
+    await book.xlsx.load(await file.arrayBuffer());
+    if(!book.worksheets.length)throw new Error('El archivo Excel está vacío.');
+    for(const sheet of book.worksheets) {
+      const rows=[];
+      sheet.eachRow({includeEmpty:false},row=>{
+        const vals=[];
+        for(let col=1;col<=Math.min(row.cellCount+4,100);col++) vals.push(excelCellText(row.getCell(col).value).trim());
+        if(vals.some(Boolean)) rows.push(vals);
+      });
+      if(detectCSVHeaders(rows))return rows;
+    }
+    throw new Error('No encuentro columnas con nombre y teléfono en las primeras 20 filas de ninguna hoja.');
+  }
+  return parseCSV((await file.text()).replace(/^\uFEFF/,''));
+}
 async function importCSV(event) {
   const file=event.target.files?.[0]; if(!file || !state.org)return;
   const consent=$('importConsent').checked,source=$('importSource').value.trim();
@@ -236,7 +290,7 @@ async function importCSV(event) {
   if(consent && !source) return toast('Indica primero la fuente de autorización de los contactos.',true);
   if(file.size>5*1024*1024)return toast('El CSV debe pesar menos de 5 MB. Divide el archivo.',true);
   try {
-    const rows=parseCSV((await file.text()).replace(/^\uFEFF/,''));
+    const rows=await readContactRows(file);
     const header=detectCSVHeaders(rows);
     if(!header)throw new Error('No se encontraron encabezados de nombre y celular en las primeras 20 filas.');
     const prepared=[],seen=new Set();let invalid=0;
@@ -320,17 +374,67 @@ async function markContacted(contactId) {
   if(!confirm('¿Confirmas que contactaste personalmente a esta persona?'))return;
   try{await recordAction(contactId,'contactado');toast('Gestión manual registrada.');}catch(error){reportError(error);}
 }
+
+function renderTeam() {
+  const role=state.member?.rol||'sin asignar';
+  const owner=role==='propietario';
+  $('memberRoleLabel').textContent={propietario:'Propietario de la empresa',admin:'Administrador',asesor:'Asesor'}[role] || 'Acceso sin rol';
+  $('teamInvitePanel').hidden=!owner;
+  $('invitesPanel').hidden=!owner;
+  $('newOrgButton').hidden=false;
+  $('inviteRows').innerHTML=owner ? state.invites.sort((a,b)=>(b.creado_en||'').localeCompare(a.creado_en||'')).map(i=>{
+    const status=i.aceptado_en?'Aceptada':new Date(i.expira_en)<new Date()?'Vencida':'Pendiente';
+    return '<tr><td><strong>'+html(i.email)+'</strong></td><td>'+html(i.rol)+'</td><td>'+html(formatDate(i.creado_en))+'</td><td>'+html(status)+'</td></tr>';
+  }).join('') : '';
+  if(owner && !state.invites.length)$('inviteRows').innerHTML='<tr><td colspan="4">Aún no hay invitaciones.</td></tr>';
+}
+async function submitInvite(event) {
+  event.preventDefault();
+  if(state.member?.rol!=='propietario')return toast('Solo el propietario puede invitar colaboradores.',true);
+  const email=$('inviteEmail').value.trim().toLowerCase();
+  const rol=$('inviteRole').value;
+  try {
+    const {data,error}=await db.from('wa_invitaciones').insert({
+      organizacion_id:state.org.id,creado_por:state.user.id,email,rol
+    }).select('id,expira_en').single();
+    if(error)throw error;
+    const inviteURL=new URL(window.location.origin + window.location.pathname);
+    inviteURL.searchParams.set('invite',data.id);
+    $('inviteLink').value=inviteURL.toString();
+    $('inviteLinkPanel').hidden=false;
+    $('inviteForm').reset();
+    toast('Invitación creada. Comparte el enlace con el correo indicado.');
+    await loadData();
+  }catch(error){reportError(error);}
+}
+async function copyInviteLink() {
+  try {await navigator.clipboard.writeText($('inviteLink').value);toast('Enlace copiado.');}
+  catch { $('inviteLink').select();toast('Selecciona el enlace y cópialo manualmente.'); }
+}
+async function resetPassword() {
+  const email=$('authEmail').value.trim();
+  if(!email)return toast('Escribe tu correo electrónico arriba antes de recuperar la clave.',true);
+  try{
+    const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
+    if(error)throw error;
+    toast('Si la cuenta existe, recibirás instrucciones para restablecer la contraseña.');
+  }catch(error){reportError(error);}
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
   $('authToggle').addEventListener('click',()=>switchAuth(state.authMode==='register'?'login':'register'));
   $('authForm').addEventListener('submit',submitAuth);
+  $('resetPassword').addEventListener('click',resetPassword);
+  $('inviteForm').addEventListener('submit',submitInvite);
+  $('copyInvite').addEventListener('click',copyInviteLink);
   $('orgForm').addEventListener('submit',createOrg);
   $('newOrgButton').addEventListener('click',()=>createOrg());
   $('orgSelect').addEventListener('change',event=>selectOrg(event.target.value));
   $('signOut').addEventListener('click',async()=>{
     await db.auth.signOut();
-    state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];
+    state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];state.invites=[];state.member=null;
     $('authScreen').hidden=false;$('appScreen').hidden=true;
   });
   $('menuToggle').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
