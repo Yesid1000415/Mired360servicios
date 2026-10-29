@@ -4,7 +4,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -225,13 +225,16 @@ function renderContacts() {
     ? 'Los contactos ya están guardados en tu empresa. Los que aún no tienen autorización no se muestran en campañas. Registra el permiso únicamente si puedes verificarlo.'
     : 'La base está registrada. Solo los contactos con permiso vigente aparecen en las campañas.';
   $('showPendingContacts').disabled = pending === 0;
-  const found = state.contacts.filter(c => {
+  const filtered = state.contacts.filter(c => {
     if (filter==='pending' && (c.consentimiento_fecha || c.excluido)) return false;
     if (filter==='allowed' && (!c.consentimiento_fecha || c.excluido)) return false;
     if (filter==='excluded' && !c.excluido) return false;
     return (c.nombre || '').toLocaleLowerCase().includes(q) || (c.telefono_e164 || '').includes(q);
-  }).slice(0,250);
+  });
+  const found=filtered.slice(0,state.contactLimit);
   $('contactsEmpty').hidden = !!found.length;
+  $('contactDisplayCount').textContent = 'Mostrando '+found.length.toLocaleString('es-CO')+' de '+filtered.length.toLocaleString('es-CO')+' contactos encontrados.';
+  $('contactLoadMore').hidden = filtered.length <= found.length;
   $('contactRows').innerHTML = found.map(c => {
     const allow = !!c.consentimiento_fecha, status = c.excluido;
     return '<tr><td><strong>' + html(c.nombre) + '</strong><br><small>' + html(c.origen || 'Sin origen') + '</small></td>' +
@@ -695,8 +698,9 @@ function bindEvents() {
   $('contactFormToggle').addEventListener('click',()=>$('contactFormPanel').hidden=!$('contactFormPanel').hidden);
   $('campaignFormToggle').addEventListener('click',()=>$('campaignFormPanel').hidden=!$('campaignFormPanel').hidden);
   $('contactForm').addEventListener('submit',addContact);
-  $('contactSearch').addEventListener('input',renderContacts);
-  $('contactFilter').addEventListener('change',renderContacts);
+  $('contactSearch').addEventListener('input',()=>{state.contactLimit=250;renderContacts();});
+  $('contactFilter').addEventListener('change',()=>{state.contactLimit=250;renderContacts();});
+  $('contactLoadMore').addEventListener('click',()=>{state.contactLimit+=250;renderContacts();});
   $('showPendingContacts').addEventListener('click',()=>{$('contactFilter').value='pending';$('contactSearch').value='';renderContacts();$('contactRows').scrollIntoView({behavior:'smooth',block:'start'});});
   $('consentForm').addEventListener('submit',saveContactConsent);
   $('exportContacts').addEventListener('click',exportContacts);
