@@ -512,6 +512,27 @@ async function finishRecovery(event){
   }catch(error){reportError(error);}
 }
 
+
+function exportContacts(){
+  if(!state.org)return toast('Selecciona una empresa.',true);
+  function quoteCSV(value){
+    let content=String(value??'');
+    if(/^\s*[=+\-@]/.test(content))content="'"+content;
+    return '"'+content.replace(/"/g,'""')+'"';
+  }
+  const lines=[['nombre','celular','origen','autorizado','excluido','fuente_autorizacion'].map(quoteCSV).join(',')];
+  for(const c of state.contacts){
+    lines.push([c.nombre,c.telefono_e164,c.origen||'',c.consentimiento_fecha?'si':'no',c.excluido?'si':'no',c.consentimiento_fuente||''].map(quoteCSV).join(','));
+  }
+  const file=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(file);
+  const a=document.createElement('a');
+  a.href=url;a.download='contactos-mired360-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  toast('Exportación CSV generada. Conserva el archivo de manera segura.');
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
@@ -540,6 +561,7 @@ function bindEvents() {
   $('campaignFormToggle').addEventListener('click',()=>$('campaignFormPanel').hidden=!$('campaignFormPanel').hidden);
   $('contactForm').addEventListener('submit',addContact);
   $('contactSearch').addEventListener('input',renderContacts);
+  $('exportContacts').addEventListener('click',exportContacts);
   $('csvFile').addEventListener('change',importCSV);
   $('campaignForm').addEventListener('submit',addCampaign);
   $('contactRows').addEventListener('click',event=>{
