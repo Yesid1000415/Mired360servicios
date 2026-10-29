@@ -65,7 +65,13 @@ function settingsPro(){
  <div><label>YouTube</label><input type="url" name="youtube_url" placeholder="https://www.youtube.com/@tucanal" value="${esc(tienda.youtube_url||'')}"></div>
  <div class="wide"><label>X (Twitter)</label><input type="url" name="x_url" placeholder="https://x.com/tucuenta" value="${esc(tienda.x_url||'')}"></div>
  <div><label>Color de marca</label><input type="color" name="color_marca" value="${esc(tienda.color_marca||'#6957e8')}" style="height:47px;padding:5px"></div>
- <div class="wide"><label><input style="width:auto" type="checkbox" name="publicada" ${tienda.publicada?'checked':''}> Publicar mi tienda</label><p class="tiny muted">Para hacerla visible necesitas crear una sucursal y publicar al menos un producto.</p></div>
+ <div class="wide" style="background:#f2f7ff;border:1px solid #dce7fb;border-radius:12px;padding:15px">
+ <h3 style="margin-bottom:10px">Estado de publicación</h3>
+ <p style="font-size:12px;line-height:1.6;margin-bottom:12px">Sucursales activas: <b>${sucursales.filter(s=>s.activa).length}</b> · Productos publicados: <b>${productos.filter(p=>p.activa&&p.publicada).length}</b></p>
+ <label><input style="width:auto" type="checkbox" name="publicada" ${tienda.publicada?'checked':''}> Hacer mi tienda visible al público</label>
+ <p class="tiny muted" style="margin-top:8px">Puedes guardar aquí tu logo, portada, redes sociales y colores incluso si aún no publicas productos. Para abrir la tienda al público se necesita una sucursal activa y un producto publicado.</p>
+ ${!productos.some(p=>p.activa&&p.publicada)?'<button type="button" class="btn" data-nav="productos" style="margin-top:12px">📦 Ir a productos y publicar uno</button>':''}
+ </div>
  <div class="wide" style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn primary" type="submit">Guardar identidad y portada</button><a class="btn" href="tienda.html?tienda=${encodeURIComponent(tienda.slug)}&preview=1" target="_blank" rel="noopener">Ver tienda ↗</a></div>
  </form></div>`;
 }
@@ -129,18 +135,22 @@ async function saveProductPro(form){
 async function saveBrandPro(form){
  const f=new FormData(form),btn=form.querySelector('button[type=submit]');if(btn){btn.disabled=true;btn.textContent='Guardando...'}
  try{
-  if(f.has('publicada')&&(!sucursales.some(x=>x.activa)||!productos.some(x=>x.publicada&&x.activa)))throw Error('Para publicar necesitas una sucursal activa y al menos un producto publicado.');
+  const wantsToPublish=f.has('publicada');
+  const hasActiveBranch=sucursales.some(x=>x.activa);
+  const hasPublishedProduct=productos.some(x=>x.publicada&&x.activa);
+  const canPublish=hasActiveBranch&&hasPublishedProduct;
+  const keepAsDraft=wantsToPublish&&!canPublish;
   let logo=tienda.logo_url||'',cover=tienda.portada_url||'';
   if(f.get('logo_file')?.size)logo=await uploadMediaPro(f.get('logo_file'),'logos');
   if(f.get('portada_file')?.size)cover=await uploadMediaPro(f.get('portada_file'),'portadas');
-  const data={nombre:String(f.get('nombre')||'').trim(),lema:String(f.get('lema')||'').trim(),descripcion:String(f.get('descripcion')||'').trim(),whatsapp:String(f.get('whatsapp')||'').trim(),web_url:String(f.get('web_url')||'').trim(),contacto_url:String(f.get('contacto_url')||'').trim(),facebook_url:String(f.get('facebook_url')||'').trim(),instagram_url:String(f.get('instagram_url')||'').trim(),tiktok_url:String(f.get('tiktok_url')||'').trim(),youtube_url:String(f.get('youtube_url')||'').trim(),x_url:String(f.get('x_url')||'').trim(),color_marca:String(f.get('color_marca')||'#6957e8'),logo_url:logo,portada_url:cover,publicada:f.has('publicada')};
+  const data={nombre:String(f.get('nombre')||'').trim(),lema:String(f.get('lema')||'').trim(),descripcion:String(f.get('descripcion')||'').trim(),whatsapp:String(f.get('whatsapp')||'').trim(),web_url:String(f.get('web_url')||'').trim(),contacto_url:String(f.get('contacto_url')||'').trim(),facebook_url:String(f.get('facebook_url')||'').trim(),instagram_url:String(f.get('instagram_url')||'').trim(),tiktok_url:String(f.get('tiktok_url')||'').trim(),youtube_url:String(f.get('youtube_url')||'').trim(),x_url:String(f.get('x_url')||'').trim(),color_marca:String(f.get('color_marca')||'#6957e8'),logo_url:logo,portada_url:cover,publicada:wantsToPublish&&canPublish};
   for(const k of ['web_url','contacto_url','facebook_url','instagram_url','tiktok_url','youtube_url','x_url']){
    if(data[k]){let target;try{target=new URL(data[k]);}catch{throw Error('La URL de '+k+' no es válida.')}
    if(target.protocol!=='https:'||!target.hostname.includes('.')||data[k].length>500||target.username||target.password)throw Error('La URL de '+k+' debe empezar por https:// y ser una dirección válida.');}
   }
   const r=await db.from('tiendas').update(data).eq('id',tienda.id);
   if(r.error)throw r.error;
-  toast('Identidad visual actualizada');await loadAll();render();
+  toast(keepAsDraft?'Cambios guardados. La tienda sigue privada: publica un producto para habilitarla.':'Identidad visual actualizada correctamente');await loadAll();render();
  }catch(e){toast(e.message||String(e))}finally{if(btn){btn.disabled=false;btn.textContent='Guardar identidad y portada'}}
 }
 function popup(title,fields,kind){$('#modal').className='overlay show';$('#modal').innerHTML=`<div class="dialog"><div class="headrow"><h2>${title}</h2><button class="btn" data-act="close">✕</button></div><form id="popupForm" class="fieldgrid">${fields}<div class="wide flex" style="justify-content:end">${btn('Cancelar','close')}<button class="btn primary" type="submit">Guardar</button></div></form></div>`;$('#popupForm').dataset.kind=kind}
