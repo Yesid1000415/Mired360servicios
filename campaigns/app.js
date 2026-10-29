@@ -4,7 +4,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -249,6 +249,7 @@ function renderContacts() {
   }).join('');
 }
 function openConsentForm(id) {
+  state.returnToCampaign=false;
   const person=state.contacts.find(c=>c.id===id);
   if(!person)return toast('Contacto no encontrado.',true);
   if(person.excluido)return toast('Este contacto fue excluido. Necesita nueva autorización y revisión de su exclusión.',true);
@@ -281,6 +282,12 @@ async function saveContactConsent(event) {
     $('consentFormPanel').hidden=true;
     toast('Autorización registrada. El contacto ya puede aparecer en campañas.');
     await loadData();
+    if(state.returnToCampaign && state.selectedCampaign){
+      state.returnToCampaign=false;
+      navigate('campanas');
+      renderCampaignDetail();
+      $('campaignDetail').scrollIntoView({behavior:'smooth',block:'start'});
+    }
   }catch(error){reportError(error);}finally{$('saveConsent').disabled=false;}
 }
 async function toggleOptout(id) {
@@ -554,6 +561,7 @@ function openContactPermissionFromCampaign(contactId) {
   if(!p || p.excluido)return toast('Este contacto no está disponible.',true);
   navigate('contactos');
   openConsentForm(contactId);
+  state.returnToCampaign=true;
 }
 function renderCampaignDetail() {
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
@@ -847,7 +855,7 @@ function bindEvents() {
   $('menuToggle').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
   document.querySelectorAll('[data-page]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.page)));
   document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.go)));
-  document.querySelectorAll('[data-hide]').forEach(el=>el.addEventListener('click',()=>$ (el.dataset.hide).hidden=true));
+  document.querySelectorAll('[data-hide]').forEach(el=>el.addEventListener('click',()=>{if(el.dataset.hide==='consentFormPanel')state.returnToCampaign=false;$(el.dataset.hide).hidden=true;}));
   $('contactFormToggle').addEventListener('click',()=>$('contactFormPanel').hidden=!$('contactFormPanel').hidden);
   $('campaignFormToggle').addEventListener('click',()=>$('campaignFormPanel').hidden=!$('campaignFormPanel').hidden);
   $('contactForm').addEventListener('submit',addContact);
