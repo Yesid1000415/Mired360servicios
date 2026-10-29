@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a172f">
+<meta name="description" content="MIRED360 CAMPAIGNS: plataforma de contactos, campañas asistidas y seguimiento comercial por WhatsApp para empresas.">
+<meta property="og:title" content="MIRED360 CAMPAIGNS | Tus conversaciones, mejor organizadas">
+<meta property="og:description" content="Contactos con autorización, campañas asistidas, equipo comercial y seguimiento. Conoce nuestra plataforma empresarial.">
+<title>MIRED360 CAMPAIGNS | Plataforma comercial para empresas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box}
+:root{font-family:"DM Sans",sans-serif;scroll-behavior:smooth;color:#18304a}
+body{margin:0;background:#fff}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:3px solid #51ddba}
+header{background:#071731;color:#fff}
+.nav{max-width:1160px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:25px 24px;gap:12px}
+.brand{font-family:Manrope;font-weight:900;letter-spacing:-.05em;display:flex;align-items:center;gap:10px}
+.brand span:first-child{display:grid;place-items:center;background:#1bd4b5;color:#073248;border-radius:11px;width:37px;height:37px;font-size:24px}
+.brand em{font-style:normal;color:#4be7c7}
+.navlinks{display:flex;align-items:center;gap:24px;font-size:13px;font-weight:700}
+.hero{background:radial-gradient(circle at 80% 50%,#11545a,transparent 55%),#071731;color:#fff;padding:75px 24px 92px;position:relative;overflow:hidden}
+.container{max-width:1160px;margin:auto}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:55px;align-items:center}
+.kicker{color:#45e5c4;letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:900}
+h1,h2,h3{font-family:Manrope;letter-spacing:-.045em}
+h1{font-size:clamp(40px,5.3vw,67px);line-height:1.09;margin:19px 0 22px}
+h1 span{color:#4ae5c6}
+.hero p{color:#bfd3df;line-height:1.7;font-size:17px;max-width:520px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:31px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:47px;padding:13px 21px;border-radius:11px;font-weight:800;font-size:14px;text-align:center}
+.btn-primary{color:#073247;background:#35daba}
+.btn-outline{color:#fff;border:1px solid #83b0b7a1;background:#ffffff0c}
+.btn-dark{color:#fff;background:#08233d}
+.badge{display:inline-block;background:#0c716c;color:#aff7e7;border:1px solid #279b90;border-radius:100px;font-size:11px;font-weight:800;padding:6px 11px}
+.mock{background:#f3f8fc;border:1px solid #ffffff40;padding:12px;border-radius:20px;box-shadow:0 25px 65px #0005;color:#14324b;transform:rotate(1deg)}
+.mock-top{background:#0e213d;color:#fff;border-radius:12px 12px 0 0;padding:15px;font-size:13px;font-weight:800}
+.mock-body{padding:24px;border-radius:0 0 12px 12px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:20px 0}
+.metric{padding:15px 9px;border-radius:10px;border:1px solid #e3ebf3;background:#fff}
+.metric b{display:block;font-size:20px;color:#19324e}
+.metric small{font-size:10px;color:#8896a7}
+.mock-row{padding:14px;background:white;border-radius:10px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px}
+.mock-row i{font-style:normal;color:#049c85;background:#e5f9f3;font-size:10px;border-radius:100px;padding:5px 9px}
+.mock-foot{font-size:11px;color:#718398;margin-top:17px;text-align:center}
+.section{padding:82px 24px}
+.section.tint{background:#f5f8fb}
+.section-head{max-width:670px;margin-bottom:35px}
+.section-head h2{font-size:clamp(30px,3vw,42px);line-height:1.18;margin:13px 0}
+.section-head p{color:#71859a;line-height:1.7}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.feature{padding:29px;background:#fff;border:1px solid #e4ecf2;border-radius:16px;box-shadow:0 5px 20px #07324c08}
+.feature .ico{display:grid;place-items:center;background:#e4faf4;color:#08a58d;width:48px;height:48px;border-radius:12px;font-size:23px;margin-bottom:20px}
+.feature h3{font-size:18px;margin:0 0 10px}
+.feature p{font-size:14px;line-height:1.7;color:#76889d}
+.channels{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.channel{border:1px solid #e5edf3;border-radius:18px;padding:35px;background:#fff}
+.channel h3{font-size:23px}
+.channel p{color:#71859a;line-height:1.7}
+.channel ul{padding-left:20px;color:#52667c;line-height:2}
+.channel.future{background:#f8fafc}
+.pricing{max-width:620px;border:1px solid #dde9ed;border-radius:20px;padding:37px;background:#fff;box-shadow:0 20px 50px #172f3a0a}
+.price{font-family:Manrope;font-size:44px;font-weight:900;color:#0b2c40;letter-spacing:-.06em;margin:14px 0}
+.price small{font-size:14px;font-weight:500;color:#8291a3;letter-spacing:normal}
+.pricing p{color:#71859a}
+.pricing ul{padding-left:18px;color:#415c70;line-height:2.2;font-size:14px;margin-bottom:25px}
+.notice{font-size:12px;color:#728499;line-height:1.65;margin-top:22px}
+.footcta{background:#0a1932;color:#fff;text-align:center}
+.footcta h2{font-size:clamp(28px,3.5vw,41px);margin:14px auto}
+.footcta p{color:#aec5d5}
+footer{padding:25px 24px;background:#061123;color:#9db0c5;font-size:12px}
+footer .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(max-width:850px){.hero-grid,.channels{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.hero{padding:50px 21px 75px}.mock{max-width:580px}.navlinks a:first-child{display:none}}
+@media(max-width:520px){.grid3{grid-template-columns:1fr}.nav{padding:16px}.navlinks{gap:8px}.navlinks a:first-child{display:none}.brand{font-size:12px}.brand span:first-child{height:31px;width:31px;font-size:19px}.section{padding:55px 20px}.pricing{padding:24px}.actions .btn{width:100%}}
+</style>
+</head>
+<body>
+<header><nav class="nav"><a class="brand" href="../"><span>M</span><span>MIRED360 <em>CAMPAIGNS</em></span></a><div class="navlinks"><a href="#funciones">Funciones</a><a href="#planes">Planes</a><a class="btn btn-primary" href="./">Entrar al panel</a></div></nav></header>
+<section class="hero"><div class="container hero-grid"><div><span class="kicker">Software comercial para empresas</span><h1>Más organización.<br><span>Mejores conversaciones.</span></h1><p>Centraliza tus contactos, prepara campañas por WhatsApp, organiza tu equipo y registra cada gestión comercial desde una plataforma profesional.</p><div class="actions"><a class="btn btn-primary" href="./">Comenzar prueba inicial →</a><a class="btn btn-outline" href="#funciones">Explorar funciones</a></div><p style="font-size:12px;color:#8acabc">Plataforma en lanzamiento · Envío asistido desde WhatsApp normal o Business.</p></div>
+<div class="mock" aria-label="Vista ilustrativa del panel"><div class="mock-top">◆ MIRED360 CAMPAIGNS　 /　 Resumen</div><div class="mock-body"><strong>Centro de control comercial</strong><div class="metrics"><div class="metric"><b>1.250</b><small>Contactos</small></div><div class="metric"><b>384</b><small>Autorizados</small></div><div class="metric"><b>8</b><small>Campañas</small></div></div><div class="mock-row"><span>Campaña de clientes interesados</span><i>Activa</i></div><div class="mock-row"><span>Equipo de ventas</span><i>Organizado</i></div><div class="mock-row"><span>Registro de autorizaciones</span><i>Protegido</i></div><div class="mock-foot">Ejemplo visual. Los datos son ilustrativos.</div></div></div></div></section>
+<section class="section tint" id="funciones"><div class="container"><div class="section-head"><span class="kicker">Funcionalidades iniciales</span><h2>Las herramientas que tu negocio necesita para organizar sus campañas.</h2><p>Diseñada para emprendedores, vendedores y equipos comerciales que necesitan trazabilidad y control de su operación.</p></div><div class="grid3">
+<div class="feature"><div class="ico">♧</div><h3>Base de contactos</h3><p>Agrega e importa desde Excel o CSV. Busca, clasifica y exporta los registros de tu empresa.</p></div>
+<div class="feature"><div class="ico">◈</div><h3>Campañas asistidas</h3><p>Prepara mensajes personalizados y abre conversaciones individualmente para decidir cuándo enviarlos.</p></div>
+<div class="feature"><div class="ico">♙</div><h3>Equipo comercial</h3><p>Invita colaboradores por correo confirmado con roles separados y acceso a la empresa autorizada.</p></div>
+<div class="feature"><div class="ico">▦</div><h3>Panel de resultados</h3><p>Consulta contactos, campañas y seguimiento manual de las gestiones comerciales.</p></div>
+<div class="feature"><div class="ico">✓</div><h3>Gestión de autorizaciones</h3><p>Registra la fuente del consentimiento y excluye del marketing a quien no quiera recibir mensajes.</p></div>
+<div class="feature"><div class="ico">◇</div><h3>Suscripciones</h3><p>Período inicial de prueba y activación de licencias por parte de un administrador, previa verificación del pago.</p></div>
+</div></div></section>
+<section class="section"><div class="container"><div class="section-head"><span class="kicker">Dos formas de trabajar</span><h2>Una plataforma preparada para crecer contigo.</h2></div><div class="channels"><div class="channel"><span class="badge">Disponible en la versión inicial</span><h3>WhatsApp normal / Business</h3><p>Gestiona contactos, mensajes preparados, conversaciones individuales y seguimiento. El envío se confirma manualmente desde tu propia aplicación.</p><ul><li>Personalización con nombre</li><li>Importación Excel y CSV</li><li>Exclusiones y autorización</li></ul></div><div class="channel future"><span class="badge" style="background:#e6ebf1;color:#63778d;border-color:#dce2ea">En desarrollo</span><h3>WhatsApp Cloud API oficial</h3><p>La automatización con plantillas oficiales, eventos de entrega y bandeja multiagente se habilitará cuando concluyan las integraciones, verificaciones y pruebas.</p><ul><li>Plantillas aprobadas por Meta</li><li>Conexión segura de números</li><li>Tarifas de mensajería de Meta por separado</li></ul></div></div></div></section>
+<section class="section tint" id="planes"><div class="container"><div class="section-head"><span class="kicker">Plan disponible</span><h2>Empieza con control y crece con resultados.</h2><p>Conoce el plan que puedes solicitar desde el lanzamiento inicial.</p></div><div class="pricing"><span class="badge">Emprendedor · gestión asistida</span><div class="price">$49.900 <small>COP / mes</small></div><p>Para emprendedores y pequeños equipos que quieren organizar sus contactos y campañas.</p><ul><li>Contactos e importación Excel / CSV</li><li>Campañas asistidas con WhatsApp</li><li>Registro y exportación de contactos</li><li>Acceso por empresa y equipo</li><li>14 días de prueba al crear la empresa</li></ul><a class="btn btn-primary" style="width:100%" href="https://wa.me/573229432085?text=Hola%2C%20quiero%20contratar%20MIRED360%20CAMPAIGNS%20plan%20Emprendedor">Solicitar activación por WhatsApp</a><div class="notice">La activación es manual tras verificar el pago. No hay pasarela de pago conectada. Los planes con API oficial y funciones avanzadas aún no están disponibles para contratación. Se requiere consentimiento para comunicaciones comerciales.</div></div></div></section>
+<section class="section footcta"><div class="container"><span class="kicker">MIRED360SERVICIOS</span><h2>Tu negocio necesita conversaciones organizadas, no bases descontroladas.</h2><p>Comienza con el software de campañas asistidas y conoce su funcionamiento.</p><div class="actions" style="justify-content:center"><a class="btn btn-primary" href="./">Ir a la plataforma →</a></div></div></section>
+<footer><div class="container"><span>© 2026 MIRED360SERVICIOS · CAMPAIGNS</span><span>Atención: <a href="mailto:ventas@mired360servicios.com">ventas@mired360servicios.com</a> · WhatsApp 322 943 2085</span></div></footer>
+</body></html>
