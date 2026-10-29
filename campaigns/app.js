@@ -26,6 +26,12 @@ function normalizePhone(value) {
   if (!result) throw new Error('Usa un celular válido: 10 dígitos colombianos o formato internacional +código.');
   return result;
 }
+function permittedCommercialHourCO() {
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Bogota',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
+  const get=t=>parts.find(p=>p.type===t)?.value;
+  const day=get('weekday'),minutes=Number(get('hour'))*60+Number(get('minute'));
+  return day==='Sat' ? minutes>=480 && minutes<900 : day==='Sun' ? false : minutes>=420 && minutes<1140;
+}
 function eligibleContacts() {
   return state.contacts.filter(c => !!c.consentimiento_fecha && !c.excluido);
 }
@@ -371,10 +377,12 @@ function renderCampaignDetail() {
   $('detailHint').textContent=people.length+' contactos autorizados disponibles. Abre uno por uno.';
   $('targetRows').innerHTML=people.slice(0,400).map(person=>{
     const record=state.actions.find(a=>a.campana_id===c.id && a.contacto_id===person.id);
-    let stateLabel=record?.estado==='contactado'?'Contactado (manual)':record?.estado==='respondio'?'Respondió':record?.estado==='preparado'?'Chat abierto':'Sin gestionar';
+    let stateLabel=record?.estado==='contactado'?'Contactado (manual)':record?.estado==='respondio'?'Respondió':record?.estado==='sin_interes'?'Sin interés':record?.estado==='preparado'?'Chat abierto':'Sin gestionar';
     return '<tr><td><strong>'+html(person.nombre)+'</strong></td><td>'+html(person.telefono_e164)+'</td><td>'+html(stateLabel)+'</td><td>'+
     '<button class="table-action" data-whatsapp="'+html(person.id)+'">Abrir WhatsApp</button> '+
-    '<button class="table-action" data-mark-contacted="'+html(person.id)+'">Marcar contactado</button></td></tr>';
+    '<button class="table-action" data-mark-contacted="'+html(person.id)+'">Contactado</button> '+
+    '<button class="table-action" data-mark-responded="'+html(person.id)+'">Respondió</button> '+
+    '<button class="table-action" data-mark-uninterested="'+html(person.id)+'">Sin interés</button></td></tr>';
   }).join('') || '<tr><td colspan="4">Agrega contactos autorizados para preparar esta campaña.</td></tr>';
 }
 async function recordAction(contactId,estado) {
@@ -391,6 +399,9 @@ async function openWhatsApp(contactId) {
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
   if(!person||!c)return toast('Este contacto no tiene permiso vigente.',true);
   if(!licenseEnabled())return toast('Suscripción vencida.',true);
+  if(person.telefono_e164.startsWith('+57') && !permittedCommercialHourCO())
+    return toast('Fuera del horario legal comercial de Colombia. L-V: 7 a 19 h; sábado: 8 a 15 h. Nunca domingos ni festivos.',true);
+  if(person.telefono_e164.startsWith('+57') && !confirm('¿Confirmas que hoy NO es festivo en Colombia y que el destinatario autorizó mensajes comerciales?'))return;
   const msg=c.mensaje.replace(/\{nombre\}/gi,person.nombre);
   window.open('https://wa.me/'+person.telefono_e164.replace('+','')+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
   try {await recordAction(contactId,'preparado');toast('Conversación abierta. No se ha confirmado el envío.');}
@@ -400,6 +411,30 @@ async function markContacted(contactId) {
   if(!licenseEnabled())return toast('Suscripción vencida.',true);
   if(!confirm('¿Confirmas que contactaste personalmente a esta persona?'))return;
   try{await recordAction(contactId,'contactado');toast('Gestión manual registrada.');}catch(error){reportError(error);}
+}
+async function markCampaignStatus(contactId,status) {
+  if(!licenseEnabled())return toast('Suscripción vencida.',true);
+  if(!['respondio','sin_interes'].includes(status))return;
+  if(!confirm(status==='respondio'?'¿El contacto respondió personalmente?':'¿Confirmas que el contacto no está interesado?'))return;
+  try{await recordAction(contactId,status);toast('Resultado comercial actualizado.');}catch(error){reportError(error);}
+}
+function exportCampaignReport(){
+  const camp=state.campaigns.find(x=>x.id===state.selectedCampaign);
+  if(!camp)return toast('Selecciona una campaña.',true);
+  const quote=value=>{
+    let s=String(value??'');
+    if(/^\s*[=+\-@]/.test(s))s="'"+s;
+    return '"'+s.replace(/"/g,'""')+'"';
+  };
+  const rows=[['contacto','celular','estado','fecha_gestion','autorizado','excluido'].map(quote).join(',')];
+  for(const person of state.contacts){
+    const action=state.actions.find(a=>a.campana_id===camp.id && a.contacto_id===person.id);
+    rows.push([person.nombre,person.telefono_e164,action?.estado||'sin_gestion',action?.actualizado_en||'',person.consentimiento_fecha?'si':'no',person.excluido?'si':'no'].map(quote).join(','));
+  }
+  const url=URL.createObjectURL(new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download='reporte-campana-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+  toast('Informe comercial descargado como CSV.');
 }
 
 function renderTeam() {
@@ -623,10 +658,14 @@ function bindEvents() {
     if(button){state.selectedCampaign=button.dataset.openCampaign;renderCampaignDetail();$('campaignDetail').scrollIntoView({behavior:'smooth'});}
   });
   $('closeDetail').addEventListener('click',()=>{state.selectedCampaign=null;$('campaignDetail').hidden=true;});
+  $('exportCampaignReport').addEventListener('click',exportCampaignReport);
   $('targetRows').addEventListener('click',event=>{
     const open=event.target.closest('[data-whatsapp]'),done=event.target.closest('[data-mark-contacted]');
+    const answered=event.target.closest('[data-mark-responded]'),uninterested=event.target.closest('[data-mark-uninterested]');
     if(open)openWhatsApp(open.dataset.whatsapp);
     if(done)markContacted(done.dataset.markContacted);
+    if(answered)markCampaignStatus(answered.dataset.markResponded,'respondio');
+    if(uninterested)markCampaignStatus(uninterested.dataset.markUninterested,'sin_interes');
   });
 }
 async function init() {
