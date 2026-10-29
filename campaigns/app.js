@@ -29,13 +29,18 @@ function normalizePhone(value) {
 function eligibleContacts() {
   return state.contacts.filter(c => !!c.consentimiento_fecha && !c.excluido);
 }
+function pendingInvite() {
+  const token = new URLSearchParams(window.location.search).get('invite');
+  if(token && /^[a-f0-9-]{36}$/i.test(token)) localStorage.setItem('wa_pending_invite',token);
+  return localStorage.getItem('wa_pending_invite') || '';
+}
 function switchAuth(mode) {
   state.authMode = mode;
-  const register = mode === 'register';
-  $('authTitle').textContent = register ? 'Empieza a vender mejor' : 'Bienvenido de nuevo';
-  $('authSubtitle').textContent = register ? 'Crea una cuenta para organizar tu actividad comercial.' : 'Ingresa para continuar con tus campañas.';
+  const register = mode === 'register', invited=!!pendingInvite();
+  $('authTitle').textContent = register ? (invited?'Únete al equipo':'Empieza a vender mejor') : 'Bienvenido de nuevo';
+  $('authSubtitle').textContent = invited ? (register?'Crea tu cuenta con el correo invitado.':'Ingresa con el correo invitado para aceptar el acceso.') : (register?'Crea una cuenta para organizar tu actividad comercial.':'Ingresa para continuar con tus campañas.');
   $('authSubmit').innerHTML = register ? 'Crear mi cuenta <span>→</span>' : 'Ingresar a la plataforma <span>→</span>';
-  $('signupOrgField').hidden = !register;
+  $('signupOrgField').hidden = !register || invited;
   $('loginTab').classList.toggle('active', !register);
   $('registerTab').classList.toggle('active', register);
   $('authPrompt').textContent = register ? '¿Ya tienes cuenta?' : '¿Aún no tienes cuenta?';
@@ -50,11 +55,13 @@ async function submitAuth(event) {
   submit.disabled = true;
   try {
     if (state.authMode === 'register') {
-      const company = $('authOrg').value.trim();
-      if (company.length < 2) throw new Error('Escribe el nombre de la empresa.');
-      const {data,error} = await db.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin + window.location.pathname}});
+      const invited=!!pendingInvite();
+      const company = invited ? '' : $('authOrg').value.trim();
+      if (!invited && company.length < 2) throw new Error('Escribe el nombre de la empresa.');
+      const inviteSuffix = invited ? '?invite='+encodeURIComponent(pendingInvite()) : '';
+      const {data,error} = await db.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin + window.location.pathname + inviteSuffix}});
       if (error) throw error;
-      localStorage.setItem('wa_pending_org',company);
+      if(!invited)localStorage.setItem('wa_pending_org',company);
       if (data?.session && data?.user) {
         state.user = data.user; await boot();
       } else {
@@ -76,11 +83,15 @@ async function boot() {
   const {data:administrator}=await db.from('wa_superadministradores').select('usuario_id').eq('usuario_id',state.user.id).maybeSingle();
   state.isSuperAdmin=!!administrator;
   $('adminNav').hidden=!state.isSuperAdmin;
-  const invite = new URLSearchParams(window.location.search).get('invite');
+  const invite = pendingInvite();
   if(invite){
     const {data:accepted,error} = await db.rpc('wa_aceptar_invitacion',{p_id:invite});
-    if(error) reportError(error,'No fue posible aceptar la invitación.');
-    else {localStorage.setItem('wa_current_org',accepted);toast('Invitación aceptada. Bienvenido al equipo.');}
+    if(error) reportError(error,'No fue posible aceptar la invitación. Verifica el correo invitado.');
+    else {
+      localStorage.setItem('wa_current_org',accepted);
+      localStorage.removeItem('wa_pending_invite');
+      toast('Invitación aceptada. Bienvenido al equipo.');
+    }
     window.history.replaceState({},'',window.location.pathname);
   }
   await loadOrgs();
