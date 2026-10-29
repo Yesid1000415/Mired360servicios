@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261029-campana-8">
+  <link rel="stylesheet" href="./styles.css?v=20261029-tandas-9">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -140,6 +140,65 @@
     </div>
   </div>
   <p id="detailConsentNotice" class="detail-notice" hidden></p>
+
+  <section id="queuePanel" class="queue-panel" aria-labelledby="queueHeading">
+    <div class="queue-panel-heading">
+      <div>
+        <span class="eyebrow">ENVÍO ASISTIDO · CONTROL DE RITMO</span>
+        <h3 id="queueHeading">Tandas de WhatsApp</h3>
+        <p>Organiza hasta 50 contactos autorizados por tanda. Cada conversación se abre individualmente y el envío lo confirmas tú en WhatsApp.</p>
+      </div>
+      <span id="queueStatus" class="queue-badge">Sin tanda</span>
+    </div>
+    <div id="queueStartPanel" class="queue-start">
+      <div class="queue-settings">
+        <div class="field">
+          <label for="queueBatchSize">Tamaño de la tanda</label>
+          <select id="queueBatchSize">
+            <option value="10">10 contactos</option>
+            <option value="25">25 contactos</option>
+            <option value="50" selected>50 contactos</option>
+          </select>
+        </div>
+        <div class="queue-delay">
+          <span>Intervalo entre confirmaciones</span>
+          <strong>120 segundos</strong>
+          <small>El reloj comienza cuando confirmas que enviaste el mensaje.</small>
+        </div>
+      </div>
+      <p class="queue-availability" id="queueAvailable"></p>
+      <button id="queueStart" class="btn btn-primary" type="button">▶ Preparar tanda</button>
+    </div>
+    <div id="queueRunPanel" class="queue-run" hidden>
+      <div class="queue-progress-info">
+        <span id="queueCounter" aria-live="polite">0 de 0 confirmados</span>
+        <strong id="queueTime">Listo para abrir</strong>
+      </div>
+      <div class="queue-progress-track" role="progressbar" aria-label="Progreso de tanda" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="queueProgress">
+        <div id="queueProgressFill"></div>
+      </div>
+      <div class="queue-current-contact">
+        <span class="eyebrow">SIGUIENTE CONTACTO</span>
+        <strong id="queueCurrentName">—</strong>
+        <small id="queueCurrentPhone"></small>
+        <p id="queueStepInfo" aria-live="polite">Prepara el mensaje cuando esté habilitado.</p>
+      </div>
+      <div class="queue-control-actions">
+        <button id="queueOpenNext" type="button" class="btn btn-primary">Abrir chat en WhatsApp</button>
+        <button id="queueConfirmSent" type="button" class="btn btn-primary" hidden>✓ Ya envié el mensaje</button>
+        <button id="queueSkip" type="button" class="btn btn-secondary">Omitir contacto</button>
+        <button id="queuePause" type="button" class="btn btn-secondary">Ⅱ Pausar</button>
+        <button id="queueResume" type="button" class="btn btn-primary" hidden>▶ Continuar</button>
+        <button id="queueStop" type="button" class="btn btn-secondary">Detener tanda</button>
+      </div>
+      <p class="small-notice" id="queueComplianceNotice">El sistema no envía nada automáticamente. Abre cada conversación cuando corresponda. Confirma «Ya envié» solamente después de enviar tú mismo el mensaje en WhatsApp. Respeta las solicitudes de no contacto.</p>
+    </div>
+    <div id="queueDonePanel" class="queue-done" hidden>
+      <strong>✓ Tanda finalizada</strong>
+      <p id="queueDoneDescription">Prepara otra tanda para continuar.</p>
+      <button id="queueNextBatch" type="button" class="btn btn-primary">＋ Preparar siguiente tanda</button>
+    </div>
+  </section>
   <div id="campaignAssignPanel" class="campaign-picker" hidden>
     <div class="picker-intro">
       <div><span class="eyebrow">PASO 1 · SELECCIONAR DESTINATARIOS</span><h3>Agregar contactos de tu empresa</h3>
@@ -213,6 +272,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261029-campana-8"></script>
+  <script type="module" src="./app.js?v=20261029-tandas-9"></script>
 </body>
 </html>
