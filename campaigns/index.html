@@ -40,6 +40,11 @@
           <button class="btn btn-primary btn-wide" id="authSubmit" type="submit">Ingresar a la plataforma <span>→</span></button>
         </form>
         <button id="resetPassword" type="button" class="text-btn" style="display:block;margin:15px auto 0">¿Olvidaste tu contraseña?</button>
+        <form id="recoveryForm" hidden>
+          <div class="field"><label for="newPassword">Nueva contraseña</label><input type="password" id="newPassword" minlength="10" placeholder="Mínimo 10 caracteres" autocomplete="new-password"></div>
+          <div class="field"><label for="confirmPassword">Confirma la contraseña</label><input type="password" id="confirmPassword" minlength="10" placeholder="Repite la contraseña" autocomplete="new-password"></div>
+          <button type="submit" class="btn btn-primary btn-wide">Actualizar contraseña</button>
+        </form>
         <p class="fine-print">La plataforma requiere cuentas autorizadas. Las campañas se realizan únicamente con contactos que dieron su consentimiento.</p>
         <p class="auth-bottom"><span id="authPrompt">¿Aún no tienes cuenta?</span> <button id="authToggle" class="text-btn" type="button">Crear cuenta</button></p>
       </div>
@@ -59,6 +64,7 @@
         <button data-page="equipo" class="nav-btn"><span class="nav-ico">♙</span> Equipo</button>
         <button data-page="integraciones" class="nav-btn"><span class="nav-ico">⚙</span> Integraciones</button>
         <button data-page="planes" class="nav-btn"><span class="nav-ico">◇</span> Suscripción</button>
+        <button data-page="administracion" id="adminNav" hidden class="nav-btn"><span class="nav-ico">♜</span> Administración</button>
       </nav>
       <div class="sidebar-bottom"><div class="sidebar-help">✧ <strong>Mensajería responsable</strong><small>Solo envíos a contactos con consentimiento verificable.</small></div><button id="signOut" class="signout-btn">↪ Cerrar sesión</button></div>
     </aside>
@@ -69,6 +75,7 @@
         <div class="topbar-end"><label class="sr-only" for="orgSelect">Empresa activa</label><select id="orgSelect" title="Seleccionar empresa"></select><button id="newOrgButton" class="subtle-btn" title="Crear empresa">＋</button><div class="user-avatar" id="userAvatar">M</div></div>
       </header>
       <main class="workspace">
+        <div id="licenseBanner" hidden class="license-banner"></div>
         <section id="onboarding" hidden class="onboarding card">
           <div class="eyebrow">PRIMER PASO</div><h1>Configura tu espacio empresarial</h1><p>Los contactos y campañas quedarán aislados de los de otras empresas.</p>
           <form id="orgForm" class="inline-form"><input id="orgName" required minlength="2" maxlength="100" placeholder="Nombre de tu empresa"><button class="btn btn-primary">Crear empresa</button></form>
@@ -125,11 +132,15 @@
           <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
             <div class="two-col"><div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div><div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Próxima integración: plantillas aprobadas, webhooks, bandeja multiagente y estados de entrega. Los tokens deberán configurarse únicamente en un servidor seguro.</p><span class="status pending">En desarrollo · no conectada</span></div></div>
           </section>
-          <section data-section="planes" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">SUSCRIPCIONES</span><h1>Planes comerciales</h1><p class="muted">Precios proyectados. Los pagos todavía no están habilitados.</p></div></div><div class="price-grid"><article class="card price-card"><h2>Emprendedor</h2><div class="price">$49.900 <span>/mes</span></div><p>Contactos y campañas asistidas.</p><span class="status pending">Próximamente</span></article><article class="card price-card featured"><h2>Profesional</h2><div class="price">$129.900 <span>/mes</span></div><p>API oficial y equipos, cuando esté integrada.</p><span class="status pending">Próximamente</span></article><article class="card price-card"><h2>Empresa</h2><div class="price">$299.900 <span>/mes</span></div><p>Gestión avanzada y sucursales.</p><span class="status pending">Próximamente</span></article></div><p class="small-notice">Valores ilustrativos de lanzamiento, no constituyen una oferta de contratación. Costos de Meta y proveedores adicionales no incluidos.</p></section>
+          <section data-section="planes" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">SUSCRIPCIONES</span><h1>Planes comerciales</h1><p class="muted">Inicia con el plan asistido. La activación y pago son verificados por un administrador.</p></div></div><div id="licenseInfo" class="card license-info"></div><div class="price-grid"><article class="card price-card"><h2>Emprendedor</h2><div class="price">$49.900 <span>/mes</span></div><p>Contactos y campañas asistidas.</p><button id="requestStarter" type="button" class="btn btn-primary">Solicitar activación por WhatsApp</button></article><article class="card price-card featured"><h2>Profesional</h2><div class="price">$129.900 <span>/mes</span></div><p>API oficial y equipos, cuando esté integrada.</p><span class="status pending">Próximamente</span></article><article class="card price-card"><h2>Empresa</h2><div class="price">$299.900 <span>/mes</span></div><p>Gestión avanzada y sucursales.</p><span class="status pending">Próximamente</span></article></div><p class="small-notice">Plan Emprendedor disponible mediante gestión comercial y verificación manual del pago. Los planes con API oficial aún no se venden. No hay pagos dentro del panel.</p></section>
+          <section data-section="administracion" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">ADMINISTRACIÓN GENERAL</span><h1>Empresas y licencias</h1><p class="muted">Solo el administrador autorizado puede activar suscripciones. Verifica el pago antes de habilitar un plan.</p></div><button id="refreshAdmin" class="btn btn-secondary">Actualizar datos</button></div>
+            <div class="card"><div class="table-scroll"><table><thead><tr><th>EMPRESA</th><th>PLAN</th><th>ESTADO</th><th>VIGENCIA</th><th>ACTIVAR DESPUÉS DEL PAGO</th></tr></thead><tbody id="adminRows"></tbody></table></div></div>
+          </section>
         </div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=2"></script>
+  <script type="module" src="./app.js?v=3"></script>
 </body>
 </html>
