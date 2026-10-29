@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261029-contactos-7">
+  <link rel="stylesheet" href="./styles.css?v=20261029-campana-8">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -127,7 +127,57 @@
             <div id="campaignFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nueva campaña asistida</h2><button class="icon-btn" type="button" data-hide="campaignFormPanel">✕</button></div>
               <form id="campaignForm"><div class="field"><label for="campaignName">Nombre de la campaña</label><input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Clientes interesados de octubre"></div><div class="field"><label for="campaignText">Mensaje</label><textarea id="campaignText" required minlength="3" maxlength="4000" rows="5" placeholder="Hola {nombre}, te escribimos porque solicitaste información..."></textarea><small class="hint">Usa <code>{nombre}</code> para personalizar. Cada conversación se abre manualmente.</small></div><button class="btn btn-primary" type="submit">Guardar campaña</button></form></div>
             <div class="campaign-grid" id="campaignCards"></div><div id="campaignsEmpty" class="card empty-state" hidden>Aún no tienes campañas. Crea la primera para comenzar.</div>
-            <div id="campaignDetail" class="card" hidden><div class="card-header"><div><span class="eyebrow">SEGUIMIENTO MANUAL</span><h2 id="detailTitle">Campaña</h2><p id="detailHint" class="muted"></p><p id="detailConsentNotice" class="detail-notice" hidden>La campaña solo incluye contactos con consentimiento registrado. Revisa la sección Contactos para registrar autorizaciones verificables.</p></div><div class="detail-actions"><button class="btn btn-secondary" id="exportCampaignReport">↓ Exportar informe</button><button class="btn btn-secondary" id="closeDetail">Cerrar detalle</button></div></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table></div><p class="small-notice">Abrir WhatsApp no equivale a enviar o entregar el mensaje. Registra «Contactado» solo cuando lo confirmes. Para números colombianos, el sistema verifica el horario de lunes a viernes (7 a. m. a 7 p. m.) y sábados (8 a. m. a 3 p. m.); no contactes domingos ni festivos. Respeta también las normas de otros países.</p></div>
+            <div id="campaignDetail" class="card" hidden>
+  <div class="card-header campaign-detail-header">
+    <div>
+      <span class="eyebrow">GESTIÓN DE CAMPAÑA</span><h2 id="detailTitle">Campaña</h2>
+      <p id="detailHint" class="muted"></p>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-primary" type="button" id="campaignAddContacts">＋ Agregar contactos</button>
+      <button class="btn btn-secondary" type="button" id="exportCampaignReport">↓ Exportar informe</button>
+      <button class="btn btn-secondary" type="button" id="closeDetail">Cerrar</button>
+    </div>
+  </div>
+  <p id="detailConsentNotice" class="detail-notice" hidden></p>
+  <div id="campaignAssignPanel" class="campaign-picker" hidden>
+    <div class="picker-intro">
+      <div><span class="eyebrow">PASO 1 · SELECCIONAR DESTINATARIOS</span><h3>Agregar contactos de tu empresa</h3>
+        <p>Asigna contactos a esta campaña. Los contactos sin permiso pueden organizarse aquí, pero el botón de WhatsApp permanecerá bloqueado hasta registrar su autorización.</p>
+      </div>
+      <button id="cancelCampaignAssign" class="icon-btn" type="button" aria-label="Cerrar selector">✕</button>
+    </div>
+    <div class="picker-toolbar">
+      <input id="campaignContactSearch" type="search" placeholder="Buscar nombre o celular…" aria-label="Buscar contactos para campaña">
+      <select id="campaignContactFilter" aria-label="Filtrar contactos para campaña">
+        <option value="todos">Todos los disponibles</option>
+        <option value="autorizados">Con autorización</option>
+        <option value="pendientes">Sin autorización</option>
+      </select>
+    </div>
+    <div class="picker-selection-bar">
+      <button id="campaignSelectAll" type="button" class="btn btn-secondary">✓ Seleccionar todos los encontrados</button>
+      <button id="campaignClearSelection" type="button" class="btn btn-secondary">Limpiar selección</button>
+      <strong id="campaignSelectedCount" aria-live="polite">0 seleccionados</strong>
+    </div>
+    <div id="campaignPickerRows" class="picker-rows"></div>
+    <div id="campaignPickerEmpty" class="empty-state" hidden>No hay contactos disponibles con ese filtro.</div>
+    <div class="picker-footer">
+      <span id="campaignPickerCount" class="muted"></span>
+      <button id="campaignPickerMore" class="btn btn-secondary" type="button" hidden>Ver más</button>
+      <button id="campaignSaveSelected" class="btn btn-primary" type="button">Agregar seleccionados a campaña</button>
+    </div>
+    <p class="small-notice">Agregar contactos no envía mensajes ni constituye consentimiento. Los contactos excluidos no aparecen en este selector.</p>
+  </div>
+  <div class="campaign-assigned-header">
+    <h3>Contactos de esta campaña <span id="campaignAssignedCount" class="count-badge">0</span></h3>
+  </div>
+  <div class="table-scroll">
+    <table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>AUTORIZACIÓN</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table>
+  </div>
+  <div class="campaign-target-pager"><span id="campaignTargetCount"></span><button id="campaignTargetLoadMore" class="btn btn-secondary" type="button" hidden>Mostrar más</button></div>
+  <p class="small-notice">Abrir WhatsApp no equivale a enviar o entregar el mensaje. Registra «Contactado» solo cuando lo confirmes. Para números colombianos, verifica que no sea festivo y respeta el horario comercial aplicable.</p>
+</div>
           </section>
 
 
@@ -163,6 +213,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261029-contactos-7"></script>
+  <script type="module" src="./app.js?v=20261029-campana-8"></script>
 </body>
 </html>
