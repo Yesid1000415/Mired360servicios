@@ -11,10 +11,10 @@
 <script type="module">
 const config=window.MIRED360_CLOUD||{};
 const validConfig=/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(config.url||'') && config.publishableKey && !config.publishableKey.includes('CAMBIAR');
-let db=null,session=null,tiendas=[],tienda=null,sucursales=[],productos=[],pedidos=[],miembros=[],consultas=[],consultasTotal=0,consultasError='',tab=['configuracion','consultas'].includes(new URLSearchParams(location.search).get('seccion'))?new URLSearchParams(location.search).get('seccion'):'resumen',busy=false;
+let db=null,session=null,tiendas=[],tienda=null,sucursales=[],productos=[],pedidos=[],miembros=[],prospectosCRM=[],crmError='',crmSearch='',crmFilter='todos',consultas=[],consultasTotal=0,consultasError='',tab=['configuracion','consultas','prospectos'].includes(new URLSearchParams(location.search).get('seccion'))?new URLSearchParams(location.search).get('seccion'):'resumen',busy=false;
 const $=(s)=>document.querySelector(s), esc=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])), money=v=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(v||0));
 function toast(msg){let el=document.createElement('div');el.className='toast';el.textContent=msg;$('#toasts').append(el);setTimeout(()=>el.remove(),5000)}
-function icon(v){return {resumen:'◫',pedidos:'▤',productos:'◈',sucursales:'▣',equipo:'♧',consultas:'☎',configuracion:'⚙'}[v]||'◈'}
+function icon(v){return {resumen:'◫',pedidos:'▤',productos:'◈',sucursales:'▣',equipo:'♧',prospectos:'◎',consultas:'☎',configuracion:'⚙'}[v]||'◈'}
 function btn(text,onclick,kind=''){return `<button class="btn ${kind}" data-act="${onclick}">${text}</button>`}
 function role(){return miembros.find(x=>x.tienda_id===tienda?.id && x.usuario_id===session?.user.id)?.rol||''}
 function empty(txt='Aún no hay registros'){return `<div class="empty"><div style="font-size:32px">◇</div><b>${esc(txt)}</b><span class="small">Cuando agregues información aparecerá aquí.</span></div>`}
@@ -28,7 +28,7 @@ else if(mode==='reset')res=await db.auth.resetPasswordForEmail(email,{redirectTo
 else if(mode==='newpass')res=await db.auth.updateUser({password});
 else res=await db.auth.signInWithPassword({email,password});busy=false;
 if(res.error){toast(res.error.message);renderAuth();return}if(mode==='signup'){window.authMode='signin';toast('Registro recibido. Revisa tu correo para confirmar la cuenta; después inicia sesión.')}if(mode==='reset')toast('Consulta tu correo para recuperar tu acceso.');if(mode==='newpass'){window.authMode='signin';toast('Contraseña actualizada.');history.replaceState({},'',location.pathname)}if(res.data?.session){session=res.data.session;await loadAll()}render()}
-async function loadAll(){if(!db||!session)return;let memb=await db.from('miembros').select('*').eq('activo',true);if(memb.error){toast(memb.error.message);return}miembros=memb.data||[];let shops=await db.from('tiendas').select('*').order('created_at',{ascending:false});if(shops.error){toast(shops.error.message);return}tiendas=shops.data||[];tienda=tiendas.find(t=>t.id===tienda?.id)||tiendas[0]||null;if(!tienda){sucursales=[];productos=[];pedidos=[];consultas=[];consultasTotal=0;return}let [bs,ps,os,ms]=await Promise.all([db.from('sucursales').select('*').eq('tienda_id',tienda.id).order('created_at'),db.from('productos').select('*').eq('tienda_id',tienda.id).order('created_at',{ascending:false}),db.from('pedidos').select('*').eq('tienda_id',tienda.id).order('created_at',{ascending:false}).limit(300),db.from('miembros').select('*').eq('tienda_id',tienda.id)]);for(let x of [bs,ps,os,ms])if(x.error)toast(x.error.message);sucursales=bs.data||[];productos=ps.data||[];pedidos=os.data||[];miembros=(miembros.filter(x=>x.tienda_id!==tienda.id)).concat(ms.data||[]);await loadConsultas()}
+async function loadAll(){if(!db||!session)return;let memb=await db.from('miembros').select('*').eq('activo',true);if(memb.error){toast(memb.error.message);return}miembros=memb.data||[];let shops=await db.from('tiendas').select('*').order('created_at',{ascending:false});if(shops.error){toast(shops.error.message);return}tiendas=shops.data||[];tienda=tiendas.find(t=>t.id===tienda?.id)||tiendas[0]||null;if(!tienda){sucursales=[];productos=[];pedidos=[];prospectosCRM=[];consultas=[];consultasTotal=0;return}let [bs,ps,os,ms]=await Promise.all([db.from('sucursales').select('*').eq('tienda_id',tienda.id).order('created_at'),db.from('productos').select('*').eq('tienda_id',tienda.id).order('created_at',{ascending:false}),db.from('pedidos').select('*').eq('tienda_id',tienda.id).order('created_at',{ascending:false}).limit(300),db.from('miembros').select('*').eq('tienda_id',tienda.id)]);for(let x of [bs,ps,os,ms])if(x.error)toast(x.error.message);sucursales=bs.data||[];productos=ps.data||[];pedidos=os.data||[];miembros=(miembros.filter(x=>x.tienda_id!==tienda.id)).concat(ms.data||[]);await Promise.all([loadConsultas(),loadCRM()])}
 function publicStoreURL(){return tienda?.slug==='mired360'?'https://mired360servicios.com/mired360tienda/':new URL('tienda.html?tienda='+encodeURIComponent(tienda.slug),location.href).href}
 function linkSucursal(id,advisor){let u=new URL(publicStoreURL());u.searchParams.set('sucursal',id);if(advisor)u.searchParams.set('asesor',advisor);return u.href}
 async function loadConsultas(){
@@ -75,9 +75,131 @@ function consultasView(){
  </div>
  <p class="tiny muted" style="margin-top:14px">No se guardan nombres, teléfonos, IP ni mensajes de WhatsApp. Las cifras pueden incluir pruebas o clics automatizados y no equivalen a ventas. Los desgloses se calculan sobre los últimos 1.000 registros.</p>`;
 }
-function renderPanel(){let r=role(),owner=r==='propietario',nav=[['resumen','Resumen'],['pedidos','Pedidos'],['productos','Productos'],['sucursales','Sucursales'],['equipo','Equipo'],['consultas','Consultas WhatsApp'],['configuracion','Información de la tienda']].filter(([k])=>owner||['resumen','pedidos','consultas'].includes(k));let mobileNav=owner?[['configuracion','Mi tienda'],['resumen','Inicio'],['consultas','Consultas'],['productos','Productos'],['pedidos','Pedidos'],['sucursales','Sedes'],['equipo','Equipo']]:nav;$('#app').innerHTML=`<div class="shell"><aside class="side"><div class="logo"><span class="logoIcon">M</span><div>MIRED360<small>TIENDAS PRO</small></div></div><div class="navhint">CENTRO DE OPERACIONES</div>${nav.map(([k,t])=>`<button class="nav ${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}<div class="sidefoot"><span class="role">${esc(r)}</span><h3 style="margin-top:6px;color:white">${esc(tienda?.nombre||'Tu primera tienda')}</h3><p>Operación centralizada y segura</p></div></aside><div class="work"><header class="top"><div><div class="tiny muted">MIRED360 / ESPACIO DE TRABAJO</div><strong>${esc(tienda?.nombre||'Crea tu negocio')}</strong></div><div class="flex"><select id="tiendaSelect" aria-label="Seleccionar tienda" style="max-width:180px;padding:9px">${tiendas.length?tiendas.map(t=>`<option value="${esc(t.id)}" ${t.id===tienda?.id?'selected':''}>${esc(t.nombre)}</option>`).join(''):'<option>Sin tiendas</option>'}</select><span class="avatar">${esc((session.user.email||'M')[0].toUpperCase())}</span><button class="btn" data-act="logout">Salir</button></div></header><main class="main">${!tienda?firstShop():((owner&&tab!=='configuracion')?'<div class="personalizationStrip"><div><b>✨ Personaliza tu tienda</b><p>Aquí puedes cambiar logo, portada, colores, URL, WhatsApp y redes sociales.</p></div><button class="btn primary" data-nav="configuracion">⚙ Abrir información de la tienda</button></div>':'')+page()}</main></div></div><nav class="mobilebar">${mobileNav.map(([k,t])=>`<button class="${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}</nav>`;$('#tiendaSelect')?.addEventListener('change',async e=>{tienda=tiendas.find(x=>x.id===e.target.value);await loadAll();render()});}
+function crmLabel(status){return ({nuevo:'Nuevo',contactado:'Contactado',negociacion:'En negociación',venta_realizada:'Venta realizada',no_concretado:'No concretado'})[status]||'Sin estado'}
+function crmProd(id){return productos.find(x=>x.id===id)?.nombre||'Por definir'}
+function crmBranch(id){return sucursales.find(x=>x.id===id)?.nombre||'Sucursal'}
+function crmAdvisor(id){return miembros.find(x=>x.usuario_id===id)?.nombre_visible||miembros.find(x=>x.usuario_id===id)?.email_contacto||'Sin asignar'}
+function crmDate(dt){return dt?new Date(dt).toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'}):'Sin programar'}
+function crmLocal(dt){if(!dt)return '';let d=new Date(dt);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
+async function loadCRM(){prospectosCRM=[];crmError='';if(!db||!tienda)return;let r=await db.from('prospectos_tienda').select('*').eq('tienda_id',tienda.id).order('updated_at',{ascending:false}).limit(1000);if(r.error){crmError=r.error.message;return}prospectosCRM=r.data||[]}
+function crmPage(){
+const stages=[['todos','Todos los estados'],['nuevo','Nuevo'],['contactado','Contactado'],['negociacion','En negociación'],['venta_realizada','Venta realizada'],['no_concretado','No concretado']];
+const active=prospectosCRM.filter(x=>!['venta_realizada','no_concretado'].includes(x.estado)),won=prospectosCRM.filter(x=>x.estado==='venta_realizada');
+let overdue=active.filter(x=>x.proximo_contacto&&new Date(x.proximo_contacto)<new Date()).length;
+const summary=[['Prospectos',prospectosCRM.length],['Pendientes',active.length],['Seguimientos vencidos',overdue],['Ventas marcadas',won.length]];
+const cards=prospectosCRM.map(p=>{
+let overdue=p.proximo_contacto&&new Date(p.proximo_contacto)<new Date()&&!['venta_realizada','no_concretado'].includes(p.estado);
+let term=[p.nombre,p.telefono,p.email,crmProd(p.producto_id),crmBranch(p.sucursal_id),p.asesor_id?crmAdvisor(p.asesor_id):''].join(' ').toLowerCase();
+let tel=p.telefono.replace(/\D/g,'');if(tel.length===10&&tel.startsWith('3'))tel='57'+tel;
+let wa='https://wa.me/'+tel+'?text='+encodeURIComponent('Hola '+p.nombre+', te contactamos de '+tienda.nombre+' para continuar con tu consulta.');
+return `<article class="surface crmCard" data-leadcard data-stage="${esc(p.estado)}" data-search="${esc(term)}" style="padding:17px">
+ <div class="flex between" style="gap:9px;flex-wrap:wrap"><b>${esc(p.nombre)}</b><span class="pill ${p.estado==='venta_realizada'?'green':''}">${esc(crmLabel(p.estado))}</span></div>
+ <p class="small muted" style="margin-top:8px">${esc(p.telefono)} · ${esc(crmProd(p.producto_id))}</p>
+ <p class="tiny muted" style="margin-top:8px">${esc(crmBranch(p.sucursal_id))} · ${esc(p.asesor_id?crmAdvisor(p.asesor_id):'Sin asesor')}</p>
+ <p class="tiny" style="margin-top:10px">Próxima gestión: <b style="color:${overdue?'#bd372e':'inherit'}">${esc(crmDate(p.proximo_contacto))}${overdue?' · Vencida':''}</b></p>
+ <div class="flex" style="margin-top:12px;flex-wrap:wrap;gap:7px"><button class="btn primary" type="button" data-crm="detail:${esc(p.id)}">Gestionar</button><a href="${esc(wa)}" class="btn" target="_blank" rel="noopener noreferrer">WhatsApp</a></div></article>`;
+}).join('');
+return `${panelTitle('Prospectos y ventas','Gestiona clientes reales, tareas comerciales y resultados',`<button type="button" class="btn primary" data-crm="new">＋ Nuevo prospecto</button>`)}
+<div class="banner" style="margin-bottom:20px">Registra prospectos cuando el cliente haya facilitado sus datos. Un clic a WhatsApp no significa que haya enviado un mensaje. «Venta realizada» se marca manualmente y no confirma pagos.</div>
+${crmError?`<div class="banner">${esc(crmError)}</div>`:''}
+<div class="grid statgrid">${summary.map(([s,n])=>`<div class="surface stat"><div class="muted small">${s}</div><div class="number">${n}</div></div>`).join('')}</div>
+<div class="surface pad" style="margin-top:18px"><div class="flex" style="flex-wrap:wrap;gap:12px">
+<input id="crmSearch" type="search" style="flex:2 1 250px" placeholder="Buscar nombre, teléfono, asesor o producto" value="${esc(crmSearch)}">
+<select id="crmStatusFilter" style="flex:1 1 175px">${stages.map(([v,s])=>`<option value="${v}" ${crmFilter===v?'selected':''}>${s}</option>`).join('')}</select></div>
+<p class="tiny muted" style="margin-top:10px">Se muestran hasta 1.000 prospectos recientes. Valor estimado de ventas marcadas: ${money(won.reduce((s,p)=>s+Number(p.valor_estimado_cop||0),0))}. No equivale a ingresos cobrados.</p></div>
+<div id="crmList" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));align-items:stretch;gap:14px;margin-top:16px">
+${cards||empty('Aún no hay prospectos. Registra tu primer cliente atendido.')}</div>`;
+}
+function crmFilterCards(){
+for(let el of document.querySelectorAll('[data-leadcard]'))el.hidden=!( (crmFilter==='todos'||el.dataset.stage===crmFilter) && (!crmSearch.trim()||el.dataset.search.includes(crmSearch.trim().toLowerCase())));
+}
+function crmOptions(items,selected){return items.map(([v,s])=>`<option value="${esc(v)}" ${String(v)===String(selected||'')?'selected':''}>${esc(s)}</option>`).join('')}
+function crmAssignOptions(branch,selected){return `<option value="">Sin asignar</option>`+crmOptions(miembros.filter(x=>x.activo&&x.sucursal_id===branch&&['asesor','encargado'].includes(x.rol)).map(x=>[x.usuario_id,x.nombre_visible||x.email_contacto||'Asesor']),selected)}
+function crmEditor(p){
+const me=miembros.find(x=>x.tienda_id===tienda.id&&x.usuario_id===session.user.id);
+const staff=role()!=='propietario';
+const branch=staff?me?.sucursal_id:(p?.sucursal_id||sucursales.find(x=>x.activa)?.id);
+if(!branch){toast('Primero asigna una sucursal activa.');return}
+const chosen=role()==='asesor'?session.user.id:(p?.asesor_id||'');
+const branches=staff?sucursales.filter(x=>x.id===branch):sucursales.filter(x=>x.activa||x.id===p?.sucursal_id);
+const field=(key,label,val='',type='text',extra='')=>`<div><label>${label}</label><input name="${key}" type="${type}" value="${esc(val)}" ${extra}></div>`;
+const stages=[['nuevo','Nuevo'],['contactado','Contactado'],['negociacion','En negociación'],['venta_realizada','Venta realizada'],['no_concretado','No concretado']];
+$('#modal').className='overlay show';
+$('#modal').innerHTML=`<div class="dialog" style="max-width:780px;max-height:90vh;overflow:auto">
+<div class="headrow"><h2>${p?'Editar prospecto':'Nuevo prospecto'}</h2><button type="button" class="btn" data-act="close">✕</button></div>
+<form id="crmForm" class="fieldgrid" data-id="${esc(p?.id||'')}">
+${field('nombre','Nombre del cliente',p?.nombre||'','text','required minlength="2" maxlength="160"')}
+${field('telefono','Teléfono con indicativo',p?.telefono||'','tel','required pattern="[+]?[0-9]{7,15}" placeholder="573229432085"')}
+${field('email','Correo (opcional)',p?.email||'','email','maxlength="200"')}
+${field('ciudad','Ciudad o municipio',p?.ciudad||'','text','maxlength="120"')}
+<div><label>Producto</label><select name="producto_id"><option value="">Por definir</option>${crmOptions(productos.filter(x=>x.activa).map(x=>[x.id,x.nombre]),p?.producto_id)}</select></div>
+<div><label>Origen</label><select name="origen">${crmOptions(['WhatsApp','Tienda','Llamada','Referido','Redes sociales','Otro'].map(s=>[s,s]),p?.origen||'WhatsApp')}</select></div>
+<div><label>Estado comercial</label><select name="estado">${crmOptions(stages,p?.estado||'nuevo')}</select></div>
+${field('valor_estimado_cop','Valor estimado (COP)',p?.valor_estimado_cop||0,'number','min="0" step="1"')}
+<div><label>Sucursal</label><select name="sucursal_id" id="crmBranchInput" ${staff?'disabled':''}>${crmOptions(branches.map(s=>[s.id,s.nombre]),branch)}</select></div>
+<div><label>Asesor</label><select name="asesor_id" id="crmAdvisorInput" ${role()==='asesor'?'disabled':''}>${role()==='asesor'?crmOptions([[session.user.id,me?.nombre_visible||'Yo']],session.user.id):crmAssignOptions(branch,chosen)}</select></div>
+<div><label>Próxima gestión</label><input name="proximo_contacto" type="datetime-local" value="${esc(crmLocal(p?.proximo_contacto))}"></div>
+<div class="wide"><label>Observaciones</label><textarea name="notas" rows="3" maxlength="3000">${esc(p?.notas||'')}</textarea></div>
+<div class="wide"><p class="tiny muted">Ingresa solo información facilitada por el cliente. No guardes contraseñas, documentos ni datos bancarios.</p></div>
+<div class="wide flex" style="justify-content:end;flex-wrap:wrap"><button class="btn" type="button" data-act="close">Cancelar</button><button class="btn primary" type="submit">Guardar prospecto</button></div>
+</form></div>`;
+}
+async function crmSave(form){
+const btn=form.querySelector('button[type=submit]');if(btn.disabled)return;
+const f=new FormData(form),me=miembros.find(x=>x.tienda_id===tienda.id&&x.usuario_id===session.user.id);
+const branch=role()==='propietario'?f.get('sucursal_id'):me?.sucursal_id;
+const advisor=role()==='asesor'?session.user.id:f.get('asesor_id')||null;
+const phone=String(f.get('telefono')||'').trim().replace(/[\s-]/g,''),value=Number(f.get('valor_estimado_cop')||0),name=String(f.get('nombre')||'').trim();
+if(!branch||name.length<2||!/^\+?[0-9]{7,15}$/.test(phone)||!Number.isSafeInteger(value)||value<0){toast('Revisa el nombre, teléfono, sucursal y valor.');return}
+let date=null;try{date=f.get('proximo_contacto')?new Date(f.get('proximo_contacto')).toISOString():null}catch{toast('La fecha no es válida.');return}
+const payload={nombre:name,telefono:phone,email:String(f.get('email')||'').trim(),ciudad:String(f.get('ciudad')||'').trim(),
+ producto_id:f.get('producto_id')||null,origen:f.get('origen'),estado:f.get('estado'),valor_estimado_cop:value,
+ sucursal_id:branch,asesor_id:advisor,proximo_contacto:date,notas:String(f.get('notas')||'').trim()};
+const id=form.dataset.id;btn.disabled=true;btn.textContent='Guardando...';
+try{
+const req=id?db.from('prospectos_tienda').update(payload).eq('tienda_id',tienda.id).eq('id',id):db.from('prospectos_tienda').insert({...payload,tienda_id:tienda.id});
+const result=await req.select('id').single();if(result.error)throw result.error;
+$('#modal').className='overlay';await loadCRM();render();toast(id?'Prospecto actualizado e historial guardado':'Prospecto registrado correctamente');
+}catch(e){toast(e.message||'No se pudo guardar')}finally{btn.disabled=false;btn.textContent='Guardar prospecto'}
+}
+async function crmDetail(id){
+const p=prospectosCRM.find(x=>x.id===id);if(!p)return;
+const res=await db.from('gestiones_prospectos').select('*').eq('tienda_id',tienda.id).eq('prospecto_id',id).order('created_at',{ascending:false}).limit(200);
+if(res.error){toast('No se pudo cargar el historial');return}
+const names={creacion:'Registro inicial',gestion:'Gestión comercial',estado:'Cambio de estado',asignacion:'Asignación',actualizacion:'Actualización'};
+const history=(res.data||[]).map(g=>`<div class="feedItem"><div><b>${esc(names[g.tipo]||g.tipo)}</b><p class="tiny muted">${esc(crmDate(g.created_at))} · ${esc(g.usuario_id?crmAdvisor(g.usuario_id):'Sistema')}</p>
+<p class="small" style="margin-top:7px">${esc(g.descripcion)}</p>${g.tipo==='estado'?`<p class="tiny muted">De ${esc(crmLabel(g.estado_anterior))} a ${esc(crmLabel(g.estado_nuevo))}</p>`:''}</div></div>`).join('');
+$('#modal').className='overlay show';$('#modal').innerHTML=`<div class="dialog" style="max-width:790px;max-height:90vh;overflow:auto">
+<div class="headrow"><div><h2>${esc(p.nombre)}</h2><p class="small muted">${esc(p.telefono)} · ${esc(crmLabel(p.estado))}</p></div><button class="btn" type="button" data-act="close">✕</button></div>
+<p class="small" style="margin-top:13px">Producto: <b>${esc(crmProd(p.producto_id))}</b></p>
+<p class="small" style="margin-top:8px">Asesor: ${esc(p.asesor_id?crmAdvisor(p.asesor_id):'Sin asignar')} · ${esc(crmBranch(p.sucursal_id))}</p>
+<p class="small" style="margin-top:8px">Seguimiento: ${esc(crmDate(p.proximo_contacto))} · Valor estimado: ${money(p.valor_estimado_cop)}</p>
+${p.notas?`<div class="banner" style="margin-top:12px">${esc(p.notas)}</div>`:''}
+<div class="flex" style="flex-wrap:wrap;gap:9px;margin:15px 0">
+<button class="btn primary" data-crm="edit:${esc(id)}">✎ Editar / Cambiar estado</button>
+<button class="btn" data-crm="note:${esc(id)}">＋ Registrar gestión</button>
+</div><div class="surface pad" style="margin-top:10px"><h3 style="margin-bottom:12px">Historial de gestiones</h3>${history||empty('Aún no hay gestiones')}</div></div>`;
+}
+function crmNote(id){
+const p=prospectosCRM.find(x=>x.id===id);if(!p)return;
+$('#modal').className='overlay show';$('#modal').innerHTML=`<div class="dialog" style="max-width:620px">
+<div class="headrow"><h2>Nueva gestión</h2><button class="btn" type="button" data-act="close">✕</button></div><p class="small muted" style="margin:10px 0 16px">${esc(p.nombre)}</p>
+<form id="crmNoteForm" data-id="${esc(id)}"><label>Detalle del contacto</label><textarea name="descripcion" maxlength="2000" minlength="2" required rows="5" placeholder="Ej.: Cliente confirmó cobertura; llamar mañana en la tarde."></textarea>
+<div class="flex" style="justify-content:end;gap:8px;margin-top:15px"><button type="button" class="btn" data-crm="detail:${esc(id)}">Volver</button><button type="submit" class="btn primary">Guardar gestión</button></div></form></div>`;
+}
+async function crmSaveNote(form){
+const p=prospectosCRM.find(x=>x.id===form.dataset.id);if(!p)return;
+const btn=form.querySelector('button[type=submit]');if(btn.disabled)return;
+const note=String(new FormData(form).get('descripcion')||'').trim();if(note.length<2){toast('Escribe la gestión realizada');return}
+btn.disabled=true;
+try{
+const r=await db.from('gestiones_prospectos').insert({tienda_id:tienda.id,prospecto_id:p.id,tipo:'gestion',descripcion:note});
+if(r.error)throw r.error;toast('Gestión registrada');await crmDetail(p.id);
+}catch(e){toast(e.message||'No fue posible registrar la gestión');btn.disabled=false}
+}
+function renderPanel(){let r=role(),owner=r==='propietario',nav=[['resumen','Resumen'],['pedidos','Pedidos'],['productos','Productos'],['sucursales','Sucursales'],['equipo','Equipo'],['prospectos','Prospectos y ventas'],['consultas','Consultas WhatsApp'],['configuracion','Información de la tienda']].filter(([k])=>owner||['resumen','pedidos','consultas','prospectos'].includes(k));let mobileNav=owner?[['configuracion','Mi tienda'],['resumen','Inicio'],['prospectos','Prospectos'],['consultas','Consultas'],['productos','Productos'],['pedidos','Pedidos'],['sucursales','Sedes'],['equipo','Equipo']]:nav;$('#app').innerHTML=`<div class="shell"><aside class="side"><div class="logo"><span class="logoIcon">M</span><div>MIRED360<small>TIENDAS PRO</small></div></div><div class="navhint">CENTRO DE OPERACIONES</div>${nav.map(([k,t])=>`<button class="nav ${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}<div class="sidefoot"><span class="role">${esc(r)}</span><h3 style="margin-top:6px;color:white">${esc(tienda?.nombre||'Tu primera tienda')}</h3><p>Operación centralizada y segura</p></div></aside><div class="work"><header class="top"><div><div class="tiny muted">MIRED360 / ESPACIO DE TRABAJO</div><strong>${esc(tienda?.nombre||'Crea tu negocio')}</strong></div><div class="flex"><select id="tiendaSelect" aria-label="Seleccionar tienda" style="max-width:180px;padding:9px">${tiendas.length?tiendas.map(t=>`<option value="${esc(t.id)}" ${t.id===tienda?.id?'selected':''}>${esc(t.nombre)}</option>`).join(''):'<option>Sin tiendas</option>'}</select><span class="avatar">${esc((session.user.email||'M')[0].toUpperCase())}</span><button class="btn" data-act="logout">Salir</button></div></header><main class="main">${!tienda?firstShop():((owner&&tab!=='configuracion')?'<div class="personalizationStrip"><div><b>✨ Personaliza tu tienda</b><p>Aquí puedes cambiar logo, portada, colores, URL, WhatsApp y redes sociales.</p></div><button class="btn primary" data-nav="configuracion">⚙ Abrir información de la tienda</button></div>':'')+page()}</main></div></div><nav class="mobilebar">${mobileNav.map(([k,t])=>`<button class="${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}</nav>`;$('#tiendaSelect')?.addEventListener('change',async e=>{tienda=tiendas.find(x=>x.id===e.target.value);await loadAll();render()});}
 function firstShop(){return `<div class="hero"><span class="tag">BIENVENIDO A MIRED360</span><h1 style="margin-top:8px">Comienza con tu primera tienda.</h1><p>Tu negocio tendrá un espacio propio con catálogo, sedes y colaboradores.</p></div><div class="surface pad" style="max-width:700px"><h2>Registrar mi negocio</h2><p class="small muted" style="margin:9px 0 18px">La tienda se crea inicialmente privada y sin acceso público.</p><form id="crearTienda" class="fieldgrid"><div><label>Nombre de la empresa</label><input name="nombre" required minlength="3" placeholder="Mi negocio"></div><div><label>Identificador web</label><input name="slug" required pattern="[a-z0-9-]{3,50}" placeholder="mi-negocio"></div><div><label>WhatsApp comercial</label><input name="whatsapp" pattern="[0-9+ ]{7,20}" placeholder="3229432085"></div><div style="align-self:end"><button class="btn primary" type="submit">Crear mi tienda</button></div></form></div>`}
-function page(){if(tab==='consultas')return consultasView();if(tab==='pedidos')return orders();if(tab==='productos')return products();if(tab==='sucursales')return branches();if(tab==='equipo')return team();if(tab==='configuracion')return settings();return dashboard()}
+function page(){if(tab==='prospectos')return crmPage();if(tab==='consultas')return consultasView();if(tab==='pedidos')return orders();if(tab==='productos')return products();if(tab==='sucursales')return branches();if(tab==='equipo')return team();if(tab==='configuracion')return settings();return dashboard()}
 function dashboard(){let complete=pedidos.filter(x=>x.estado==='completado'),total=complete.reduce((s,x)=>s+Number(x.total_cop),0),pending=pedidos.filter(x=>x.estado==='pendiente').length;return `${panelTitle('Tu negocio, en perspectiva.','Resumen operacional de '+esc(tienda.nombre),btn('Ver consultas WhatsApp','view:consultas','primary'))}<div class="hero"><span class="tag">◇ TU PANEL CENTRAL</span><h2 style="font-size:25px;margin-top:13px">Cada venta cuenta. Cada sucursal importa.</h2><p>Visualiza tus pedidos, tus colaboradores y la evolución de tu operación desde un mismo lugar.</p>${role()==='propietario'?btn('＋ Crear producto','newProduct'):''}</div><div class="grid statgrid">${[['◉','Ventas completadas',money(total)],['☎','Clics WhatsApp (30 días)',consultasTotal],['▤','Pedidos registrados',pedidos.length],['◷','Pendientes',pending],['▣','Sucursales activas',sucursales.filter(x=>x.activa).length]].map(([i,t,n])=>`<div class="surface stat"><em>${i}</em><div class="muted small">${t}</div><div class="number">${n}</div></div>`).join('')}</div><div class="chart"><div class="surface pad"><div class="headrow"><h2>Actividad reciente</h2>${btn('Ver pedidos','view:pedidos')}</div>${pedidos.length?pedidos.slice(0,5).map(x=>`<div class="feedItem"><div><b>${esc(x.cliente_nombre)}</b><p class="tiny">${esc(x.estado)} · ${new Date(x.created_at).toLocaleDateString('es-CO')}</p></div><b>${money(x.total_cop)}</b></div>`).join(''):empty('Aún no hay pedidos reales')}</div><div class="surface pad"><div class="headrow"><h2>Tus sucursales</h2>${role()==='propietario'?btn('Crear','newBranch'):''}</div>${sucursales.length?sucursales.slice(0,5).map(x=>`<div class="feedItem"><div><b>${esc(x.nombre)}</b><p class="tiny">${esc(x.ciudad||'Sucursal digital')}</p></div><span class="pill ${x.activa?'green':''}">${x.activa?'Activa':'Inactiva'}</span></div>`).join(''):empty('Crea tu primera sucursal')}</div></div>`}
 function orders(){return `${panelTitle('Pedidos y ventas','Pedidos reales autorizados por tu rol',btn('↻ Actualizar','refresh'))}<div class="surface tablebox">${pedidos.length?`<table class="table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Sucursal</th><th>Importe</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${pedidos.map(x=>`<tr><td><b>${esc(x.id.slice(0,8).toUpperCase())}</b><div class="tiny muted">${new Date(x.created_at).toLocaleDateString('es-CO')}</div></td><td><strong>${esc(x.cliente_nombre)}</strong><div class="tiny muted">${esc(x.cliente_ciudad)}</div></td><td>${esc(sucursales.find(s=>s.id===x.sucursal_id)?.nombre||'—')}</td><td><b>${money(x.total_cop)}</b></td><td><span class="pill ${x.estado==='completado'?'green':''}">${esc(x.estado)}</span></td><td>${role()!=='asesor'?btn('Cambiar estado','status:'+x.id):'<span class="muted">Consulta</span>'}</td></tr>`).join('')}</tbody></table>`:empty('Todavía no tienes pedidos sincronizados')}</div>`}
 function products(){return productsPro()}
@@ -206,7 +328,20 @@ if(action==='invite')popup('Invitar colaborador',field('Nombre del colaborador',
 if(action.startsWith('status:')){let id=action.slice(7),o=pedidos.find(x=>x.id===id);if(!o)return;popup('Estado del pedido',`<div class="wide"><label>Estado</label><select name="estado">${['pendiente','confirmado','en_proceso','completado','cancelado'].map(x=>`<option ${o.estado===x?'selected':''} value="${x}">${x.replace('_',' ')}</option>`).join('')}</select><input type="hidden" name="id" value="${esc(o.id)}"></div>`,'status') }}
 async function doPopup(form){if(form.dataset.kind==='productPremium')return saveProductPro(form);const kind=form.dataset.kind,f=new FormData(form),v=Object.fromEntries(f.entries());let r;if(kind==='branch')r=await db.from('sucursales').insert({tienda_id:tienda.id,nombre:v.nombre,ciudad:v.ciudad||'',whatsapp:v.whatsapp||''});if(kind==='product')r=await db.from('productos').insert({tienda_id:tienda.id,nombre:v.nombre,categoria:v.categoria||'General',precio_cop:Number(v.precio),inventario:Number(v.inventario||0),tipo:v.tipo,publicada:f.has('publicada')});if(kind==='status')r=await db.from('pedidos').update({estado:v.estado}).eq('id',v.id).eq('tienda_id',tienda.id);if(kind==='invite'){const {data,error}=await db.functions.invoke('invitar-miembro',{body:{tienda_id:tienda.id,sucursal_id:v.sucursal_id,rol:v.rol,nombre:v.nombre,email:v.email}});r={error:error||(data?.error?{message:data.error}:null)};}if(r?.error){toast(r.error.message||String(r.error));return}$('#modal').className='overlay';toast('Guardado correctamente');await loadAll();render()}
 async function submitMainForm(e){if(e.target.id==='brandForm'){e.preventDefault();return saveBrandPro(e.target)}if(e.target.id==='crearTienda'){e.preventDefault();let f=new FormData(e.target),r=await db.from('tiendas').insert({propietario_id:session.user.id,nombre:f.get('nombre'),slug:f.get('slug'),whatsapp:f.get('whatsapp')||''}).select('id').single();if(r.error){toast(r.error.message);return}toast('Tu tienda fue creada');await loadAll();render()}if(e.target.id==='settingsForm'){e.preventDefault();let f=new FormData(e.target),r=await db.from('tiendas').update({nombre:f.get('nombre'),whatsapp:f.get('whatsapp')||'',publicada:f.has('publicada')}).eq('id',tienda.id);if(r.error){toast(r.error.message);return}toast('Configuración actualizada');await loadAll();render()}}
-document.addEventListener('submit',e=>{if(e.target.id==='popupForm'){e.preventDefault();doPopup(e.target)}else if(e.target.id==='crearTienda'||e.target.id==='settingsForm'||e.target.id==='brandForm')submitMainForm(e)});
-document.addEventListener('click',async e=>{const copyBtn=e.target.closest('[data-copy]');if(copyBtn){try{await navigator.clipboard.writeText(copyBtn.dataset.copy);toast('Enlace comercial copiado')}catch{toast('No fue posible copiar automáticamente. Revisa permisos del navegador.')}return}const auth=e.target.closest('[data-auth]');if(auth){window.authMode=auth.dataset.auth;renderAuth();return}const nav=e.target.closest('[data-nav]');if(nav){tab=nav.dataset.nav;if(['configuracion','consultas'].includes(tab)){const u=new URL(location.href);u.searchParams.set('seccion',tab);history.replaceState(null,'',u)}else{const u=new URL(location.href);u.searchParams.delete('seccion');history.replaceState(null,'',u)}render();return}const btn=e.target.closest('[data-act]');if(!btn)return;const a=btn.dataset.act;if(a==='close'){$('#modal').className='overlay';return}if(a==='logout'){await db.auth.signOut();session=null;render();return}if(a==='refresh'){await loadAll();render();toast('Datos sincronizados');return}if(a.startsWith('view:')){tab=a.slice(5);render();return}openModal(a)});
+document.addEventListener('submit',e=>{if(e.target.id==='popupForm'){e.preventDefault();doPopup(e.target)}else if(e.target.id==='crmForm'){e.preventDefault();crmSave(e.target)}else if(e.target.id==='crmNoteForm'){e.preventDefault();crmSaveNote(e.target)}else if(e.target.id==='crearTienda'||e.target.id==='settingsForm'||e.target.id==='brandForm')submitMainForm(e)});
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-crm]');if(!el)return;
+ e.preventDefault();const [action,id]=el.dataset.crm.split(':');
+ if(action==='new')crmEditor(null);
+ else if(action==='edit')crmEditor(prospectosCRM.find(x=>x.id===id));
+ else if(action==='detail')void crmDetail(id);
+ else if(action==='note')crmNote(id);
+});
+document.addEventListener('input',e=>{if(e.target.id==='crmSearch'){crmSearch=e.target.value;crmFilterCards()}});
+document.addEventListener('change',e=>{
+ if(e.target.id==='crmStatusFilter'){crmFilter=e.target.value;crmFilterCards()}
+ if(e.target.id==='crmBranchInput'){const input=$('#crmAdvisorInput');if(input)input.innerHTML=crmAssignOptions(e.target.value,null)}
+});
+document.addEventListener('click',async e=>{const copyBtn=e.target.closest('[data-copy]');if(copyBtn){try{await navigator.clipboard.writeText(copyBtn.dataset.copy);toast('Enlace comercial copiado')}catch{toast('No fue posible copiar automáticamente. Revisa permisos del navegador.')}return}const auth=e.target.closest('[data-auth]');if(auth){window.authMode=auth.dataset.auth;renderAuth();return}const nav=e.target.closest('[data-nav]');if(nav){tab=nav.dataset.nav;if(['configuracion','consultas','prospectos'].includes(tab)){const u=new URL(location.href);u.searchParams.set('seccion',tab);history.replaceState(null,'',u)}else{const u=new URL(location.href);u.searchParams.delete('seccion');history.replaceState(null,'',u)}render();return}const btn=e.target.closest('[data-act]');if(!btn)return;const a=btn.dataset.act;if(a==='close'){$('#modal').className='overlay';return}if(a==='logout'){await db.auth.signOut();session=null;render();return}if(a==='refresh'){await loadAll();render();toast('Datos sincronizados');return}if(a.startsWith('view:')){tab=a.slice(5);render();return}openModal(a)});
 if(validConfig){try{const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm');db=createClient(config.url,config.publishableKey);let {data}=await db.auth.getSession();session=data.session;db.auth.onAuthStateChange((event,s)=>{session=s;if(event==='PASSWORD_RECOVERY'){window.authMode='newpass';renderAuth();return}setTimeout(async()=>{if(session)await loadAll();render()},0)});if(session){if(location.hash.includes('type=invite')||location.hash.includes('type=recovery'))window.authMode='newpass';await loadAll()}render()}catch(e){toast('Error de conexión. Revisa configuración y acceso a internet.');console.error(e);renderSetup()}}else render();
 </script></body></html>
