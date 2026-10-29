@@ -213,9 +213,14 @@ async function toggleOptout(id) {
   const c = state.contacts.find(item=>item.id===id);
   if(!c) return;
   const next = !c.excluido;
-  if(!next && !confirm('¿Reactivar este contacto? Hazlo únicamente si no solicitó dejar de recibir mensajes.')) return;
+  let changes={excluido:next};
+  if(!next){
+    const source=prompt('Describe la NUEVA autorización verificable del contacto, incluyendo su fecha:');
+    if(!source||source.trim().length<5)return toast('Necesitas una nueva autorización para reactivarlo.',true);
+    changes={excluido:false,consentimiento_fecha:new Date().toISOString(),consentimiento_fuente:source.trim()};
+  }
   try {
-    const {error} = await db.from('wa_contactos').update({excluido:next}).eq('id',id).eq('organizacion_id',state.org.id);
+    const {error} = await db.from('wa_contactos').update(changes).eq('id',id).eq('organizacion_id',state.org.id);
     if(error) throw error;
     toast(next?'Contacto excluido de futuras campañas.':'Contacto reactivado.'); await loadData();
   } catch(error) {reportError(error);}
@@ -481,6 +486,9 @@ function bindEvents() {
   $('authToggle').addEventListener('click',()=>switchAuth(state.authMode==='register'?'login':'register'));
   $('authForm').addEventListener('submit',submitAuth);
   $('resetPassword').addEventListener('click',resetPassword);
+  $('requestStarter').addEventListener('click',requestStarter);
+  $('refreshAdmin').addEventListener('click',loadAdmin);
+  $('adminRows').addEventListener('click',event=>{const btn=event.target.closest('[data-admin-activate]');if(btn)activatePaidPlan(btn.dataset.adminActivate);});
   $('inviteForm').addEventListener('submit',submitInvite);
   $('copyInvite').addEventListener('click',copyInviteLink);
   $('orgForm').addEventListener('submit',createOrg);
