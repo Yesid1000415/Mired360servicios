@@ -4,7 +4,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -144,7 +144,10 @@ async function selectOrg(id) {
   localStorage.setItem('wa_current_org',id);
   $('orgSelect').value = id;
   state.selectedCampaign = null;
+  state.recipientAssignments = [];
+  state.campaignPick = new Set();
   $('campaignDetail').hidden = true;
+  $('campaignAssignPanel').hidden = true;
   await loadData();
   navigate(state.page);
 }
@@ -162,10 +165,11 @@ async function allRows(table) {
 async function loadData() {
   if (!state.org) return;
   try {
-    const [contacts,campaigns,actions,invites,members] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([]),state.member?.rol==='propietario'?db.rpc('wa_equipo_listar',{p_org:state.org.id}).then(x=>{if(x.error)throw x.error;return x.data||[];}):Promise.resolve([])]);
+    const [contacts,campaigns,actions,assignments,invites,members] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),allRows('wa_campana_destinatarios'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([]),state.member?.rol==='propietario'?db.rpc('wa_equipo_listar',{p_org:state.org.id}).then(x=>{if(x.error)throw x.error;return x.data||[];}):Promise.resolve([])]);
     state.contacts = contacts.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.campaigns = campaigns.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.actions = actions;
+    state.recipientAssignments = assignments;
     state.invites = invites;
     state.teamMembers = members;
     renderAll();
@@ -404,43 +408,192 @@ async function addCampaign(event) {
   if(!state.org)return;
   if(!licenseEnabled())return toast('Activa tu plan para crear campañas.',true);
   try {
-    const {error}=await db.from('wa_campanas').insert({
+    const {data,error}=await db.from('wa_campanas').insert({
       organizacion_id:state.org.id, creado_por:state.user.id, nombre:$('campaignName').value.trim(),
       mensaje:$('campaignText').value.trim(), canal:'asistido', estado:'activa'
-    });
+    }).select('id').single();
     if(error)throw error;
     $('campaignForm').reset();$('campaignFormPanel').hidden=true;
-    toast('Campaña creada. El envío es asistido y manual.');await loadData();
+    toast('Campaña creada. Ahora selecciona los contactos.');
+    await loadData();
+    openCampaign(data.id);
   } catch(error){reportError(error);}
+}
+
+function assignmentsForCampaign(campaignId) {
+  return state.recipientAssignments.filter(a=>a.campana_id===campaignId);
+}
+function selectedCampaignContacts() {
+  const byId=new Map(state.contacts.map(c=>[c.id,c]));
+  return assignmentsForCampaign(state.selectedCampaign)
+    .map(a=>({assignment:a,contact:byId.get(a.contacto_id)}))
+    .filter(x=>!!x.contact)
+    .sort((a,b)=>a.contact.nombre.localeCompare(b.contact.nombre,'es'));
+}
+function isAuthorizedForMessages(person) {
+  return Boolean(person?.consentimiento_fecha && !person?.excluido);
+}
+function assignedRecipientIsAuthorized(contactId) {
+  return Boolean(state.selectedCampaign
+    && assignmentsForCampaign(state.selectedCampaign).some(a=>a.contacto_id===contactId)
+    && eligibleContacts().some(c=>c.id===contactId));
+}
+function openCampaign(id) {
+  if(!state.campaigns.some(c=>c.id===id))return toast('Campaña no encontrada.',true);
+  state.selectedCampaign=id;
+  state.campaignTargetLimit=150;
+  state.campaignPick=new Set();
+  state.campaignPickLimit=150;
+  $('campaignAssignPanel').hidden=assignmentsForCampaign(id).length>0;
+  navigate('campanas');
+  renderCampaignDetail();
+  $('campaignDetail').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function renderCampaigns() {
   $('campaignsEmpty').hidden=!!state.campaigns.length;
-  $('campaignCards').innerHTML=state.campaigns.map(c=>
-    '<article class="campaign-tile"><div class="campaign-meta"><span class="tag yes">WhatsApp asistido</span><span>'+html(formatDate(c.creado_en))+'</span></div>'+
-    '<h3>'+html(c.nombre)+'</h3><p>'+html(c.mensaje).slice(0,160)+'</p><button class="btn btn-secondary" data-open-campaign="'+html(c.id)+'">Ver y gestionar →</button></article>'
-  ).join('');
+  $('campaignCards').innerHTML=state.campaigns.map(c=>{
+    const assigned=assignmentsForCampaign(c.id);
+    const contactIds=new Set(assigned.map(a=>a.contacto_id));
+    const authorized=state.contacts.filter(x=>contactIds.has(x.id)&&isAuthorizedForMessages(x)).length;
+    return '<article class="campaign-tile"><div class="campaign-meta"><span class="tag yes">WhatsApp asistido</span><span>'+
+      html(formatDate(c.creado_en))+'</span></div><h3>'+html(c.nombre)+'</h3>'+
+      '<p>'+html(c.mensaje).slice(0,160)+'</p>'+
+      '<div class="campaign-tile-count"><strong>'+assigned.length.toLocaleString('es-CO')+' asignados</strong><small>'+
+      authorized.toLocaleString('es-CO')+' autorizados para mensajes</small></div>'+
+      '<button type="button" class="btn btn-secondary" data-open-campaign="'+html(c.id)+'">Ver y gestionar contactos →</button></article>';
+  }).join('');
+}
+function unassignedCampaignContacts() {
+  const already=new Set(assignmentsForCampaign(state.selectedCampaign).map(a=>a.contacto_id));
+  const q=$('campaignContactSearch').value.trim().toLocaleLowerCase();
+  const filter=$('campaignContactFilter').value;
+  return state.contacts.filter(c=>{
+    if(already.has(c.id)||c.excluido)return false;
+    if(filter==='autorizados'&&!isAuthorizedForMessages(c))return false;
+    if(filter==='pendientes'&&isAuthorizedForMessages(c))return false;
+    return !q || (c.nombre||'').toLocaleLowerCase().includes(q) || (c.telefono_e164||'').includes(q);
+  });
+}
+function renderCampaignPicker() {
+  if(!state.selectedCampaign || $('campaignAssignPanel').hidden)return;
+  const found=unassignedCampaignContacts();
+  const visible=found.slice(0,state.campaignPickLimit);
+  $('campaignPickerEmpty').hidden=found.length>0;
+  $('campaignPickerRows').innerHTML=visible.map(p=>{
+    const ready=isAuthorizedForMessages(p);
+    return '<label class="picker-person"><input type="checkbox" data-pick-contact="'+html(p.id)+'" '+
+      (state.campaignPick.has(p.id)?'checked':'')+'><span class="picker-person-info"><strong>'+html(p.nombre)+'</strong>'+
+      '<small>'+html(p.telefono_e164)+'</small></span><span class="tag '+(ready?'yes':'no')+'">'+
+      (ready?'Con autorización':'Sin autorización')+'</span></label>';
+  }).join('');
+  $('campaignSelectedCount').textContent=state.campaignPick.size.toLocaleString('es-CO')+' seleccionados';
+  $('campaignPickerCount').textContent='Mostrando '+visible.length.toLocaleString('es-CO')+' de '+found.length.toLocaleString('es-CO')+' disponibles';
+  $('campaignPickerMore').hidden=found.length<=visible.length;
+  $('campaignSelectAll').disabled=found.length===0;
+  $('campaignSaveSelected').disabled=state.campaignPick.size===0 || !licenseEnabled();
+}
+function showCampaignPicker() {
+  if(!state.selectedCampaign)return;
+  state.campaignPick=new Set();
+  state.campaignPickLimit=150;
+  $('campaignContactSearch').value='';
+  $('campaignContactFilter').value='todos';
+  $('campaignAssignPanel').hidden=false;
+  renderCampaignPicker();
+  $('campaignAssignPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function saveCampaignRecipients() {
+  if(!state.selectedCampaign||!state.org)return toast('Abre una campaña antes de asignar contactos.',true);
+  if(!licenseEnabled())return toast('Necesitas una suscripción activa para modificar campañas.',true);
+  const knownContactIds=new Set(state.contacts.filter(c=>!c.excluido).map(c=>c.id));
+  const existing=new Set(assignmentsForCampaign(state.selectedCampaign).map(a=>a.contacto_id));
+  const ids=[...state.campaignPick].filter(id=>knownContactIds.has(id)&&!existing.has(id));
+  if(!ids.length)return toast('Selecciona al menos un contacto nuevo.',true);
+  const withoutPermission=ids.filter(id=>!isAuthorizedForMessages(state.contacts.find(c=>c.id===id))).length;
+  const confirmation='¿Agregar '+ids.length+' contactos a esta campaña?\n\n'+
+    (withoutPermission?withoutPermission+' quedarán pendientes de autorización y no podrán recibir mensajes.':'Todos tienen autorización registrada.')+
+    '\n\nEsta operación no envía ningún mensaje.';
+  if(!confirm(confirmation))return;
+  const btn=$('campaignSaveSelected');btn.disabled=true;
+  let added=0;
+  try {
+    for(let i=0;i<ids.length;i+=100) {
+      const rows=ids.slice(i,i+100).map(contactId=>({
+        organizacion_id:state.org.id,campana_id:state.selectedCampaign,contacto_id:contactId,agregado_por:state.user.id
+      }));
+      const {data,error}=await db.from('wa_campana_destinatarios')
+        .upsert(rows,{onConflict:'organizacion_id,campana_id,contacto_id',ignoreDuplicates:true})
+        .select('id');
+      if(error)throw error;
+      added+=(data||[]).length;
+    }
+    state.campaignPick=new Set();
+    $('campaignAssignPanel').hidden=true;
+    toast(added.toLocaleString('es-CO')+' contactos agregados a la campaña.');
+    await loadData();
+    $('campaignDetail').scrollIntoView({behavior:'smooth',block:'start'});
+  } catch(error) {
+    reportError(error,'No fue posible asignar todos los contactos.');
+    await loadData();
+  } finally {btn.disabled=false;}
+}
+async function removeCampaignRecipient(contactId) {
+  const assigned=assignmentsForCampaign(state.selectedCampaign).find(a=>a.contacto_id===contactId);
+  if(!assigned)return toast('Este contacto ya no pertenece a la campaña.',true);
+  if(!confirm('¿Quitar este contacto de la campaña? Se mantendrá registrado en la base de tu empresa.'))return;
+  try {
+    const {error}=await db.from('wa_campana_destinatarios').delete()
+      .eq('id',assigned.id).eq('organizacion_id',state.org.id).eq('campana_id',state.selectedCampaign);
+    if(error)throw error;
+    toast('Contacto retirado únicamente de esta campaña.');
+    await loadData();
+  } catch(error) {reportError(error);}
+}
+function openContactPermissionFromCampaign(contactId) {
+  const p=state.contacts.find(c=>c.id===contactId);
+  if(!p || p.excluido)return toast('Este contacto no está disponible.',true);
+  navigate('contactos');
+  openConsentForm(contactId);
 }
 function renderCampaignDetail() {
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
   if(!c){$('campaignDetail').hidden=true;return;}
   $('campaignDetail').hidden=false;
   $('detailTitle').textContent=c.nombre;
-  const people=eligibleContacts();
-  $('detailHint').textContent=people.length+' contactos autorizados disponibles de '+state.contacts.length+' registrados. Abre uno por uno.';
-  $('detailConsentNotice').hidden=people.length>0;
-  $('targetRows').innerHTML=people.slice(0,400).map(person=>{
-    const record=state.actions.find(a=>a.campana_id===c.id && a.contacto_id===person.id);
-    let stateLabel=record?.estado==='contactado'?'Contactado (manual)':record?.estado==='respondio'?'Respondió':record?.estado==='sin_interes'?'Sin interés':record?.estado==='preparado'?'Chat abierto':'Sin gestionar';
-    return '<tr><td><strong>'+html(person.nombre)+'</strong></td><td>'+html(person.telefono_e164)+'</td><td>'+html(stateLabel)+'</td><td>'+
-    '<button class="table-action" data-whatsapp="'+html(person.id)+'">Abrir WhatsApp</button> '+
-    '<button class="table-action" data-mark-contacted="'+html(person.id)+'">Contactado</button> '+
-    '<button class="table-action" data-mark-responded="'+html(person.id)+'">Respondió</button> '+
-    '<button class="table-action" data-mark-uninterested="'+html(person.id)+'">Sin interés</button></td></tr>';
-  }).join('') || '<tr><td colspan="4">Agrega contactos autorizados para preparar esta campaña.</td></tr>';
+  const contacts=selectedCampaignContacts();
+  const ready=contacts.filter(x=>isAuthorizedForMessages(x.contact)).length;
+  const pending=contacts.length-ready;
+  $('campaignAssignedCount').textContent=contacts.length.toLocaleString('es-CO');
+  $('detailHint').textContent=contacts.length.toLocaleString('es-CO')+' contactos asignados · '+ready.toLocaleString('es-CO')+' autorizados · '+pending.toLocaleString('es-CO')+' pendientes';
+  $('detailConsentNotice').hidden=pending===0;
+  $('detailConsentNotice').textContent=pending+' contactos asignados no tienen permiso vigente o están excluidos. Puedes organizarlos en la campaña, pero no abrir WhatsApp hasta registrar una autorización verificable.';
+  const visible=contacts.slice(0,state.campaignTargetLimit);
+  const actionByContact=new Map(state.actions.filter(a=>a.campana_id===c.id).map(a=>[a.contacto_id,a]));
+  $('campaignTargetCount').textContent='Mostrando '+visible.length.toLocaleString('es-CO')+' de '+contacts.length.toLocaleString('es-CO');
+  $('campaignTargetLoadMore').hidden=visible.length>=contacts.length;
+  $('targetRows').innerHTML=visible.map(({contact:p})=>{
+    const readyToContact=isAuthorizedForMessages(p);
+    const record=actionByContact.get(p.id);
+    const stateLabel=record?.estado==='contactado'?'Contactado (manual)':record?.estado==='respondio'?'Respondió':record?.estado==='sin_interes'?'Sin interés':record?.estado==='preparado'?'Chat abierto':'Sin gestionar';
+    return '<tr><td><strong>'+html(p.nombre)+'</strong></td><td>'+html(p.telefono_e164)+'</td>'+
+      '<td><span class="tag '+(readyToContact?'yes':p.excluido?'off':'no')+'">'+
+      (p.excluido?'Excluido':readyToContact?'Autorizado':'Pendiente')+'</span></td>'+
+      '<td>'+html(stateLabel)+'</td><td class="campaign-actions">'+
+      (readyToContact
+        ?'<button type="button" class="table-action" data-whatsapp="'+html(p.id)+'">Abrir WhatsApp</button> '+
+         '<button type="button" class="table-action" data-mark-contacted="'+html(p.id)+'">Contactado</button> '+
+         '<button type="button" class="table-action" data-mark-responded="'+html(p.id)+'">Respondió</button> '+
+         '<button type="button" class="table-action" data-mark-uninterested="'+html(p.id)+'">Sin interés</button> '
+        :p.excluido?'<span class="muted">Sin envíos</span> ': '<button type="button" class="table-action" data-go-permission="'+html(p.id)+'">Registrar permiso</button> ')+
+      '<button type="button" class="table-action danger" data-remove-recipient="'+html(p.id)+'">Quitar</button></td></tr>';
+  }).join('') || '<tr><td colspan="5" class="empty-state">Esta campaña aún no tiene contactos. Usa el botón «Agregar contactos» de arriba para asignarlos desde la base de tu empresa.</td></tr>';
+  renderCampaignPicker();
 }
+
 async function recordAction(contactId,estado) {
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
   if(!c)return;
+  if(!assignedRecipientIsAuthorized(contactId))throw new Error('Este contacto no está asignado con autorización vigente a la campaña.');
   const {error}=await db.from('wa_gestiones').upsert({
     organizacion_id:state.org.id,campana_id:c.id,contacto_id:contactId,usuario_id:state.user.id,estado,actualizado_en:new Date().toISOString()
   },{onConflict:'campana_id,contacto_id'});
@@ -450,7 +603,7 @@ async function recordAction(contactId,estado) {
 async function openWhatsApp(contactId) {
   const person=eligibleContacts().find(x=>x.id===contactId);
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
-  if(!person||!c)return toast('Este contacto no tiene permiso vigente.',true);
+  if(!person||!c||!assignedRecipientIsAuthorized(contactId))return toast('El contacto debe pertenecer a la campaña y tener permiso vigente.',true);
   if(!licenseEnabled())return toast('Suscripción vencida.',true);
   if(person.telefono_e164.startsWith('+57') && !permittedCommercialHourCO())
     return toast('Fuera del horario legal comercial de Colombia. L-V: 7 a 19 h; sábado: 8 a 15 h. Nunca domingos ni festivos.',true);
@@ -480,7 +633,7 @@ function exportCampaignReport(){
     return '"'+s.replace(/"/g,'""')+'"';
   };
   const rows=[['contacto','celular','estado','fecha_gestion','autorizado','excluido'].map(quote).join(',')];
-  for(const person of state.contacts){
+  for(const {contact:person} of selectedCampaignContacts()){
     const action=state.actions.find(a=>a.campana_id===camp.id && a.contacto_id===person.id);
     rows.push([person.nombre,person.telefono_e164,action?.estado||'sin_gestion',action?.actualizado_en||'',person.consentimiento_fecha?'si':'no',person.excluido?'si':'no'].map(quote).join(','));
   }
@@ -688,7 +841,7 @@ function bindEvents() {
   $('orgSelect').addEventListener('change',event=>selectOrg(event.target.value));
   $('signOut').addEventListener('click',async()=>{
     await db.auth.signOut();
-    state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];state.invites=[];state.member=null;
+    state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];state.recipientAssignments=[];state.campaignPick=new Set();state.invites=[];state.member=null;
     $('authScreen').hidden=false;$('appScreen').hidden=true;
   });
   $('menuToggle').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
@@ -713,13 +866,26 @@ function bindEvents() {
   });
   $('campaignCards').addEventListener('click',event=>{
     const button=event.target.closest('[data-open-campaign]');
-    if(button){state.selectedCampaign=button.dataset.openCampaign;renderCampaignDetail();$('campaignDetail').scrollIntoView({behavior:'smooth'});}
+    if(button)openCampaign(button.dataset.openCampaign);
   });
+  $('campaignAddContacts').addEventListener('click',showCampaignPicker);
+  $('cancelCampaignAssign').addEventListener('click',()=>{$('campaignAssignPanel').hidden=true;});
+  $('campaignContactSearch').addEventListener('input',()=>{state.campaignPickLimit=150;renderCampaignPicker();});
+  $('campaignContactFilter').addEventListener('change',()=>{state.campaignPickLimit=150;renderCampaignPicker();});
+  $('campaignPickerMore').addEventListener('click',()=>{state.campaignPickLimit+=150;renderCampaignPicker();});
+  $('campaignSelectAll').addEventListener('click',()=>{for(const c of unassignedCampaignContacts())state.campaignPick.add(c.id);renderCampaignPicker();});
+  $('campaignClearSelection').addEventListener('click',()=>{state.campaignPick.clear();renderCampaignPicker();});
+  $('campaignPickerRows').addEventListener('change',event=>{const checkbox=event.target.closest('[data-pick-contact]');if(!checkbox)return;if(checkbox.checked)state.campaignPick.add(checkbox.dataset.pickContact);else state.campaignPick.delete(checkbox.dataset.pickContact);renderCampaignPicker();});
+  $('campaignSaveSelected').addEventListener('click',saveCampaignRecipients);
+  $('campaignTargetLoadMore').addEventListener('click',()=>{state.campaignTargetLimit+=150;renderCampaignDetail();});
   $('closeDetail').addEventListener('click',()=>{state.selectedCampaign=null;$('campaignDetail').hidden=true;});
   $('exportCampaignReport').addEventListener('click',exportCampaignReport);
   $('targetRows').addEventListener('click',event=>{
     const open=event.target.closest('[data-whatsapp]'),done=event.target.closest('[data-mark-contacted]');
     const answered=event.target.closest('[data-mark-responded]'),uninterested=event.target.closest('[data-mark-uninterested]');
+    const remove=event.target.closest('[data-remove-recipient]'),permit=event.target.closest('[data-go-permission]');
+    if(remove)removeCampaignRecipient(remove.dataset.removeRecipient);
+    if(permit)openContactPermissionFromCampaign(permit.dataset.goPermission);
     if(open)openWhatsApp(open.dataset.whatsapp);
     if(done)markContacted(done.dataset.markContacted);
     if(answered)markCampaignStatus(answered.dataset.markResponded,'respondio');
