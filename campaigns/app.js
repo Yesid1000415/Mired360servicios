@@ -480,12 +480,45 @@ async function activatePaidPlan(id){
   await loadAdmin();
 }
 
+
+function showRecovery(){
+  state.recovering=true;
+  $('authScreen').hidden=false;$('appScreen').hidden=true;
+  $('authForm').hidden=true;
+  $('resetPassword').hidden=true;
+  $('recoveryForm').hidden=false;
+  document.querySelector('.auth-switch').hidden=true;
+  $('authTitle').textContent='Establece tu nueva contraseña';
+  $('authSubtitle').textContent='Utiliza al menos 10 caracteres para proteger tu cuenta.';
+}
+async function finishRecovery(event){
+  event.preventDefault();
+  const password=$('newPassword').value;
+  if(password.length<10)return toast('La contraseña requiere al menos 10 caracteres.',true);
+  if(password!==$('confirmPassword').value)return toast('Las contraseñas no coinciden.',true);
+  try{
+    const {error}=await db.auth.updateUser({password});
+    if(error)throw error;
+    state.recovering=false;
+    window.history.replaceState({},'',window.location.pathname);
+    $('recoveryForm').hidden=true;
+    $('authForm').hidden=false;
+    $('resetPassword').hidden=false;
+    document.querySelector('.auth-switch').hidden=false;
+    const {data}=await db.auth.getUser();
+    state.user=data.user;
+    toast('Contraseña actualizada correctamente.');
+    if(state.user)await boot();
+  }catch(error){reportError(error);}
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
   $('authToggle').addEventListener('click',()=>switchAuth(state.authMode==='register'?'login':'register'));
   $('authForm').addEventListener('submit',submitAuth);
   $('resetPassword').addEventListener('click',resetPassword);
+  $('recoveryForm').addEventListener('submit',finishRecovery);
   $('requestStarter').addEventListener('click',requestStarter);
   $('refreshAdmin').addEventListener('click',loadAdmin);
   $('adminRows').addEventListener('click',event=>{const btn=event.target.closest('[data-admin-activate]');if(btn)activatePaidPlan(btn.dataset.adminActivate);});
@@ -526,10 +559,13 @@ function bindEvents() {
 }
 async function init() {
   bindEvents();
+  const recoveryHash=new URLSearchParams(window.location.hash.replace(/^#/,''));
+  if(recoveryHash.get('type')==='recovery')showRecovery();
+  db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')showRecovery();});
   try {
     const {data,error}=await db.auth.getUser();
     if(error && !/session missing/i.test(error.message)) console.warn(error.message);
-    if(data?.user){state.user=data.user;await boot();}
+    if(data?.user&&!state.recovering){state.user=data.user;await boot();}
   } catch(error){reportError(error,'No fue posible iniciar la sesión.');}
 }
 init();
