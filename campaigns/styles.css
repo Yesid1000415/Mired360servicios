@@ -167,3 +167,17 @@ td strong{color:#263d58}
 @media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr)}.campaign-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.workspace{padding:28px 25px}.topbar{padding:0 25px}.sidebar{width:226px}.sidebar-brand{font-size:.75rem}}
 @media(max-width:780px){.auth-layout{grid-template-columns:1fr}.auth-feature{display:none}.auth-form-wrap{min-height:100vh;padding:30px}.mobile-brand{display:flex;margin-bottom:37px}.sidebar{position:fixed;z-index:25;left:-270px;transition:left .2s;width:255px}.sidebar.open{left:0;box-shadow:20px 0 80px #0b173055}.menu-toggle{display:block}.main-shell{width:100%}.topbar{padding:0 17px;height:68px}.breadcrumb{display:none}.topbar-end{flex:1;justify-content:flex-end}.workspace{padding:24px 15px 60px}.page-head{align-items:flex-start;flex-direction:column}.page-head .btn{width:100%}.stat-grid{gap:10px}.stat-card{padding:16px}.stat-card strong{font-size:1.8rem}.stat-label{font-size:.66rem}.card{padding:19px}.campaign-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.import-panel{align-items:stretch;flex-direction:column}.import-panel .file-button{width:100%}.price-grid{grid-template-columns:1fr}.table-head{align-items:flex-start;flex-direction:column}.search-box{max-width:none;width:100%}.topbar-end select{max-width:180px}.inline-form{flex-direction:column}}
 @media(max-width:400px){.stat-grid{grid-template-columns:1fr 1fr}.stat-card{padding:13px}.stat-card strong{font-size:1.5rem}.topbar-end select{max-width:142px}}
+
+
+.license-banner{background:#fff0d7;border:1px solid #eec77b;color:#805019;border-radius:13px;padding:14px 18px;font-size:.85rem;font-weight:700;margin-bottom:24px}
+.license-info{margin-bottom:22px}
+.license-info h2{margin-bottom:10px}
+.license-info p{margin-bottom:8px}
+.invite-link-box{margin-top:18px;padding:15px;background:#f2f9f8;border:1px solid #d7efea;border-radius:12px;overflow-wrap:anywhere}
+.invite-link-box input{width:100%;font-size:.76rem}
+#adminRows select{padding:7px 9px;font-size:.76rem;margin-right:6px}
+#adminRows td{white-space:nowrap}
+.field input[readonly]{background:#f4f7fa}
+.plan-action-note{margin-top:9px;color:#7588a0;font-size:.75rem}
+.auth-form-card #recoveryForm{padding-top:14px}
+.export-button{background:#edf4f8;color:#41657b}
