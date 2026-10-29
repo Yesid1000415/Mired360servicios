@@ -181,3 +181,11 @@ td strong{color:#263d58}
 .plan-action-note{margin-top:9px;color:#7588a0;font-size:.75rem}
 .auth-form-card #recoveryForm{padding-top:14px}
 .export-button{background:#edf4f8;color:#41657b}
+
+/* Revisión de contactos y gestión individual de autorizaciones */
+.contact-context{display:flex;justify-content:space-between;align-items:center;gap:18px;background:#edf9f7;border-color:#c5efe4;margin-bottom:18px}
+.contact-context strong{font-size:.9rem;color:#0e675e}
+.contact-context p{margin:6px 0 0}
+.form-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.detail-notice{background:#fff5e8;color:#8d5f17;padding:12px 14px;border-radius:10px;font-size:.83rem}
+@media(max-width:780px){.contact-context{align-items:flex-start;flex-direction:column}.contact-context .btn{width:100%}#contactFilter{width:100%}}
