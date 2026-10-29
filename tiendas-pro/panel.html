@@ -50,7 +50,7 @@ function settingsPro(){
  <div><label>WhatsApp comercial</label><input name="whatsapp" value="${esc(tienda.whatsapp||'')}" inputmode="tel"></div>
  <div><label>Color de marca</label><input type="color" name="color_marca" value="${esc(tienda.color_marca||'#6957e8')}" style="height:47px;padding:5px"></div>
  <div class="wide"><label><input style="width:auto" type="checkbox" name="publicada" ${tienda.publicada?'checked':''}> Publicar mi tienda</label><p class="tiny muted">Para hacerla visible necesitas crear una sucursal y publicar al menos un producto.</p></div>
- <div class="wide" style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn primary" type="submit">Guardar identidad y portada</button><a class="btn" href="tienda.html?tienda=${encodeURIComponent(tienda.slug)}" target="_blank" rel="noopener">Ver tienda ↗</a></div>
+ <div class="wide" style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn primary" type="submit">Guardar identidad y portada</button><a class="btn" href="tienda.html?tienda=${encodeURIComponent(tienda.slug)}&preview=1" target="_blank" rel="noopener">Ver tienda ↗</a></div>
  </form></div>`;
 }
 
