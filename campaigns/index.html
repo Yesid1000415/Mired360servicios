@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1530">
+  <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
+  <link rel="stylesheet" href="./styles.css?v=1">
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <section id="authScreen" class="auth-layout">
+    <div class="auth-feature">
+      <div class="brand-mark"><span class="logo-symbol">M<span>↗</span></span><span>MIRED360 <strong>CAMPAIGNS</strong></span></div>
+      <div class="auth-headline">
+        <div class="eyebrow"><span class="pulse"></span> PLATAFORMA COMERCIAL</div>
+        <h1>Convierte cada conversación en una <em>oportunidad real.</em></h1>
+        <p>Contactos organizados, campañas inteligentes y seguimiento comercial en un solo lugar.</p>
+        <div class="hero-chips"><span>✓ Datos por empresa</span><span>✓ WhatsApp asistido</span><span>✓ CRM de campañas</span></div>
+      </div>
+      <div class="auth-feature-foot">MIRED360SERVICIOS · Software para negocios</div>
+    </div>
+    <div class="auth-form-wrap">
+      <div class="auth-form-card">
+        <div class="mobile-brand brand-mark"><span class="logo-symbol">M<span>↗</span></span><span>MIRED360 <strong>CAMPAIGNS</strong></span></div>
+        <div class="pill-icon">✦</div>
+        <h2 id="authTitle">Bienvenido de nuevo</h2>
+        <p class="muted" id="authSubtitle">Ingresa para continuar con tus campañas.</p>
+        <div class="auth-switch" role="group" aria-label="Modo de acceso">
+          <button id="loginTab" class="switch-btn active" type="button">Ingresar</button>
+          <button id="registerTab" class="switch-btn" type="button">Crear cuenta</button>
+        </div>
+        <form id="authForm" autocomplete="on">
+          <div class="field" id="signupOrgField" hidden><label for="authOrg">Nombre de la empresa</label><input id="authOrg" maxlength="100" placeholder="Ej. Distribuidora ABC"></div>
+          <div class="field"><label for="authEmail">Correo electrónico</label><input id="authEmail" type="email" autocomplete="email" required placeholder="correo@empresa.com"></div>
+          <div class="field"><label for="authPassword">Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo 8 caracteres"></div>
+          <button class="btn btn-primary btn-wide" id="authSubmit" type="submit">Ingresar a la plataforma <span>→</span></button>
+        </form>
+        <p class="fine-print">La plataforma requiere cuentas autorizadas. Las campañas se realizan únicamente con contactos que dieron su consentimiento.</p>
+        <p class="auth-bottom"><span id="authPrompt">¿Aún no tienes cuenta?</span> <button id="authToggle" class="text-btn" type="button">Crear cuenta</button></p>
+      </div>
+    </div>
+  </section>
+
+  <div id="appScreen" class="app-layout" hidden>
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand brand-mark"><span class="logo-symbol">M<span>↗</span></span><span>MIRED360 <strong>CAMPAIGNS</strong></span></div>
+      <div class="sidebar-label">MENÚ PRINCIPAL</div>
+      <nav aria-label="Navegación principal">
+        <button data-page="resumen" class="nav-btn active"><span class="nav-ico">▦</span> Resumen</button>
+        <button data-page="contactos" class="nav-btn"><span class="nav-ico">♧</span> Contactos</button>
+        <button data-page="campanas" class="nav-btn"><span class="nav-ico">◈</span> Campañas</button>
+        <div class="sidebar-sep"></div>
+        <div class="sidebar-label">ADMINISTRACIÓN</div>
+        <button data-page="integraciones" class="nav-btn"><span class="nav-ico">⚙</span> Integraciones</button>
+        <button data-page="planes" class="nav-btn"><span class="nav-ico">◇</span> Suscripción</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="sidebar-help">✧ <strong>Mensajería responsable</strong><small>Solo envíos a contactos con consentimiento verificable.</small></div><button id="signOut" class="signout-btn">↪ Cerrar sesión</button></div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-start"><button id="menuToggle" class="menu-toggle" aria-label="Abrir menú">☰</button><div class="breadcrumb">Plataforma <span>/</span> <strong id="breadcrumbPage">Resumen</strong></div></div>
+        <div class="topbar-end"><label class="sr-only" for="orgSelect">Empresa activa</label><select id="orgSelect" title="Seleccionar empresa"></select><button id="newOrgButton" class="subtle-btn" title="Crear empresa">＋</button><div class="user-avatar" id="userAvatar">M</div></div>
+      </header>
+      <main class="workspace">
+        <section id="onboarding" hidden class="onboarding card">
+          <div class="eyebrow">PRIMER PASO</div><h1>Configura tu espacio empresarial</h1><p>Los contactos y campañas quedarán aislados de los de otras empresas.</p>
+          <form id="orgForm" class="inline-form"><input id="orgName" required minlength="2" maxlength="100" placeholder="Nombre de tu empresa"><button class="btn btn-primary">Crear empresa</button></form>
+        </section>
+        <div id="workspaceContent" hidden>
+          <section data-section="resumen" class="page-section">
+            <div class="page-head"><div><span class="eyebrow">CENTRO DE CONTROL</span><h1>Bienvenido a tu espacio comercial</h1><p class="muted">Organiza tus contactos, prepara campañas y registra cada gestión.</p></div><button class="btn btn-primary" data-go="campanas">＋ Nueva campaña</button></div>
+            <div class="stat-grid">
+              <article class="stat-card"><span class="stat-label">Contactos registrados <span>♧</span></span><strong id="statContacts">0</strong><small>En tu empresa</small></article>
+              <article class="stat-card"><span class="stat-label">Contactos autorizados <span>✓</span></span><strong id="statOptin">0</strong><small>Sin exclusión</small></article>
+              <article class="stat-card"><span class="stat-label">Campañas creadas <span>◈</span></span><strong id="statCampaigns">0</strong><small>Borradores y activas</small></article>
+              <article class="stat-card"><span class="stat-label">Gestiones registradas <span>↗</span></span><strong id="statActions">0</strong><small>Seguimiento manual</small></article>
+            </div>
+            <div class="two-col">
+              <div class="card feature-card"><span class="eyebrow">EMPIEZA AQUÍ</span><h2>Tu próxima campaña comienza con una buena base.</h2><p>Importa contactos desde Excel exportado a CSV o agrégalos individualmente. Solo los autorizados estarán disponibles para campañas.</p><button class="btn btn-secondary" data-go="contactos">Administrar contactos →</button><div class="feature-orb"></div></div>
+              <div class="card"><div class="card-header"><h2>Canales disponibles</h2><span class="mini-badge">Estado real</span></div><div class="channel-status"><div class="channel-icon">◎</div><div><strong>WhatsApp asistido</strong><small>Abre conversaciones desde tu propio WhatsApp</small></div><span class="status available">Listo</span></div><div class="channel-status"><div class="channel-icon">☁</div><div><strong>API oficial de WhatsApp</strong><small>Conexión automatizada aún no disponible</small></div><span class="status pending">Pendiente</span></div></div>
+            </div>
+          </section>
+
+          <section data-section="contactos" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">DIRECTORIO</span><h1>Contactos</h1><p class="muted">Una base segura y organizada para tu empresa.</p></div><button id="contactFormToggle" class="btn btn-primary">＋ Agregar contacto</button></div>
+            <div id="contactFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nuevo contacto</h2><button type="button" class="icon-btn" data-hide="contactFormPanel">✕</button></div>
+              <form id="contactForm" class="form-grid"><div class="field"><label for="contactName">Nombre completo</label><input id="contactName" required minlength="2" maxlength="160" placeholder="Nombre del contacto"></div><div class="field"><label for="contactPhone">Celular con indicativo</label><input id="contactPhone" required placeholder="+573229432085 o 3229432085"></div><div class="field"><label for="contactOrigin">Origen de los datos</label><input id="contactOrigin" placeholder="Formulario, compra, referido..."></div><div class="field"><label for="contactSource">Prueba o fuente del consentimiento</label><input id="contactSource" placeholder="Formulario web 29/10, solicitud del cliente..."></div><label class="check-row span-all"><input id="contactConsent" type="checkbox"> Confirmo que esta persona autorizó expresamente a la empresa a enviarle mensajes por WhatsApp.</label><div class="span-all"><button type="submit" class="btn btn-primary">Guardar contacto</button></div></form>
+            </div>
+            <div class="card import-panel"><div><strong>Importación desde Excel</strong><p class="muted">Abre tu archivo en Excel y guárdalo como <b>CSV UTF-8</b>. Detectamos encabezados de nombre y celular en las primeras 20 filas.</p><label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label><div class="field import-source"><label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label><input id="importSource" placeholder="Ej. Formulario web, fecha y enlace"></div></div><label class="btn btn-secondary file-button">↑ Importar CSV<input id="csvFile" type="file" accept=".csv,.txt,text/csv" hidden></label></div>
+            <div class="card"><div class="table-head"><h2>Base de contactos <span id="contactsCount" class="count-badge">0</span></h2><input id="contactSearch" class="search-box" type="search" placeholder="Buscar nombre o teléfono..."></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>TELÉFONO</th><th>AUTORIZACIÓN</th><th>ESTADO</th><th></th></tr></thead><tbody id="contactRows"></tbody></table></div><div id="contactsEmpty" class="empty-state" hidden>No hay contactos para mostrar.</div></div>
+          </section>
+
+          <section data-section="campanas" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">MARKETING COMERCIAL</span><h1>Campañas</h1><p class="muted">Mensajes personalizados y seguimiento de contactos autorizados.</p></div><button id="campaignFormToggle" class="btn btn-primary">＋ Crear campaña</button></div>
+            <div id="campaignFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nueva campaña asistida</h2><button class="icon-btn" type="button" data-hide="campaignFormPanel">✕</button></div>
+              <form id="campaignForm"><div class="field"><label for="campaignName">Nombre de la campaña</label><input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Clientes interesados de octubre"></div><div class="field"><label for="campaignText">Mensaje</label><textarea id="campaignText" required minlength="3" maxlength="4000" rows="5" placeholder="Hola {nombre}, te escribimos porque solicitaste información..."></textarea><small class="hint">Usa <code>{nombre}</code> para personalizar. Cada conversación se abre manualmente.</small></div><button class="btn btn-primary" type="submit">Guardar campaña</button></form></div>
+            <div class="campaign-grid" id="campaignCards"></div><div id="campaignsEmpty" class="card empty-state" hidden>Aún no tienes campañas. Crea la primera para comenzar.</div>
+            <div id="campaignDetail" class="card" hidden><div class="card-header"><div><span class="eyebrow">SEGUIMIENTO MANUAL</span><h2 id="detailTitle">Campaña</h2><p id="detailHint" class="muted"></p></div><button class="btn btn-secondary" id="closeDetail">Cerrar detalle</button></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table></div><p class="small-notice">Abrir WhatsApp no significa que el mensaje fue enviado ni recibido. El estado «Contactado» se registra únicamente cuando tú lo confirmas.</p></div>
+          </section>
+
+          <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
+            <div class="two-col"><div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div><div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Próxima integración: plantillas aprobadas, webhooks, bandeja multiagente y estados de entrega. Los tokens deberán configurarse únicamente en un servidor seguro.</p><span class="status pending">En desarrollo · no conectada</span></div></div>
+          </section>
+          <section data-section="planes" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">SUSCRIPCIONES</span><h1>Planes comerciales</h1><p class="muted">Precios proyectados. Los pagos todavía no están habilitados.</p></div></div><div class="price-grid"><article class="card price-card"><h2>Emprendedor</h2><div class="price">$49.900 <span>/mes</span></div><p>Contactos y campañas asistidas.</p><span class="status pending">Próximamente</span></article><article class="card price-card featured"><h2>Profesional</h2><div class="price">$129.900 <span>/mes</span></div><p>API oficial y equipos, cuando esté integrada.</p><span class="status pending">Próximamente</span></article><article class="card price-card"><h2>Empresa</h2><div class="price">$299.900 <span>/mes</span></div><p>Gestión avanzada y sucursales.</p><span class="status pending">Próximamente</span></article></div><p class="small-notice">Valores ilustrativos de lanzamiento, no constituyen una oferta de contratación. Costos de Meta y proveedores adicionales no incluidos.</p></section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="./app.js?v=1"></script>
+</body>
+</html>
