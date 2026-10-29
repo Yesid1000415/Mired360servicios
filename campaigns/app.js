@@ -398,12 +398,43 @@ function renderTeam() {
   $('teamInvitePanel').hidden=!owner;
   $('invitesPanel').hidden=!owner;
   $('membersPanel').hidden=!owner;
-  $('newOrgButton').hidden=false;
+  $('memberRows').innerHTML=owner ? state.teamMembers.map(m=>{
+    const manage=m.rol==='propietario'?'Cuenta propietaria':
+      '<button class="table-action danger" data-member-revoke="'+html(m.usuario_id)+'">Revocar acceso</button>';
+    return '<tr><td><strong>'+html(m.email)+'</strong></td><td>'+html(m.rol)+'</td><td>'+
+      html(formatDate(m.creado_en))+'</td><td>'+manage+'</td></tr>';
+  }).join(''):'';
+  if(owner&&!state.teamMembers.length)$('memberRows').innerHTML='<tr><td colspan="4">No hay colaboradores.</td></tr>';
   $('inviteRows').innerHTML=owner ? state.invites.sort((a,b)=>(b.creado_en||'').localeCompare(a.creado_en||'')).map(i=>{
     const status=i.aceptado_en?'Aceptada':new Date(i.expira_en)<new Date()?'Vencida':'Pendiente';
-    return '<tr><td><strong>'+html(i.email)+'</strong></td><td>'+html(i.rol)+'</td><td>'+html(formatDate(i.creado_en))+'</td><td>'+html(status)+'</td></tr>';
+    const action=status==='Pendiente'?'<button class="table-action" data-invite-copy="'+html(i.id)+'">Copiar enlace</button> '+
+      '<button class="table-action danger" data-invite-cancel="'+html(i.id)+'">Cancelar</button>':'—';
+    return '<tr><td><strong>'+html(i.email)+'</strong></td><td>'+html(i.rol)+'</td><td>'+
+      html(formatDate(i.creado_en))+'</td><td>'+html(status)+'</td><td>'+action+'</td></tr>';
   }).join('') : '';
-  if(owner && !state.invites.length)$('inviteRows').innerHTML='<tr><td colspan="4">Aún no hay invitaciones.</td></tr>';
+  if(owner&&!state.invites.length)$('inviteRows').innerHTML='<tr><td colspan="5">Aún no hay invitaciones.</td></tr>';
+}
+async function revokeMember(id){
+  if(state.member?.rol!=='propietario')return;
+  if(!confirm('¿Revocar acceso a este colaborador? Sus contactos y campañas continuarán en la empresa.'))return;
+  const {data,error}=await db.rpc('wa_equipo_revocar',{p_org:state.org.id,p_usuario:id});
+  if(error)return reportError(error);
+  toast(data?'Colaborador desactivado.':'No se encontró el acceso.');
+  await loadData();
+}
+async function cancelInvitation(id){
+  if(state.member?.rol!=='propietario')return;
+  if(!confirm('¿Cancelar esta invitación pendiente?'))return;
+  const {data,error}=await db.rpc('wa_invitacion_cancelar',{p_id:id});
+  if(error)return reportError(error);
+  toast(data?'Invitación cancelada.':'Invitación ya utilizada o no disponible.');
+  await loadData();
+}
+async function copyPendingInvitation(id){
+  const url=new URL(window.location.origin+window.location.pathname);
+  url.searchParams.set('invite',id);
+  try{await navigator.clipboard.writeText(url.toString());toast('Invitación copiada.');}
+  catch{window.prompt('Copia este enlace:',url.toString());}
 }
 async function submitInvite(event) {
   event.preventDefault();
@@ -547,6 +578,12 @@ function bindEvents() {
   $('adminRows').addEventListener('click',event=>{const btn=event.target.closest('[data-admin-activate]');if(btn)activatePaidPlan(btn.dataset.adminActivate);});
   $('inviteForm').addEventListener('submit',submitInvite);
   $('copyInvite').addEventListener('click',copyInviteLink);
+  $('memberRows').addEventListener('click',e=>{const b=e.target.closest('[data-member-revoke]');if(b)revokeMember(b.dataset.memberRevoke);});
+  $('inviteRows').addEventListener('click',e=>{
+    const c=e.target.closest('[data-invite-cancel]'),p=e.target.closest('[data-invite-copy]');
+    if(c)cancelInvitation(c.dataset.inviteCancel);
+    if(p)copyPendingInvitation(p.dataset.inviteCopy);
+  });
   $('orgForm').addEventListener('submit',createOrg);
   $('newOrgButton').addEventListener('click',()=>createOrg());
   $('orgSelect').addEventListener('change',event=>selectOrg(event.target.value));
