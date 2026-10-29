@@ -4,7 +4,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], member: null, selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], member: null, isSuperAdmin: false, recovering: false, selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -73,6 +73,9 @@ async function boot() {
   if (!state.user) return;
   $('authScreen').hidden = true; $('appScreen').hidden = false;
   $('userAvatar').textContent = (state.user.email || 'M').slice(0,1).toUpperCase();
+  const {data:administrator}=await db.from('wa_superadministradores').select('usuario_id').eq('usuario_id',state.user.id).maybeSingle();
+  state.isSuperAdmin=!!administrator;
+  $('adminNav').hidden=!state.isSuperAdmin;
   const invite = new URLSearchParams(window.location.search).get('invite');
   if(invite){
     const {data:accepted,error} = await db.rpc('wa_aceptar_invitacion',{p_id:invite});
@@ -83,7 +86,7 @@ async function boot() {
   await loadOrgs();
 }
 async function loadOrgs() {
-  const {data,error} = await db.from('wa_organizaciones').select('id,nombre,plan,creado_en').order('creado_en',{ascending:true});
+  const {data,error} = await db.from('wa_organizaciones').select('id,nombre,plan,estado_suscripcion,prueba_hasta,vigente_hasta,creado_en').order('creado_en',{ascending:true});
   if (error) { reportError(error); return; }
   state.orgs = data || [];
   if (!state.orgs.length) {
@@ -159,19 +162,22 @@ function renderAll() {
   renderContacts();
   renderCampaigns();
   renderTeam();
+  renderLicense();
   if(state.selectedCampaign) renderCampaignDetail();
 }
 function navigate(page) {
   state.page = page;
-  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción'};
+  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción',administracion:'Administración'};
   document.querySelectorAll('[data-section]').forEach(el => el.hidden = el.dataset.section !== page);
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active',el.dataset.page === page));
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
   $('sidebar').classList.remove('open');
+  if(page==='administracion'&&state.isSuperAdmin)loadAdmin();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function addContact(event) {
   event.preventDefault(); if(!state.org) return;
+  if(!licenseEnabled())return toast('Suscripción vencida: solicita la activación.',true);
   const consent = $('contactConsent').checked, source = $('contactSource').value.trim();
   if(consent && !source) return toast('Escribe la fuente del consentimiento.',true);
   try {
@@ -285,6 +291,7 @@ async function readContactRows(file) {
 }
 async function importCSV(event) {
   const file=event.target.files?.[0]; if(!file || !state.org)return;
+  if(!licenseEnabled()){event.target.value='';return toast('Activa tu plan para importar.',true);}
   const consent=$('importConsent').checked,source=$('importSource').value.trim();
   event.target.value='';
   if(consent && !source) return toast('Indica primero la fuente de autorización de los contactos.',true);
@@ -320,6 +327,7 @@ async function importCSV(event) {
 async function addCampaign(event) {
   event.preventDefault();
   if(!state.org)return;
+  if(!licenseEnabled())return toast('Activa tu plan para crear campañas.',true);
   try {
     const {error}=await db.from('wa_campanas').insert({
       organizacion_id:state.org.id, creado_por:state.user.id, nombre:$('campaignName').value.trim(),
@@ -365,12 +373,14 @@ async function openWhatsApp(contactId) {
   const person=eligibleContacts().find(x=>x.id===contactId);
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
   if(!person||!c)return toast('Este contacto no tiene permiso vigente.',true);
+  if(!licenseEnabled())return toast('Suscripción vencida.',true);
   const msg=c.mensaje.replace(/\{nombre\}/gi,person.nombre);
   window.open('https://wa.me/'+person.telefono_e164.replace('+','')+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
   try {await recordAction(contactId,'preparado');toast('Conversación abierta. No se ha confirmado el envío.');}
   catch(error){reportError(error);}
 }
 async function markContacted(contactId) {
+  if(!licenseEnabled())return toast('Suscripción vencida.',true);
   if(!confirm('¿Confirmas que contactaste personalmente a esta persona?'))return;
   try{await recordAction(contactId,'contactado');toast('Gestión manual registrada.');}catch(error){reportError(error);}
 }
