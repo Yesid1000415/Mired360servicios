@@ -1,10 +1,11 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.3/+esm';
+import { createManualQueueController } from './queue.js?v=20261029-tandas-9';
 
 const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, manualQueues: [], selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -145,6 +146,7 @@ async function selectOrg(id) {
   $('orgSelect').value = id;
   state.selectedCampaign = null;
   state.recipientAssignments = [];
+  state.manualQueues = [];
   state.campaignPick = new Set();
   $('campaignDetail').hidden = true;
   $('campaignAssignPanel').hidden = true;
@@ -165,11 +167,12 @@ async function allRows(table) {
 async function loadData() {
   if (!state.org) return;
   try {
-    const [contacts,campaigns,actions,assignments,invites,members] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),allRows('wa_campana_destinatarios'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([]),state.member?.rol==='propietario'?db.rpc('wa_equipo_listar',{p_org:state.org.id}).then(x=>{if(x.error)throw x.error;return x.data||[];}):Promise.resolve([])]);
+    const [contacts,campaigns,actions,assignments,queues,invites,members] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),allRows('wa_campana_destinatarios'),allRows('wa_campana_colas'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([]),state.member?.rol==='propietario'?db.rpc('wa_equipo_listar',{p_org:state.org.id}).then(x=>{if(x.error)throw x.error;return x.data||[];}):Promise.resolve([])]);
     state.contacts = contacts.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.campaigns = campaigns.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.actions = actions;
     state.recipientAssignments = assignments;
+    state.manualQueues = queues;
     state.invites = invites;
     state.teamMembers = members;
     renderAll();
@@ -596,7 +599,13 @@ function renderCampaignDetail() {
       '<button type="button" class="table-action danger" data-remove-recipient="'+html(p.id)+'">Quitar</button></td></tr>';
   }).join('') || '<tr><td colspan="5" class="empty-state">Esta campaña aún no tiene contactos. Usa el botón «Agregar contactos» de arriba para asignarlos desde la base de tu empresa.</td></tr>';
   renderCampaignPicker();
+  queueController.render();
 }
+
+const queueController = createManualQueueController({
+  db, state, toast, reportError, licenseEnabled, permittedCommercialHourCO,
+  selectedCampaignContacts, isAuthorizedForMessages, assignedRecipientIsAuthorized, loadData
+});
 
 async function recordAction(contactId,estado) {
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
@@ -613,6 +622,9 @@ async function openWhatsApp(contactId) {
   const c=state.campaigns.find(x=>x.id===state.selectedCampaign);
   if(!person||!c||!assignedRecipientIsAuthorized(contactId))return toast('El contacto debe pertenecer a la campaña y tener permiso vigente.',true);
   if(!licenseEnabled())return toast('Suscripción vencida.',true);
+  const activeQueue=queueController.getQueue();
+  if(activeQueue && activeQueue.estado!=='completada' && activeQueue.posicion<activeQueue.contactos.length)
+    return toast('Hay una tanda abierta. Usa sus controles para respetar el intervalo entre mensajes.',true);
   if(person.telefono_e164.startsWith('+57') && !permittedCommercialHourCO())
     return toast('Fuera del horario legal comercial de Colombia. L-V: 7 a 19 h; sábado: 8 a 15 h. Nunca domingos ni festivos.',true);
   if(person.telefono_e164.startsWith('+57') && !confirm('¿Confirmas que hoy NO es festivo en Colombia y que el destinatario autorizó mensajes comerciales?'))return;
@@ -849,7 +861,7 @@ function bindEvents() {
   $('orgSelect').addEventListener('change',event=>selectOrg(event.target.value));
   $('signOut').addEventListener('click',async()=>{
     await db.auth.signOut();
-    state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];state.recipientAssignments=[];state.campaignPick=new Set();state.invites=[];state.member=null;
+    state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];state.recipientAssignments=[];state.manualQueues=[];state.campaignPick=new Set();state.invites=[];state.member=null;
     $('authScreen').hidden=false;$('appScreen').hidden=true;
   });
   $('menuToggle').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
@@ -886,6 +898,7 @@ function bindEvents() {
   $('campaignPickerRows').addEventListener('change',event=>{const checkbox=event.target.closest('[data-pick-contact]');if(!checkbox)return;if(checkbox.checked)state.campaignPick.add(checkbox.dataset.pickContact);else state.campaignPick.delete(checkbox.dataset.pickContact);renderCampaignPicker();});
   $('campaignSaveSelected').addEventListener('click',saveCampaignRecipients);
   $('campaignTargetLoadMore').addEventListener('click',()=>{state.campaignTargetLimit+=150;renderCampaignDetail();});
+  queueController.bindEvents();
   $('closeDetail').addEventListener('click',()=>{state.selectedCampaign=null;$('campaignDetail').hidden=true;});
   $('exportCampaignReport').addEventListener('click',exportCampaignReport);
   $('targetRows').addEventListener('click',event=>{
@@ -902,6 +915,7 @@ function bindEvents() {
 }
 async function init() {
   bindEvents();
+  queueController.startClock();
   const recoveryHash=new URLSearchParams(window.location.hash.replace(/^#/,''));
   if(recoveryHash.get('type')==='recovery')showRecovery();
   db.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')showRecovery();});
