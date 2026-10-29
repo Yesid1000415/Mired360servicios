@@ -4,7 +4,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], member: null, isSuperAdmin: false, recovering: false, selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, selectedCampaign: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -145,11 +145,12 @@ async function allRows(table) {
 async function loadData() {
   if (!state.org) return;
   try {
-    const [contacts,campaigns,actions,invites] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([])]);
+    const [contacts,campaigns,actions,invites,members] = await Promise.all([allRows('wa_contactos'),allRows('wa_campanas'),allRows('wa_gestiones'),state.member?.rol==='propietario'?allRows('wa_invitaciones'):Promise.resolve([]),state.member?.rol==='propietario'?db.rpc('wa_equipo_listar',{p_org:state.org.id}).then(x=>{if(x.error)throw x.error;return x.data||[];}):Promise.resolve([])]);
     state.contacts = contacts.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.campaigns = campaigns.sort((a,b) => (b.creado_en || '').localeCompare(a.creado_en || ''));
     state.actions = actions;
     state.invites = invites;
+    state.teamMembers = members;
     renderAll();
   } catch(error) { reportError(error,'Error al consultar los datos de la empresa.'); }
 }
@@ -396,6 +397,7 @@ function renderTeam() {
   $('memberRoleLabel').textContent={propietario:'Propietario de la empresa',admin:'Administrador',asesor:'Asesor'}[role] || 'Acceso sin rol';
   $('teamInvitePanel').hidden=!owner;
   $('invitesPanel').hidden=!owner;
+  $('membersPanel').hidden=!owner;
   $('newOrgButton').hidden=false;
   $('inviteRows').innerHTML=owner ? state.invites.sort((a,b)=>(b.creado_en||'').localeCompare(a.creado_en||'')).map(i=>{
     const status=i.aceptado_en?'Aceptada':new Date(i.expira_en)<new Date()?'Vencida':'Pendiente';
