@@ -431,6 +431,50 @@ async function resetPassword() {
   }catch(error){reportError(error);}
 }
 
+
+function licenseEnabled(){
+  if(!state.org)return false;
+  const o=state.org;
+  if(o.estado_suscripcion==='prueba')return !!o.prueba_hasta&&new Date(o.prueba_hasta)>new Date();
+  if(o.estado_suscripcion==='activa')return !!o.vigente_hasta&&new Date(o.vigente_hasta)>new Date();
+  return false;
+}
+function renderLicense(){
+  if(!state.org)return;
+  const o=state.org;
+  const label=o.estado_suscripcion==='prueba'?'Prueba hasta '+formatDate(o.prueba_hasta):
+    o.estado_suscripcion==='activa'?'Suscripción vigente hasta '+formatDate(o.vigente_hasta):'Suscripción suspendida';
+  $('licenseInfo').innerHTML='<h2>Estado de la suscripción</h2><p><strong>'+html(o.nombre)+'</strong> · '+html(label)+'</p><p class="muted">Pago y activación asistidos; no hay cargos automáticos dentro del panel.</p>';
+  $('licenseBanner').hidden=licenseEnabled();
+  if(!licenseEnabled()) $('licenseBanner').textContent='Tu acceso está inactivo. Puedes revisar tus registros y solicitar activación en Suscripción.';
+}
+function requestStarter(){
+  const company=state.org?.nombre||'mi empresa';
+  const msg='Hola, deseo activar MIRED360 CAMPAIGNS para '+company+'. Plan Emprendedor de $49.900 al mes. ¿Cómo puedo pagar?';
+  window.open('https://wa.me/573229432085?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+}
+async function loadAdmin(){
+  if(!state.isSuperAdmin)return;
+  const {data,error}=await db.rpc('wa_admin_listar_empresas');
+  if(error)return reportError(error);
+  $('adminRows').innerHTML=(data||[]).map(o=>
+    '<tr><td><strong>'+html(o.nombre)+'</strong></td><td>'+html(o.plan)+'</td><td>'+html(o.estado_suscripcion)+'</td><td>'+html(formatDate(o.estado_suscripcion==='prueba'?o.prueba_hasta:o.vigente_hasta))+'</td><td>'+
+    '<select id="plan_'+html(o.id)+'" aria-label="Plan de empresa"><option value="inicial">Emprendedor</option><option value="profesional">Profesional</option><option value="empresa">Empresa</option></select> '+
+    '<button class="table-action" data-admin-activate="'+html(o.id)+'">Activar 30 días</button></td></tr>'
+  ).join('')||'<tr><td colspan="5">No hay empresas registradas.</td></tr>';
+}
+async function activatePaidPlan(id){
+  if(!state.isSuperAdmin)return;
+  const plan=$('plan_'+id)?.value;
+  if(plan!=='inicial')return toast('Solo puede venderse Emprendedor en esta versión.',true);
+  if(!confirm('¿Has verificado el pago? Se activarán 30 días y no se cobrará automáticamente.'))return;
+  const {error}=await db.rpc('wa_admin_activar',{p_organizacion:id,p_plan:plan,p_dias:30});
+  if(error)return reportError(error);
+  toast('Suscripción activada por 30 días.');
+  await loadOrgs();
+  await loadAdmin();
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
