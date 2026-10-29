@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261029-permisos-6">
+  <link rel="stylesheet" href="./styles.css?v=20261029-contactos-7">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -117,8 +117,9 @@
     <div class="form-actions"><button type="submit" class="btn btn-primary" id="saveConsent">Guardar autorización</button><button type="button" class="btn btn-secondary" data-hide="consentFormPanel">Cancelar</button></div>
   </form>
 </div>
-<div class="card import-panel"><div><strong>Importación desde Excel</strong><p class="muted">Aceptamos <b>Excel .xlsx</b> y <b>CSV UTF-8</b>. Detectamos columnas de nombre y celular en las primeras 20 filas.</p><label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label><div class="field import-source"><label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label><input id="importSource" placeholder="Ej. Formulario web, fecha y enlace"></div></div><label class="btn btn-secondary file-button">↑ Importar CSV<input id="csvFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label></div>
-            <div class="card"><div class="table-head"><h2>Base de contactos <span id="contactsCount" class="count-badge">0</span></h2><select id="contactFilter" aria-label="Filtrar contactos"><option value="all">Todos</option><option value="pending">Sin autorización</option><option value="allowed">Autorizados</option><option value="excluded">Excluidos</option></select><input id="contactSearch" class="search-box" type="search" placeholder="Buscar nombre o teléfono..."></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>TELÉFONO</th><th>AUTORIZACIÓN</th><th>ESTADO</th><th></th></tr></thead><tbody id="contactRows"></tbody></table></div><div id="contactsEmpty" class="empty-state" hidden>No hay contactos para mostrar.</div><p class="small-notice">Respeta las autorizaciones y solicitudes de exclusión. Las bases compradas o sin consentimiento no son aptas para campañas de marketing.</p></div>
+<div class="card import-panel"><div><strong>Importación desde Excel</strong><p class="muted">Aceptamos <b>Excel .xlsx</b> y <b>CSV UTF-8</b>. Detectamos columnas de nombre y celular en las primeras 20 filas.</p><label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label><div class="field import-source"><label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label><input id="importSource" placeholder="Ej. Formulario web, fecha y enlace"></div></div><label class="btn btn-secondary file-button">↑ Importar Excel o CSV<input id="csvFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label></div>
+            <div class="card"><div class="table-head"><h2>Base de contactos <span id="contactsCount" class="count-badge">0</span></h2><select id="contactFilter" aria-label="Filtrar contactos"><option value="all">Todos</option><option value="pending">Sin autorización</option><option value="allowed">Autorizados</option><option value="excluded">Excluidos</option></select><input id="contactSearch" class="search-box" type="search" placeholder="Buscar nombre o teléfono..."></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>TELÉFONO</th><th>AUTORIZACIÓN</th><th>ESTADO</th><th></th></tr></thead><tbody id="contactRows"></tbody></table></div><div id="contactsEmpty" class="empty-state" hidden>No hay contactos para mostrar.</div>
+<div id="contactPager" class="contact-pager"><span id="contactDisplayCount">Mostrando contactos...</span><button type="button" id="contactLoadMore" class="btn btn-secondary" hidden>Mostrar más contactos</button></div><p class="small-notice">Respeta las autorizaciones y solicitudes de exclusión. Las bases compradas o sin consentimiento no son aptas para campañas de marketing.</p></div>
           </section>
 
           <section data-section="campanas" class="page-section" hidden>
@@ -162,6 +163,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261029-permisos-6"></script>
+  <script type="module" src="./app.js?v=20261029-contactos-7"></script>
 </body>
 </html>
