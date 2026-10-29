@@ -100,8 +100,9 @@ async function createOrg(event) {
   if (!nombre) return;
   if (nombre.length < 2 || nombre.length > 100) return toast('El nombre debe tener de 2 a 100 caracteres.',true);
   try {
-    const {error} = await db.from('wa_organizaciones').insert({nombre,propietario_id:state.user.id});
+    const {data,error} = await db.from('wa_organizaciones').insert({nombre,propietario_id:state.user.id}).select('id').single();
     if (error) throw error;
+    localStorage.setItem('wa_current_org',data.id);
     localStorage.removeItem('wa_pending_org');
     toast('Empresa creada y protegida correctamente.');
     await loadOrgs();
@@ -120,7 +121,7 @@ async function selectOrg(id) {
 async function allRows(table) {
   const list = []; const pageSize = 500;
   for(let start=0;start<10000;start+=pageSize) {
-    const {data,error} = await db.from(table).select('*').eq('organizacion_id',state.org.id).range(start,start+pageSize-1);
+    const {data,error} = await db.from(table).select('*').eq('organizacion_id',state.org.id).order('id',{ascending:true}).range(start,start+pageSize-1);
     if(error) throw error;
     list.push(...(data || []));
     if((data || []).length < pageSize) return list;
