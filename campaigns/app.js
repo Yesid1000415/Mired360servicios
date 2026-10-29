@@ -217,15 +217,64 @@ async function addContact(event) {
 }
 function renderContacts() {
   const q = $('contactSearch').value.trim().toLocaleLowerCase();
-  const found = state.contacts.filter(c => (c.nombre || '').toLocaleLowerCase().includes(q) || (c.telefono_e164 || '').includes(q)).slice(0,250);
+  const filter = $('contactFilter').value;
+  const authorized = eligibleContacts().length;
+  const pending = state.contacts.filter(c => !c.consentimiento_fecha && !c.excluido).length;
+  $('contactSummaryTitle').textContent = state.contacts.length.toLocaleString('es-CO') + ' registrados · ' + authorized.toLocaleString('es-CO') + ' autorizados · ' + pending.toLocaleString('es-CO') + ' pendientes';
+  $('contactSummaryText').textContent = pending > 0
+    ? 'Los contactos ya están guardados en tu empresa. Los que aún no tienen autorización no se muestran en campañas. Registra el permiso únicamente si puedes verificarlo.'
+    : 'La base está registrada. Solo los contactos con permiso vigente aparecen en las campañas.';
+  $('showPendingContacts').disabled = pending === 0;
+  const found = state.contacts.filter(c => {
+    if (filter==='pending' && (c.consentimiento_fecha || c.excluido)) return false;
+    if (filter==='allowed' && (!c.consentimiento_fecha || c.excluido)) return false;
+    if (filter==='excluded' && !c.excluido) return false;
+    return (c.nombre || '').toLocaleLowerCase().includes(q) || (c.telefono_e164 || '').includes(q);
+  }).slice(0,250);
   $('contactsEmpty').hidden = !!found.length;
   $('contactRows').innerHTML = found.map(c => {
     const allow = !!c.consentimiento_fecha, status = c.excluido;
     return '<tr><td><strong>' + html(c.nombre) + '</strong><br><small>' + html(c.origen || 'Sin origen') + '</small></td>' +
       '<td>' + html(c.telefono_e164) + '</td><td><span class="tag ' + (allow?'yes':'no') + '">' + (allow?'Autorizado':'Sin autorizar') + '</span></td>' +
       '<td><span class="tag ' + (status?'off':'yes') + '">' + (status?'Excluido':'Disponible') + '</span></td>' +
-      '<td><button class="table-action ' + (status?'':'danger') + '" data-optout="' + html(c.id) + '">' + (status?'Reactivar':'Excluir') + '</button></td></tr>';
+      '<td>' + (!allow&&!status?'<button class="table-action" data-verify-consent="' + html(c.id) + '">Registrar permiso</button> ':'') +
+      '<button class="table-action ' + (status?'':'danger') + '" data-optout="' + html(c.id) + '">' + (status?'Reactivar':'Excluir') + '</button></td></tr>';
   }).join('');
+}
+function openConsentForm(id) {
+  const person=state.contacts.find(c=>c.id===id);
+  if(!person)return toast('Contacto no encontrado.',true);
+  if(person.excluido)return toast('Este contacto fue excluido. Necesita nueva autorización y revisión de su exclusión.',true);
+  $('consentContactId').value=person.id;
+  $('consentContactTitle').textContent=person.nombre;
+  $('consentEvidence').value='';
+  $('consentVerified').checked=false;
+  const current=new Date(), local=new Date(current.getTime()-current.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  $('consentDate').max=local;
+  $('consentDate').value='';
+  $('consentFormPanel').hidden=false;
+  $('consentFormPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function saveContactConsent(event) {
+  event.preventDefault();
+  if(!state.org || !licenseEnabled())return toast('No hay una empresa con acceso activo.',true);
+  const id=$('consentContactId').value, person=state.contacts.find(c=>c.id===id);
+  if(!person || person.excluido)return toast('El contacto no está disponible para autorizar.',true);
+  if(!$('consentVerified').checked)return toast('Confirma la verificación del permiso.',true);
+  const source=$('consentEvidence').value.trim(),timestamp=new Date($('consentDate').value);
+  if(source.length<6)return toast('Describe la fuente verificable de la autorización.',true);
+  if(!Number.isFinite(timestamp.getTime()) || timestamp.getTime()>Date.now())return toast('Indica una fecha válida que no sea futura.',true);
+  $('saveConsent').disabled=true;
+  try {
+    const {data,error}=await db.from('wa_contactos').update({
+      consentimiento_fecha:timestamp.toISOString(),consentimiento_fuente:source
+    }).eq('id',id).eq('organizacion_id',state.org.id).select('id').single();
+    if(error)throw error;
+    if(!data)throw new Error('No se pudo actualizar el contacto.');
+    $('consentFormPanel').hidden=true;
+    toast('Autorización registrada. El contacto ya puede aparecer en campañas.');
+    await loadData();
+  }catch(error){reportError(error);}finally{$('saveConsent').disabled=false;}
 }
 async function toggleOptout(id) {
   const c = state.contacts.find(item=>item.id===id);
@@ -374,7 +423,8 @@ function renderCampaignDetail() {
   $('campaignDetail').hidden=false;
   $('detailTitle').textContent=c.nombre;
   const people=eligibleContacts();
-  $('detailHint').textContent=people.length+' contactos autorizados disponibles. Abre uno por uno.';
+  $('detailHint').textContent=people.length+' contactos autorizados disponibles de '+state.contacts.length+' registrados. Abre uno por uno.';
+  $('detailConsentNotice').hidden=people.length>0;
   $('targetRows').innerHTML=people.slice(0,400).map(person=>{
     const record=state.actions.find(a=>a.campana_id===c.id && a.contacto_id===person.id);
     let stateLabel=record?.estado==='contactado'?'Contactado (manual)':record?.estado==='respondio'?'Respondió':record?.estado==='sin_interes'?'Sin interés':record?.estado==='preparado'?'Chat abierto':'Sin gestionar';
@@ -646,12 +696,16 @@ function bindEvents() {
   $('campaignFormToggle').addEventListener('click',()=>$('campaignFormPanel').hidden=!$('campaignFormPanel').hidden);
   $('contactForm').addEventListener('submit',addContact);
   $('contactSearch').addEventListener('input',renderContacts);
+  $('contactFilter').addEventListener('change',renderContacts);
+  $('showPendingContacts').addEventListener('click',()=>{$('contactFilter').value='pending';$('contactSearch').value='';renderContacts();$('contactRows').scrollIntoView({behavior:'smooth',block:'start'});});
+  $('consentForm').addEventListener('submit',saveContactConsent);
   $('exportContacts').addEventListener('click',exportContacts);
   $('csvFile').addEventListener('change',importCSV);
   $('campaignForm').addEventListener('submit',addCampaign);
   $('contactRows').addEventListener('click',event=>{
-    const button=event.target.closest('[data-optout]');
+    const button=event.target.closest('[data-optout]'), verified=event.target.closest('[data-verify-consent]');
     if(button)toggleOptout(button.dataset.optout);
+    if(verified)openConsentForm(verified.dataset.verifyConsent);
   });
   $('campaignCards').addEventListener('click',event=>{
     const button=event.target.closest('[data-open-campaign]');
