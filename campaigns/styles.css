@@ -228,3 +228,47 @@ td strong{color:#263d58}
 .campaign-target-pager{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0;font-size:.78rem;color:#8797aa}
 @media(max-width:850px){.picker-toolbar{grid-template-columns:1fr}.campaign-detail-header .detail-actions{width:100%}.campaign-detail-header .detail-actions .btn{flex:1}}
 @media(max-width:600px){.campaign-picker{padding:14px}.picker-selection-bar{align-items:stretch}.picker-selection-bar .btn{width:100%}.picker-selection-bar strong{margin:0}.picker-person{gap:9px;padding:10px}.picker-person .tag{font-size:.59rem;padding:5px 7px}.picker-footer{flex-direction:column;align-items:stretch}.picker-footer .btn{width:100%}.campaign-target-pager{flex-direction:column;align-items:stretch}.campaign-target-pager .btn{width:100%}}
+
+
+/* MIRED360 CAMPAIGNS — Cola personal de mensajes asistidos */
+.queue-panel{margin:20px 0 22px;padding:24px;border:1px solid #b8e8df;border-radius:17px;background:linear-gradient(135deg,#f2fcf9,#f7faff)}
+.queue-panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:17px}
+.queue-panel-heading h3{font:800 1.28rem 'Manrope',sans-serif;letter-spacing:-.035em;color:#173954;margin:9px 0}
+.queue-panel-heading p{font-size:.84rem;color:#647c90;max-width:640px;line-height:1.55;margin-bottom:0}
+.queue-badge{font-size:.72rem;font-weight:800;padding:8px 12px;border-radius:30px;background:#e8edf3;color:#5a7085;white-space:nowrap}
+.queue-badge.active{background:#dcf9ed;color:#087e63}
+.queue-badge.paused{background:#fff3dc;color:#9c6a12}
+.queue-badge.done{background:#e1eaf6;color:#375880}
+.queue-settings{display:flex;gap:20px;align-items:stretch;flex-wrap:wrap}
+.queue-settings .field{margin:0;min-width:200px}
+.queue-settings select{width:100%}
+.queue-delay{background:#fff;border:1px solid #e5edf1;border-radius:12px;padding:13px 18px;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:210px;flex:1}
+.queue-delay span{font-size:.74rem;color:#8191a6}
+.queue-delay strong{color:#087c74;font-size:1.1rem}
+.queue-delay small{color:#92a1b0;font-size:.72rem;line-height:1.4}
+.queue-availability{font-size:.82rem;color:#4e677c;margin:14px 0}
+.queue-progress-info{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:5px 0 11px;font-size:.79rem;color:#678098;font-weight:700}
+.queue-progress-info strong{color:#067d6d;font-size:.84rem}
+.queue-progress-track{height:11px;border-radius:20px;background:#dcebe8;overflow:hidden}
+#queueProgressFill{height:100%;width:0%;transition:width .24s;background:linear-gradient(90deg,#09b9a2,#48d7ac);border-radius:20px}
+.queue-current-contact{margin:16px 0;background:#fff;border:1px solid #e4edf1;border-radius:13px;padding:17px;display:flex;flex-direction:column;gap:6px}
+.queue-current-contact strong{font-size:1.05rem;color:#1a3b55}
+.queue-current-contact small{font-size:.8rem;color:#7d92a2}
+.queue-current-contact p{margin:4px 0 0;color:#698093;font-size:.82rem}
+.queue-control-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.queue-control-actions .btn{min-height:42px}
+.queue-control-actions .btn[hidden],.queue-panel [hidden]{display:none!important}
+.queue-panel .small-notice{background:#f4faf8}
+.queue-done{background:#fff;border:1px solid #d5ebe3;border-radius:12px;padding:18px}
+.queue-done strong{display:block;color:#0c8d75;font-size:1.02rem;margin-bottom:7px}
+.queue-done p{font-size:.82rem;color:#667f92}
+.queue-panel button:disabled{cursor:not-allowed}
+@media(max-width:800px){
+ .queue-panel{padding:17px}
+ .queue-panel-heading{flex-direction:column;gap:10px}
+ .queue-settings{flex-direction:column}
+ .queue-settings .field,.queue-settings .queue-delay{width:100%;min-width:0}
+ .queue-control-actions{display:grid;grid-template-columns:1fr 1fr}
+ .queue-control-actions .btn{min-width:0;white-space:normal;line-height:1.25}
+ #queueOpenNext,#queueConfirmSent{grid-column:1/-1}
+}
