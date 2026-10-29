@@ -8,10 +8,24 @@ header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #
 
 :root{--store-color:#6957e8}.btn.primary{background:var(--store-color);border-color:var(--store-color)}.chip.active{color:var(--store-color)}.hero{background-position:center;background-size:cover}.hero h1{font-size:clamp(30px,4vw,50px);max-width:710px;letter-spacing:-1.5px}.noPhoto{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;background:radial-gradient(circle at 70% 30%,#c6c0ff 0%,#e8e7ff 40%,#d9e8f7 100%);width:100%}.noPhoto span{font-size:65px;font-weight:200;color:var(--store-color);filter:drop-shadow(0 12px 10px #9d98b15c)}.noPhoto small{color:#6b5bb5;font-size:10px;letter-spacing:1px;font-weight:900;text-transform:uppercase}.detailDialog{position:fixed;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);width:min(920px,calc(100% - 26px));max-height:92vh;overflow-y:auto;background:white;border-radius:23px;padding:28px;box-shadow:0 30px 90px #050e2770}.detailColumns{display:grid;grid-template-columns:1.08fr 1fr;gap:30px;clear:both;padding-top:18px}.detailPhoto{height:320px;background:#eae8ff;border-radius:16px;overflow:hidden}.detailPhoto .noPhoto{height:320px}.thumbs{display:flex;gap:8px;overflow-x:auto;margin-top:12px}.thumbs button{border:1px solid #d6d6e9;background:white;padding:3px;border-radius:9px;flex:none}.thumbs img{width:72px;height:58px;object-fit:cover;border-radius:6px}.descriptionPro{white-space:pre-wrap;font-size:13px;line-height:1.8;color:#566682;border-top:1px solid #ebedf5;padding-top:15px}.productVideo{margin-top:16px}.productVideo video,.productVideo iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:13px;background:#080d17}.grid .info .btn{padding:10px 8px}.grid .info .btn:not(.primary){border-color:#cfd4e2}.logo .symbol{overflow:hidden}@media(max-width:720px){.detailDialog{padding:16px}.detailColumns{grid-template-columns:1fr;gap:20px}.detailPhoto,.detailPhoto .noPhoto{height:205px}.detailPhoto img{height:205px!important}.productVideo video,.productVideo iframe{max-height:220px}}
 
+
+.heroCtas{display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin-top:23px}
+.contactMini{font-size:13px;color:#167c45;background:#e7f7ef;border:1px solid #cce8d7}
+.socialLinks{display:flex;gap:10px 15px;flex-wrap:wrap;margin-top:13px}
+.socialLinks a{font-size:12px;font-weight:750;color:#dfe6f7;text-decoration:underline;text-decoration-color:#6f7996;text-underline-offset:3px}
+.socialLinks a:hover{color:#fff}
+.floatingContact{position:fixed;right:21px;bottom:22px;z-index:8;border-radius:50px;background:#19a65b;color:white;display:flex;align-items:center;gap:9px;font-weight:800;font-size:14px;padding:13px 19px;box-shadow:0 12px 32px #153e3575;text-decoration:none;max-width:calc(100% - 35px)}
+.floatingContact:hover{background:#13944e;color:#fff;transform:translateY(-2px)}
+.floatingContact.customContact{background:var(--store-color)}
+.contactSymbol{font-size:21px}
+.contactPerProduct{display:flex;align-items:center;justify-content:center;color:#11854a;font-size:12px;font-weight:800;padding-top:12px;margin-top:12px;border-top:1px solid #edf0f5;white-space:normal;text-align:center;text-decoration:none}
+.contactDetailButton{margin-top:9px;width:100%;background:#e6f8ed;color:#137a43;border:1px solid #c7ead5}
+@media(max-width:720px){.contactMini{font-size:11px;padding:9px}.head{gap:8px}.actions{gap:6px}.floatingContact{right:14px;bottom:13px;padding:12px 15px;font-size:12px}.heroCtas .btn{padding:11px 14px}}
+
 </style><script src="config.js"></script></head><body>
-<header><div class="container head"><a class="logo" href="#"><span class="symbol">M</span><span id="brand">MIRED360 <small>TIENDAS PRO</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
-<main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8;margin-top:23px">Explorar catálogo ›</a></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><section class="trust" id="beneficios"><article><span>✦</span> Experiencia fácil<small>Compra desde cualquier dispositivo</small></article><article><span>♧</span> Atención cercana<small>Conversa con un asesor comercial</small></article><article><span>▣</span> Catálogo actualizado<small>Consulta nuestras ofertas publicadas</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Nuestra selección</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar productos..." aria-label="Buscar productos"></div><div class="filters" id="filters"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
-<footer class="footer" id="contacto"><div class="container"><strong id="footerName">MIRED360 TIENDAS PRO</strong><span>Todos los derechos reservados · Ventas sujetas a confirmación</span></div></footer><div class="hidden" id="overlay"></div><div class="hidden" id="detailOverlay"></div>
+<header><div class="container head"><a class="logo" href="#"><span class="symbol">M</span><span id="brand">MIRED360 <small>TIENDAS PRO</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><a class="btn contactMini hidden" id="headerContact" href="#" target="_blank" rel="noopener noreferrer">✆ WhatsApp</a><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
+<main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><section class="trust" id="beneficios"><article><span>✦</span> Experiencia fácil<small>Compra desde cualquier dispositivo</small></article><article><span>♧</span> Atención cercana<small>Conversa con un asesor comercial</small></article><article><span>▣</span> Catálogo actualizado<small>Consulta nuestras ofertas publicadas</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Nuestra selección</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar productos..." aria-label="Buscar productos"></div><div class="filters" id="filters"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
+<footer class="footer" id="contacto"><div class="container" style="flex-wrap:wrap"><div><strong id="footerName">MIRED360 TIENDAS PRO</strong><div id="footerSocials" class="socialLinks"></div></div><span>Todos los derechos reservados · Ventas sujetas a confirmación</span></div></footer><a id="floatingContact" class="floatingContact hidden" target="_blank" rel="noopener noreferrer" href="#" aria-label="Contactar por WhatsApp"><span class="contactSymbol">✆</span><span id="floatingContactLabel">WhatsApp</span></a><div class="hidden" id="overlay"></div><div class="hidden" id="detailOverlay"></div>
 <script type="module">
 const cfg=window.MIRED360_CLOUD||{},q=new URLSearchParams(location.search),slug=q.get('tienda')||cfg.slugPrincipal||'mired360';let shop=null,products=[],cart={},category='Todos',filter='';const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -33,7 +47,7 @@ function renderCatalogPremium(){
  $('#catalog').innerHTML=filtered.map(p=>`<article class="product">
  <div class="art">${photoMarkupPro(p)}<span class="type">${p.destacado?'DESTACADO':p.tipo==='servicio'?'SERVICIO':'PRODUCTO'}</span></div>
  <div class="info"><span class="cat">${esc(p.categoria)}</span><h3>${esc(p.nombre)}</h3><p>${esc(p.descripcion||'Conoce sus características y beneficios.')}</p><strong class="price">${money(p.precio_cop)}</strong>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn" data-detail="${esc(p.id)}">Ver detalles</button><button class="btn primary" data-add="${esc(p.id)}" ${p.tipo==='producto'&&p.inventario<1?'disabled':''}>${p.tipo==='producto'&&p.inventario<1?'Agotado':'Añadir +'}</button></div></div></article>`).join('')||`<div class="notice">${products.length?'No hay resultados en esta categoría.':'Pronto encontrarás aquí nuestro catálogo. Estamos preparando los primeros productos.'}</div>`;
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn" data-detail="${esc(p.id)}">Ver detalles</button><button class="btn primary" data-add="${esc(p.id)}" ${p.tipo==='producto'&&p.inventario<1?'disabled':''}>${p.tipo==='producto'&&p.inventario<1?'Agotado':'Añadir +'}</button></div><a class="contactPerProduct" data-product-contact="${esc(p.id)}" href="${esc(contactLinkPro(productContactMessagePro(p)))}" target="_blank" rel="noopener noreferrer">✆ Consultar por ${esc(contactProviderPro())}</a></div></article>`).join('')||`<div class="notice">${products.length?'No hay resultados en esta categoría.':'Pronto encontrarás aquí nuestro catálogo. Estamos preparando los primeros productos.'}</div>`;
  $('#count').textContent=Object.values(cart).reduce((a,b)=>a+b,0);
 }
 
@@ -63,7 +77,7 @@ function showProductDetailPro(p){
  const img=images[0]?`<img src="${esc(images[0])}" alt="${esc(p.nombre)}" id="productBigImage" style="height:310px;width:100%;object-fit:cover;border-radius:16px">`:photoMarkupPro(p);
  const thumbs=images.length>1?`<div class="thumbs">${images.map((src,i)=>`<button type="button" data-detail-photo="${esc(src)}" aria-label="Ver imagen ${i+1}"><img src="${esc(src)}" alt="Vista ${i+1}"></button>`).join('')}</div>`:'';
  const video=safeVideoPro(p.video_url);
- $('#detailOverlay').className='';$('#detailOverlay').innerHTML=`<div class="shade" data-detail-close></div><div class="detailDialog"><button type="button" class="btn" data-detail-close style="float:right">✕ Cerrar</button><div class="detailColumns"><div><div class="detailPhoto">${img}</div>${thumbs}${video?`<div class="productVideo">${video}</div>`:''}</div><div><span class="chip active">${esc(p.categoria)}</span><h2 style="font-size:31px;line-height:1.15;letter-spacing:-1.4px;margin:17px 0">${esc(p.nombre)}</h2><div class="price">${money(p.precio_cop)}</div><p style="font-size:14px;color:#63738f;line-height:1.7;margin:13px 0">${esc(p.descripcion||'')}</p><div class="descriptionPro">${esc(p.descripcion_larga||'Contáctanos para confirmar disponibilidad, características y condiciones comerciales.')}</div><button class="btn primary" style="width:100%;margin-top:20px" data-detail-add="${esc(p.id)}" ${p.tipo==='producto'&&p.inventario<1?'disabled':''}>${p.tipo==='producto'&&p.inventario<1?'Agotado':'Añadir al carrito'}</button><p style="font-size:11px;color:#8b97aa;margin-top:12px">Oferta sujeta a confirmación y disponibilidad.</p></div></div></div>`;
+ $('#detailOverlay').className='';$('#detailOverlay').innerHTML=`<div class="shade" data-detail-close></div><div class="detailDialog"><button type="button" class="btn" data-detail-close style="float:right">✕ Cerrar</button><div class="detailColumns"><div><div class="detailPhoto">${img}</div>${thumbs}${video?`<div class="productVideo">${video}</div>`:''}</div><div><span class="chip active">${esc(p.categoria)}</span><h2 style="font-size:31px;line-height:1.15;letter-spacing:-1.4px;margin:17px 0">${esc(p.nombre)}</h2><div class="price">${money(p.precio_cop)}</div><p style="font-size:14px;color:#63738f;line-height:1.7;margin:13px 0">${esc(p.descripcion||'')}</p><div class="descriptionPro">${esc(p.descripcion_larga||'Contáctanos para confirmar disponibilidad, características y condiciones comerciales.')}</div><button class="btn primary" style="width:100%;margin-top:20px" data-detail-add="${esc(p.id)}" ${p.tipo==='producto'&&p.inventario<1?'disabled':''}>${p.tipo==='producto'&&p.inventario<1?'Agotado':'Añadir al carrito'}</button><a class="btn contactDetailButton" href="${esc(contactLinkPro(productContactMessagePro(p)))}" target="_blank" rel="noopener noreferrer">✆ Consultar este producto por ${esc(contactProviderPro())}</a><p style="font-size:11px;color:#8b97aa;margin-top:12px">Oferta sujeta a confirmación y disponibilidad.</p></div></div></div>`;
 }
 
 function applyBrandPro(){
@@ -76,10 +90,79 @@ function applyBrandPro(){
  if(shop.portada_url&&/^https:\/\//.test(shop.portada_url)){try{let u=new URL(shop.portada_url);if(u.protocol==='https:')$('#hero').style.backgroundImage=`linear-gradient(90deg,rgba(14,22,48,.96),rgba(17,29,64,.74) 60%,rgba(29,38,91,.40)), url("${u.href.replace(/["\\]/g,'')}")`}catch{}}
  $('#footerName').textContent=shop.nombre;
  document.title=shop.nombre+' · Tienda virtual';
+ updateContactLinksPro();
 }
+
+function normalizeContactUrlPro(raw){
+ try{const u=new URL(raw);if(u.protocol!=='https:'||u.username||u.password)return '';return u.href}catch{return ''}
+}
+function contactProviderPro(){
+ const external=normalizeContactUrlPro(shop?.contacto_url||'');
+ if(!external)return 'WhatsApp';
+ try{const h=new URL(external).hostname.toLowerCase();return ['wa.me','www.wa.me','api.whatsapp.com','www.api.whatsapp.com','web.whatsapp.com'].includes(h)?'WhatsApp':'tu enlace de contacto'}catch{return 'WhatsApp'}
+}
+function attributionPro(){
+ const sucursal=(q.get('sucursal')||'').slice(0,80),asesor=(q.get('asesor')||'').slice(0,80);
+ return (sucursal?'Referencia sucursal: '+sucursal+'\n':'')+(asesor?'Referencia asesor: '+asesor+'\n':'');
+}
+function contactLinkPro(message){
+ if(!shop)return '';
+ const external=normalizeContactUrlPro(shop.contacto_url||'');
+ if(external){
+  try{
+   const u=new URL(external),h=u.hostname.toLowerCase();
+   if(['wa.me','www.wa.me'].includes(h)){
+     const phone=u.pathname.replace(/\D/g,'');
+     if(phone.length>=10&&phone.length<=15)return 'https://wa.me/'+phone+'?text='+encodeURIComponent(message);
+   }
+   if(['api.whatsapp.com','www.api.whatsapp.com','web.whatsapp.com'].includes(h)){
+     const phone=(u.searchParams.get('phone')||'').replace(/\D/g,'');
+     if(phone.length>=10&&phone.length<=15)return 'https://wa.me/'+phone+'?text='+encodeURIComponent(message);
+   }
+   return external;
+  }catch{}
+ }
+ let phone=String(shop.whatsapp||'').replace(/\D/g,'');
+ if(phone.length===10&&phone.startsWith('3'))phone='57'+phone;
+ if(phone.length<10||phone.length>15)return '';
+ return 'https://wa.me/'+phone+'?text='+encodeURIComponent(message);
+}
+function productContactMessagePro(product){
+ return 'Hola, quiero información sobre '+product.nombre+' de '+shop.nombre+'.\nPrecio de referencia: '+money(product.precio_cop)+'\n'+attributionPro()+'¿Está disponible? Quisiera conocer las condiciones.';
+}
+function updateContactLinksPro(){
+ if(!shop)return;
+ const general=contactLinkPro('Hola, visité la tienda '+shop.nombre+' y deseo recibir asesoría.\n'+attributionPro());
+ const provider=contactProviderPro();
+ const isWhatsApp=provider==='WhatsApp';
+ for(const id of ['#headerContact','#heroContact','#floatingContact']){
+  const el=$(id);if(!el)continue;
+  if(general){
+   el.classList.remove('hidden');el.href=general;
+   el.setAttribute('aria-label',isWhatsApp?'Abrir WhatsApp para recibir asesoría':'Abrir enlace de contacto de la tienda');
+  }else el.classList.add('hidden');
+ }
+ $('#headerContact').textContent=isWhatsApp?'✆ WhatsApp':'✆ Contactar';
+ $('#heroContact').textContent=isWhatsApp?'✆ Escríbenos por WhatsApp':'✆ Contáctanos';
+ $('#floatingContactLabel').textContent=isWhatsApp?'WhatsApp':'Contactar';
+ $('#floatingContact').classList.toggle('customContact',!isWhatsApp);
+ const networks=[['facebook_url','Facebook'],['instagram_url','Instagram'],['tiktok_url','TikTok'],['youtube_url','YouTube'],['x_url','X'],['web_url','Sitio web']];
+ $('#footerSocials').innerHTML=networks.map(([field,label])=>{
+  const href=normalizeContactUrlPro(shop[field]||'');
+  return href?'<a href="'+esc(href)+'" rel="noopener noreferrer" target="_blank" aria-label="Visitar '+esc(label)+'">'+esc(label)+'</a>':'';
+ }).join('');
+}
+
 function closeCart(){$('#overlay').className='hidden';$('#overlay').innerHTML=''}
-function showCart(){const selected=Object.keys(cart).map(id=>Object.assign({},products.find(p=>p.id===id),{qty:cart[id]})).filter(p=>p.id);let total=selected.reduce((n,p)=>n+p.qty*Number(p.precio_cop),0);const phone=q.get('preview')==='1'?'':(shop?.whatsapp||'').replace(/\D/g,'');let message='Hola, deseo información de estos productos en '+shop.nombre+':\n'+selected.map(p=>'- '+p.nombre+' x '+p.qty+' ('+money(p.qty*p.precio_cop)+')').join('\n')+'\nTotal estimado: '+money(total)+'\n';if(q.get('sucursal'))message+='Sucursal: '+q.get('sucursal')+'\n';if(q.get('asesor'))message+='Asesor: '+q.get('asesor')+'\n';message+='Quiero confirmar disponibilidad y condiciones.';
-$('#overlay').className='';$('#overlay').innerHTML='<div class="shade" data-close></div><section class="drawer"><div class="drawerHeader"><h2>Tu selección ('+selected.reduce((n,p)=>n+p.qty,0)+')</h2><button class="btn" data-close>✕</button></div><div class="items">'+(selected.length?selected.map(p=>'<div class="line"><div><strong>'+esc(p.nombre)+'</strong><small>'+money(p.precio_cop)+'</small><div class="quantity"><button data-minus="'+esc(p.id)+'">−</button>'+p.qty+'<button data-plus="'+esc(p.id)+'">+</button></div></div><b>'+money(p.precio_cop*p.qty)+'</b></div>').join(''):'<div class="notice" style="margin-top:20px">Tu carrito está vacío.</div>')+'</div><div class="cartFoot"><div class="total"><strong>Subtotal</strong><strong>'+money(total)+'</strong></div>'+(selected.length&&phone?'<a class="btn primary" rel="noopener noreferrer" target="_blank" href="https://wa.me/'+esc(phone)+'?text='+encodeURIComponent(message)+'">Consultar por WhatsApp</a>':'<button class="btn" disabled>Consulta no disponible</button>')+'<div class="warning">Esta es una consulta comercial por WhatsApp, no un pedido registrado ni un pago. Los pedidos centralizados se habilitarán tras finalizar la verificación segura.</div></div></section>';}
+function showCart(){
+ const selected=Object.keys(cart).map(id=>Object.assign({},products.find(p=>p.id===id),{qty:cart[id]})).filter(p=>p.id);
+ const total=selected.reduce((n,p)=>n+p.qty*Number(p.precio_cop),0);
+ const message='Hola, deseo consultar estos productos de '+shop.nombre+':\n'+selected.map(p=>'- '+p.nombre+' × '+p.qty+' — '+money(p.qty*p.precio_cop)).join('\n')+'\nTotal estimado: '+money(total)+'\n'+attributionPro()+'Por favor, confirmen disponibilidad y condiciones.';
+ const contactUrl=contactLinkPro(message);
+ $('#overlay').className='';
+ $('#overlay').innerHTML='<div class="shade" data-close></div><section class="drawer"><div class="drawerHeader"><h2>Tu selección ('+selected.reduce((n,p)=>n+p.qty,0)+')</h2><button class="btn" data-close>✕</button></div><div class="items">'+(selected.length?selected.map(p=>'<div class="line"><div><strong>'+esc(p.nombre)+'</strong><small>'+money(p.precio_cop)+'</small><div class="quantity"><button data-minus="'+esc(p.id)+'">−</button>'+p.qty+'<button data-plus="'+esc(p.id)+'">+</button></div></div><b>'+money(p.precio_cop*p.qty)+'</b></div>').join(''):'<div class="notice" style="margin-top:20px">Tu carrito está vacío.</div>')+'</div><div class="cartFoot"><div class="total"><strong>Subtotal</strong><strong>'+money(total)+'</strong></div>'+(selected.length&&contactUrl?'<a class="btn primary" rel="noopener noreferrer" target="_blank" href="'+esc(contactUrl)+'">✆ Consultar carrito por '+esc(contactProviderPro())+'</a>':'<button class="btn" disabled>Agrega un producto para consultar</button>')+'<div class="warning">Esta es una solicitud de información comercial, no un pedido registrado ni un pago. El precio final y la disponibilidad deben confirmarse.</div></div></section>';
+}
+
 async function load(){if(!cfg.url||!cfg.publishableKey){$('#catalog').innerHTML='<div class="notice">La tienda está en preparación.</div>';return}try{let {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm'),db=createClient(cfg.url,cfg.publishableKey);const {data,error}=await db.rpc('catalogo_publico',{p_slug:slug});if(error)throw error;if(!data?.encontrada){if(q.get('preview')==='1'){const {data:auth}=await db.auth.getSession();if(auth?.session?.user){const {data:privateShop}=await db.from('tiendas').select('*').eq('slug',slug).eq('propietario_id',auth.session.user.id).maybeSingle();if(privateShop){const {data:privateProducts}=await db.from('productos').select('*').eq('tienda_id',privateShop.id).eq('activa',true);shop=privateShop;products=privateProducts||[];$('#previewBanner').className='';applyBrandPro();render();return}}}$('#catalog').innerHTML='<div class="notice">Próximamente estará disponible nuestro catálogo. Estamos preparando los productos.</div>';return}shop=data.tienda;products=data.productos||[];applyBrandPro();render()}catch(err){console.error(err);$('#catalog').innerHTML='<div class="notice">No fue posible cargar el catálogo. Intenta nuevamente.</div>';}}
 document.addEventListener('click',e=>{const detail=e.target.closest('[data-detail]');if(detail){showProductDetailPro(products.find(p=>p.id===detail.dataset.detail));return}const closeDetail=e.target.closest('[data-detail-close]');if(closeDetail){$('#detailOverlay').className='hidden';$('#detailOverlay').innerHTML='';return}const choosePhoto=e.target.closest('[data-detail-photo]');if(choosePhoto){const img=$('#productBigImage');if(img)img.src=choosePhoto.dataset.detailPhoto;return}const addDetail=e.target.closest('[data-detail-add]');if(addDetail){const p=products.find(x=>x.id===addDetail.dataset.detailAdd);if(!p||p.tipo==='producto'&&(cart[p.id]||0)>=p.inventario)return;cart[p.id]=(cart[p.id]||0)+1;$('#detailOverlay').className='hidden';$('#detailOverlay').innerHTML='';render();showCart();return}let cat=e.target.closest('[data-category]');if(cat){category=cat.dataset.category;render();return}let add=e.target.closest('[data-add]');if(add){let p=products.find(x=>x.id===add.dataset.add);if(!p)return;if(p.tipo==='producto'&&(cart[p.id]||0)>=p.inventario)return;cart[p.id]=(cart[p.id]||0)+1;render();return}let plus=e.target.closest('[data-plus],[data-minus]');if(plus){let id=plus.dataset.plus||plus.dataset.minus,p=products.find(x=>x.id===id);if(plus.dataset.plus&&p.tipo==='producto'&&cart[id]>=p.inventario)return;cart[id]=Math.max(0,(cart[id]||0)+(plus.dataset.plus?1:-1));if(!cart[id])delete cart[id];render();showCart();return}if(e.target.closest('[data-close]'))closeCart()});$('#openCart').onclick=showCart;$('#search').oninput=e=>{filter=e.target.value;render()};load();
 </script></body></html>
