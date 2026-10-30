@@ -69,3 +69,17 @@ WhatsApp 3229432085 · ventas@mired360servicios.com
 - MIRED360 IA procesa \`SALIR\`, \`BAJA\`, \`STOP\` y expresiones inequívocas de cancelación, bloqueando futuras comunicaciones comerciales para los contactos corporativos correspondientes.
 - Esto **no** habilita campañas masivas automáticas. Cada empresa SaaS necesitará su propia conexión oficial y controles de opt-in, suscripciones, plantillas, calidad y facturación.
 
+
+
+## Bandeja WhatsApp corporativa — MIRED360SERVICIOS
+
+Acceso: **Bandeja WhatsApp**, solo para el propietario administrador de MIRED360 en el menú de CAMPAIGNS. El resto de empresas del SaaS no puede ver ni utilizar el número corporativo.
+
+- Diseño profesional tipo inbox con lista, búsqueda, filtros, estados de mensaje, panel de conversación y vista móvil en pantalla de chat; contador de mensajes nuevos en el menú y actualización periódica.
+- Función de servidor \`wa-inbox\`: lista de conversaciones, lectura del hilo, marcado leído, modo IA/humano y respuesta oficial Meta solamente dentro de la ventana de atención de 24 horas. Requiere JWT válido, perfil superadministrador y propiedad de la organización.
+- Fuente: \`whatsapp_mensajes\` filtrada por \`CRM_USER_ID\` del número **3133938312**. No se expone directamente al cliente web. La consulta optimizada \`wa_inbox_resumen\` se ejecuta solo con rol \`service_role\`; el navegador no puede acceder a sus tablas ni funciones internas.
+- \`wa_inbox_control\`: registra estado de atención y hasta dónde se han leído los mensajes. El módulo \`mired360-ia-whatsapp\` omite las respuestas cuando el modo de la conversación es \`humano\`, sin desactivar la IA para otras conversaciones.
+- El envío manual se habilita solo con modo humano, conversación existente y mensaje entrante de menos de 24 horas. Meta puede aceptar un mensaje sin haberlo entregado todavía. El estado de entrega se actualiza por webhook.
+- Solo se muestran los mensajes más recientes de cada conversación; la lista muestra hasta 150 hilos (buscar por nombre o número) y el chat hasta 120 mensajes. La paginación y roles de asesor por empresa serán una fase posterior.
+- La bandeja compartida para empresas clientes y los envíos comerciales masivos **no** están habilitados; necesitarán conexión de Meta independiente por empresa, permisos y consentimiento verificable.
+
