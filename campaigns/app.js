@@ -91,6 +91,7 @@ async function boot() {
   state.isSuperAdmin=!!administrator;
   $('adminNav').hidden=!state.isSuperAdmin;
   $('inboxNav').hidden=!state.isSuperAdmin;
+  $('excelSendNav').hidden=!state.isSuperAdmin;
   $('inboxIntegrationLink').hidden=!state.isSuperAdmin;
   $('inboxQuickLink').hidden=!state.isSuperAdmin;
   $('apiSummaryDescription').textContent=state.isSuperAdmin
@@ -220,8 +221,9 @@ function renderAll() {
   if(state.selectedCampaign) renderCampaignDetail();
 }
 function navigate(page) {
+  if(page==='envios'&&!state.isSuperAdmin)return toast('Envíos API exclusivos de MIRED360.',true);
   state.page = page;
-  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',bandeja:'Bandeja WhatsApp',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción',administracion:'Administración'};
+  const names = {resumen:'Resumen',envios:'Enviar WhatsApp',contactos:'Contactos',campanas:'Campañas',bandeja:'Bandeja WhatsApp',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción',administracion:'Administración'};
   document.querySelectorAll('[data-section]').forEach(el => el.hidden = el.dataset.section !== page);
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active',el.dataset.page === page));
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
@@ -232,6 +234,7 @@ function navigate(page) {
   }
   if(page==='bandeja'&&state.isSuperAdmin)inboxStart(); else inboxStop();
   if(page==='administracion'&&state.isSuperAdmin)loadAdmin();
+  if(page==='envios'&&state.isSuperAdmin)apiBatchTick();
   if(page==='integraciones'&&state.isSuperAdmin){
     renderMetaTestCampaigns();
     refreshMetaTemplate();
@@ -1390,14 +1393,14 @@ function apiBatchShow(batch){
   const percent=batch.total?Math.round(100*batch.procesados/batch.total):0;
   progress.value=percent;
   pause.hidden=batch.estado!=="activa";
-  resume.hidden=batch.estado!=="pausada";
+  resume.hidden=batch.estado!=="pausada"||batch.procesados>=30;
   const next=Math.max(0,Math.ceil((new Date(batch.siguiente_tanda_en).getTime()-Date.now())/1000));
   const clock=String(Math.floor(next/60)).padStart(2,"0")+":"+String(next%60).padStart(2,"0");
   const label=batch.estado==="finalizada"?"Finalizado":batch.estado==="pausada"?"En pausa":"En proceso";
-  status.textContent=label+" · "+batch.procesados+"/"+batch.total+
+  status.textContent=(batch.estado==="pausada"&&batch.procesados>=30?"Campaña antigua detenida. No reanudar. ":"")+label+" · "+batch.procesados+"/"+batch.total+
     " procesados ("+percent+"%) · "+batch.aceptados_meta+" aceptados por Meta · "+
     batch.entregados+" entregados · "+batch.fallidos+" fallidos · "+batch.inciertos+
-    " por verificar"+(batch.estado==="activa"?" · Próxima tanda: "+clock:"");
+    " por verificar"+(batch.estado==="activa"?" · Próximo mensaje: "+clock:"");
 }
 async function apiBatchTick(){
   if(apiBatchState.busy||!state.isSuperAdmin||!state.org)return;
@@ -1405,7 +1408,7 @@ async function apiBatchTick(){
   try{
     let output=await apiBatchRequest("GET",{action:"status",org_id:state.org.id});
     if(output.batch?.estado==="activa"&&new Date(output.batch.siguiente_tanda_en).getTime()<=Date.now()){
-      $("apiBatchStatus").textContent="Procesando hasta 30 contactos y registrando la respuesta de Meta…";
+      $("apiBatchStatus").textContent="Enviando un mensaje y registrando la respuesta de Meta…";
       output=await apiBatchRequest("POST",{action:"process",org_id:state.org.id,batch_id:output.batch.id});
     }
     apiBatchShow(output.batch);
@@ -1419,6 +1422,27 @@ function apiBatchStartPoll(){
   if(!state.isSuperAdmin||!state.org)return;
   apiBatchState.timer=setInterval(apiBatchTick,10000);
   apiBatchTick();
+}
+async function apiDownloadExcelTemplate(){
+  const button=$('apiDownloadTemplate');
+  button.disabled=true;
+  try{
+    const ExcelJS=await loadExcelJS();
+    const book=new ExcelJS.Workbook();
+    const sheet=book.addWorksheet('Contactos');
+    sheet.columns=[{header:'Nombre',key:'nombre',width:34},{header:'Celular',key:'celular',width:22}];
+    sheet.getRow(1).font={bold:true,color:{argb:'FFFFFFFF'}};
+    sheet.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF184C94'}};
+    sheet.getColumn(2).numFmt='@';
+    const buffer=await book.xlsx.writeBuffer();
+    const link=document.createElement('a');
+    const url=URL.createObjectURL(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    link.href=url;link.download='MIRED360_modelo_30_contactos.xlsx';
+    document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),15000);
+    toast('Excel descargado. Agrega los nombres y celulares, guarda y cárgalo aquí.');
+  }catch(error){reportError(error,'No fue posible descargar el Excel modelo.');}
+  finally{button.disabled=false;}
 }
 async function apiBatchReadExcel(event){
   const file=event.target.files?.[0];
@@ -1444,20 +1468,19 @@ async function apiBatchReadExcel(event){
     if(unique.size>2000)throw Error("Máximo 2.000 contactos por Excel. Divide la base.");
     apiBatchState.contacts=[...unique.values()];
     apiBatchState.fileName=file.name;
-    $("apiBatchPreview").textContent=unique.size+" contactos únicos listos para verificar. "+
-      invalid+" filas inválidas; "+Math.max(0,rows.length-headers.row-1-invalid-unique.size)+
-      " duplicados. Se enviarán solamente a clientes con autorización.";
+    $("apiBatchPreview").textContent=unique.size+" contactos únicos detectados. Se enviarán MÁXIMO "+
+      Math.min(30,unique.size)+" (uno cada 120 segundos). "+
+      Math.max(0,unique.size-30)+" quedarán fuera de esta ejecución. "+
+      invalid+" inválidos y "+Math.max(0,rows.length-headers.row-1-invalid-unique.size)+" duplicados.";
     $("apiBatchStart").disabled=false;
   }catch(error){$("apiBatchPreview").textContent=error.message||"Error leyendo el Excel.";}
 }
 async function apiBatchCreate(){
   if(!apiBatchState.contacts.length||apiBatchState.busy)return;
-  const source=$("apiBatchSource").value.trim();
-  if(source.length<8)return toast("Escribe una fuente concreta del consentimiento (mínimo 8 caracteres).",true);
-  if(!$("apiBatchConsent").checked)return toast("Debes confirmar la autorización comercial de todos los contactos.",true);
-  const total=apiBatchState.contacts.length;
-  if(!confirm("Vas a iniciar el envío de la plantilla aprobada por Meta a hasta "+total+
-    " contactos autorizados desde el 3133938312, en tandas de 30 cada 120 segundos. Meta puede cobrar cada mensaje. ¿Confirmas el inicio real?"))return;
+  if(!$("apiBatchConsent").checked)return toast("Confirma que los destinatarios autorizaron recibir mensajes comerciales de MIRED360.",true);
+  const source=("Declaración del responsable al subir "+apiBatchState.fileName+" el "+new Date().toISOString()+"; comprobantes bajo su custodia").slice(0,240);
+  const total=Math.min(30,apiBatchState.contacts.length);
+  if(!confirm("¿Enviar MÁXIMO "+total+" mensajes desde el 3133938312, UNO cada 120 SEGUNDOS? El resto del Excel no se enviará en esta ejecución. Meta puede cobrar cada mensaje."))return;
   apiBatchState.busy=true;$("apiBatchStart").disabled=true;
   $("apiBatchStatus").textContent="Creando campaña y comprobando autorizaciones…";
   try{
@@ -1467,7 +1490,8 @@ async function apiBatchCreate(){
     apiBatchState.currentId=created.batch_id;
     toast("Tanda creada: "+created.total+" contactos autorizados.");
     $("apiBatchPreview").textContent=created.total+" contactos preparados; "+
-      created.excluded+" excluidos o sin autorización; "+created.invalid_or_duplicate+" filas omitidas.";
+      (created.skipped_due_to_limit||0)+" del Excel fuera de esta ejecución; "+
+      created.excluded+" excluidos y "+created.invalid_or_duplicate+" filas inválidas o duplicadas.";
   }catch(error){
     toast(error.message||"No se creó la tanda.",true);
     $("apiBatchStatus").textContent="No se inició el envío: "+String(error.message||error);
@@ -1834,6 +1858,7 @@ function bindEvents() {
   inboxBindEvents();
   $('inboxSendTemplate').addEventListener('click',inboxSendApprovedTemplate);
   $('apiBatchFile').addEventListener('change',apiBatchReadExcel);
+  $('apiDownloadTemplate').addEventListener('click',apiDownloadExcelTemplate);
   $('apiBatchStart').addEventListener('click',apiBatchCreate);
   $('apiBatchPause').addEventListener('click',()=>apiBatchChange('pause'));
   $('apiBatchResume').addEventListener('click',()=>apiBatchChange('resume'));
@@ -1936,6 +1961,7 @@ function bindEvents() {
   });
 }
 async function init() {
+  $('apiBatchSimpleHost').appendChild($('apiBatchPanel'));
   bindEvents();
   renderCampaignMessagePreview();
   queueController.startClock();
