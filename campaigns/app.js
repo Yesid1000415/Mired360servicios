@@ -1117,41 +1117,124 @@ async function submitMetaTemplate(){
     $('apiTemplateRefresh').disabled=false;
   }
 }
+function authorizedMetaTestContacts(){
+  return state.contacts.filter(p=>!p.excluido &&
+    Boolean(p.consentimiento_fecha) &&
+    Boolean(String(p.consentimiento_fuente||'').trim()))
+    .sort((a,b)=>String(a.nombre||'').localeCompare(String(b.nombre||''),'es'));
+}
+function isMetaTestAssigned(campaignId,contactId){
+  return !!campaignId && !!contactId && state.recipientAssignments
+    .some(a=>a.campana_id===campaignId && a.contacto_id===contactId);
+}
 function renderMetaTestCampaigns(){
-  const selected=$('apiTestCampaign').value;
+  const campaign=$('apiTestCampaign');
+  const selected=campaign.value;
   const options=state.campaigns||[];
-  $('apiTestCampaign').innerHTML='<option value="">Selecciona una campaña</option>'+
-    options.map(c=>'<option value="'+html(c.id)+'">'+html(c.nombre)+'</option>').join('');
-  if(options.some(c=>c.id===selected))$('apiTestCampaign').value=selected;
+  campaign.innerHTML='<option value="">Selecciona una campaña</option>'+
+    options.map(c=>{
+      const count=authorizedMetaTestContacts().filter(p=>isMetaTestAssigned(c.id,p.id)).length;
+      return '<option value="'+html(c.id)+'">'+html(c.nombre)+
+        ' ('+count+' autorizados asignados)</option>';
+    }).join('');
+  if(options.some(c=>c.id===selected))campaign.value=selected;
+  else{
+    // Primera visita: elegir automáticamente la campaña que sí tiene
+    // autorizados, en lugar de presentar un selector aparentemente vacío.
+    const withAuthorized=options.find(c=>authorizedMetaTestContacts()
+      .some(p=>isMetaTestAssigned(c.id,p.id)));
+    if(withAuthorized)campaign.value=withAuthorized.id;
+    else if(options.length)campaign.value=options[0].id;
+  }
   renderMetaTestContacts();
 }
 function renderMetaTestContacts(){
   const campaignId=$('apiTestCampaign').value;
   const selected=$('apiTestContact').value;
-  const assigned=new Set(state.recipientAssignments
-    .filter(x=>x.campana_id===campaignId)
-    .map(x=>x.contacto_id));
-  const options=state.contacts.filter(p=>assigned.has(p.id)&&
-    !p.excluido&&Boolean(p.consentimiento_fecha)&&Boolean(String(p.consentimiento_fuente||'').trim()));
-  $('apiTestContact').innerHTML='<option value="">Selecciona un contacto</option>'+
-    options.map(p=>'<option value="'+html(p.id)+'">'+html(p.nombre)+' — '+html(p.telefono_e164)+'</option>').join('');
-  if(options.some(p=>p.id===selected))$('apiTestContact').value=selected;
-  if(!options.length){
-    $('apiTemplateTestResult').textContent='No hay contactos asignados con autorización verificable para esta campaña. Primero asigna un contacto autorizado en Campañas.';
+  const authorized=authorizedMetaTestContacts();
+  const assigned=authorized.filter(p=>isMetaTestAssigned(campaignId,p.id));
+  const unassigned=authorized.filter(p=>!isMetaTestAssigned(campaignId,p.id));
+  const ordered=[...assigned,...unassigned];
+  const select=$('apiTestContact');
+  select.innerHTML='<option value="">Selecciona un contacto autorizado</option>'+
+    ordered.map(p=>'<option value="'+html(p.id)+'">'+
+      html(p.nombre)+' — '+html(p.telefono_e164)+
+      (isMetaTestAssigned(campaignId,p.id)?' · Ya está en esta campaña':' · Falta vincular a campaña')+
+      '</option>').join('');
+  if(ordered.some(p=>p.id===selected))select.value=selected;
+  const total=authorized.length;
+  const info=$('apiContactAvailability');
+  if(!campaignId){
+    info.textContent='Selecciona una campaña para continuar. Tu empresa tiene '+
+      total+' contactos con autorización comercial registrada.';
+  }else if(!total){
+    info.textContent='No hay contactos con autorización comercial registrada en esta empresa. Primero registra un contacto y su evidencia de autorización.';
+  }else{
+    info.textContent=total+' contactos autorizados en tu empresa · '+
+      assigned.length+' vinculados a esta campaña · '+
+      unassigned.length+' disponibles para vincular.';
   }
   updateMetaTestButton();
 }
 function updateMetaTestButton(){
-  $('apiTemplateTestSend').disabled=metaTemplateBusy || !state.isSuperAdmin ||
-    !state.org || !metaTemplateApproved || !$('apiTestCampaign').value ||
-    !$('apiTestContact').value || !$('apiTestConsentConfirm').checked;
+  const campaignId=$('apiTestCampaign').value,contactId=$('apiTestContact').value;
+  const contact=authorizedMetaTestContacts().find(p=>p.id===contactId);
+  const assigned=!!contact&&isMetaTestAssigned(campaignId,contactId);
+  const canManage=!!state.isSuperAdmin&&!!state.org &&
+    state.member?.rol==='propietario';
+  const assign=$('apiAssignTestContact');
+  assign.hidden=!(canManage&&contact&&!assigned);
+  assign.disabled=metaTestAssignBusy||!licenseEnabled();
+  $('apiTemplateTestSend').disabled=metaTemplateBusy || metaTestAssignBusy ||
+    !canManage || !metaTemplateApproved || !assigned ||
+    !$('apiTestConsentConfirm').checked;
+  if(contact&&!assigned) {
+    $('apiContactAvailability').textContent='El contacto seleccionado tiene autorización registrada, pero todavía NO está vinculado a la campaña. Pulsa «Vincular a esta campaña». Esto no envía mensajes.';
+  }
+}
+let metaTestAssignBusy=false;
+async function assignMetaTestContact(){
+  if(metaTestAssignBusy||!state.isSuperAdmin||!state.org)return;
+  const campaignId=$('apiTestCampaign').value,contactId=$('apiTestContact').value;
+  const authorized=authorizedMetaTestContacts().find(c=>c.id===contactId);
+  const campaign=state.campaigns.find(c=>c.id===campaignId);
+  if(!authorized||!campaign || state.member?.rol!=='propietario')
+    return toast('Selecciona una campaña y un contacto autorizado de tu empresa.',true);
+  if(isMetaTestAssigned(campaignId,contactId))return toast('Este contacto ya está vinculado.',true);
+  if(!licenseEnabled())return toast('Activa tu suscripción para modificar campañas.',true);
+  if(!confirm('¿Vincular a '+authorized.nombre+' con la campaña '+campaign.nombre+'? Esto NO envía mensajes de WhatsApp.'))return;
+  metaTestAssignBusy=true;
+  updateMetaTestButton();
+  try{
+    const {error}=await db.from('wa_campana_destinatarios').upsert({
+      organizacion_id:state.org.id,campana_id:campaignId,contacto_id:contactId,
+      agregado_por:state.user.id
+    },{onConflict:'organizacion_id,campana_id,contacto_id',ignoreDuplicates:true});
+    if(error)throw error;
+    await loadData();
+    $('apiTestCampaign').value=campaignId;
+    $('apiTestContact').value=contactId;
+    toast('Contacto vinculado. Ya puedes seleccionarlo para una prueba individual.');
+  }catch(error){reportError(error,'No se pudo vincular el contacto.');}
+  finally{metaTestAssignBusy=false;renderMetaTestCampaigns();}
+}
+function openAuthorizedMetaContactForm(){
+  // No marcar autorización por defecto: la persona debe haberla otorgado
+  // y el origen/evidencia deben ser aportados por el usuario.
+  navigate('contactos');
+  $('contactFormPanel').hidden=false;
+  $('contactForm').reset();
+  $('contactFormPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  toast('Registra el contacto y marca autorización únicamente si tienes su evidencia.');
 }
 async function sendMetaTemplateTest(){
   if(metaTemplateBusy||!metaTemplateApproved||!state.isSuperAdmin)return;
   const contact=state.contacts.find(p=>p.id===$('apiTestContact').value);
   const campaign=state.campaigns.find(c=>c.id===$('apiTestCampaign').value);
-  if(!contact||!campaign||!state.org||!$('apiTestConsentConfirm').checked)
-    return toast('Debes seleccionar una campaña, un contacto autorizado y confirmar el consentimiento.',true);
+  if(!contact||!campaign||!state.org||!$('apiTestConsentConfirm').checked ||
+     !isMetaTestAssigned(campaign.id,contact.id) ||
+     !authorizedMetaTestContacts().some(p=>p.id===contact.id))
+    return toast('Selecciona un contacto autorizado, vinculado a esta campaña, y confirma su consentimiento.',true);
   if(!confirm('¿Enviar UNA plantilla comercial aprobada desde el número 3133938312 a '+contact.nombre+' ('+contact.telefono_e164+')? Meta puede generar cargos. Esta acción no es una simulación.'))return;
   metaTemplateBusy=true;
   $('apiTemplateTestSend').disabled=true;
@@ -1495,8 +1578,16 @@ function bindEvents() {
   $('apiTemplateRefresh').addEventListener('click',refreshMetaTemplate);
   $('apiTemplateCreate').addEventListener('click',submitMetaTemplate);
   $('apiTemplateTestSend').addEventListener('click',sendMetaTemplateTest);
-  $('apiTestCampaign').addEventListener('change',renderMetaTestContacts);
-  $('apiTestContact').addEventListener('change',updateMetaTestButton);
+  $('apiTestCampaign').addEventListener('change',()=>{
+    $('apiTestConsentConfirm').checked=false;
+    renderMetaTestContacts();
+  });
+  $('apiTestContact').addEventListener('change',()=>{
+    $('apiTestConsentConfirm').checked=false;
+    renderMetaTestContacts();
+  });
+  $('apiAssignTestContact').addEventListener('click',assignMetaTestContact);
+  $('apiOpenContactForm').addEventListener('click',openAuthorizedMetaContactForm);
   $('apiTestConsentConfirm').addEventListener('change',updateMetaTestButton);
   $('adminRows').addEventListener('click',event=>{const btn=event.target.closest('[data-admin-activate]');if(btn)activatePaidPlan(btn.dataset.adminActivate);});
   $('inviteForm').addEventListener('submit',submitInvite);
