@@ -1475,6 +1475,10 @@ function inboxRenderThread(){
   if(oldNearBottom||!inboxState.lastThreadId){
     scroll.scrollTop=scroll.scrollHeight;
   }
+  // Abrir el chat mostrando los mensajes más recientes, incluso tras un repintado.
+  if(!inboxState.lastThreadId){
+    requestAnimationFrame(()=>{scroll.scrollTop=scroll.scrollHeight;});
+  }
   inboxState.lastThreadId=last?.id||null;
   inboxState.lastMessageCount=messages.length;
   inboxState.lastThreadFingerprint=fingerprint;
