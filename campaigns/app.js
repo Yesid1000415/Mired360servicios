@@ -90,6 +90,8 @@ async function boot() {
   const {data:administrator}=await db.from('wa_superadministradores').select('usuario_id').eq('usuario_id',state.user.id).maybeSingle();
   state.isSuperAdmin=!!administrator;
   $('adminNav').hidden=!state.isSuperAdmin;
+  $('apiOwnerPanel').hidden=!state.isSuperAdmin;
+  $('apiTenantNotice').hidden=state.isSuperAdmin;
   const invite = pendingInvite();
   if(invite){
     const {data:accepted,error} = await db.rpc('wa_aceptar_invitacion',{p_id:invite});
@@ -838,6 +840,73 @@ function exportContacts(){
   toast('Exportación CSV generada. Conserva el archivo de manera segura.');
 }
 
+
+async function checkApiConnection() {
+  if(!state.isSuperAdmin)return toast('Solo el administrador general puede comprobar esta conexión.',true);
+  const btn=$('apiCheckStatus');btn.disabled=true;btn.textContent='Comprobando...';
+  $('apiConnectionStatus').textContent='Consultando a Meta';
+  $('apiPhoneObserved').textContent='Consultando';
+  $('apiWebhookStatus').textContent='Consultando';
+  $('apiStatusDescription').textContent='Verificación de identidad del administrador, credenciales y número. No se envían mensajes.';
+  try {
+    const {data,error}=await db.auth.getSession();
+    if(error)throw error;
+    const jwt=data?.session?.access_token;
+    if(!jwt)throw new Error('Tu sesión caducó. Ingresa nuevamente y vuelve a comprobar.');
+    const response=await fetch(API_URL+'/functions/v1/whatsapp-send',{
+      method:'GET',
+      headers:{'Authorization':'Bearer '+jwt,'apikey':PUBLIC_KEY},
+      cache:'no-store'
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||'No fue posible comprobar la configuración.');
+    const status=result.status;
+    const phone=String(result.observed_number||'');
+    $('apiPhoneObserved').textContent=phone||'No disponible';
+    const webhookConfigured=!!result.webhook_signature_configured&&!!result.webhook_verification_configured;
+    $('apiWebhookStatus').textContent=webhookConfigured
+      ?'Credenciales configuradas; prueba pendiente'
+      :result.webhook_signature_configured?'Falta token de verificación':'Falta secreto de firma de Meta';
+    if(status==='connected'){
+      $('apiConnectionStatus').textContent='Número reconocido por Meta';
+      $('apiStatusDescription').textContent=webhookConfigured
+        ?'Meta reconoció el número 3133938312. El webhook aún requiere una prueba con eventos reales y aprobación de plantillas antes de habilitar envíos.'
+        :'El token permite consultar el número correcto, pero faltan secretos del webhook. La API no está lista para campañas.';
+    }else if(status==='number_mismatch'){
+      $('apiConnectionStatus').textContent='Número diferente';
+      $('apiStatusDescription').textContent='Meta devolvió otro número. No conectaremos la API hasta verificar que corresponda al 3133938312; el 3229432085 debe seguir independiente.';
+    }else if(status==='credentials_missing'){
+      $('apiConnectionStatus').textContent='Faltan credenciales';
+      $('apiPhoneObserved').textContent='No se pudo consultar';
+      $('apiStatusDescription').textContent='Debes guardar en Supabase WHATSAPP_ACCESS_TOKEN y WHATSAPP_PHONE_NUMBER_ID nuevos y válidos. Los tokens anteriores fueron revocados.';
+    }else if(status==='meta_rejected'){
+      $('apiConnectionStatus').textContent='Meta rechazó la conexión';
+      $('apiStatusDescription').textContent='Meta respondió con el código '+(result.meta_error_code??'sin identificar')+'. Comprueba token, permisos, identificador del teléfono y estado de tu cuenta empresarial.';
+    }else if(status==='meta_unreachable'){
+      $('apiConnectionStatus').textContent='No se pudo consultar Meta';
+      $('apiStatusDescription').textContent='No hubo respuesta verificable de Meta. Revisa conexión, configuración y vuelve a intentarlo.';
+    }else{
+      $('apiConnectionStatus').textContent='Pendiente de revisar';
+      $('apiStatusDescription').textContent='No hay todavía confirmación de que la conexión esté preparada. No se enviaron mensajes.';
+    }
+  }catch(error){
+    $('apiConnectionStatus').textContent='Error de diagnóstico';
+    $('apiPhoneObserved').textContent='Sin comprobar';
+    $('apiWebhookStatus').textContent='Sin comprobar';
+    $('apiStatusDescription').textContent=error?.message||'No se pudo consultar la conexión.';
+  }finally{btn.disabled=false;btn.textContent='Comprobar conexión';}
+}
+async function copyApiWebhookUrl() {
+  const input=$('apiWebhookUrl');
+  try {
+    await navigator.clipboard.writeText(input.value);
+    toast('URL del webhook copiada. Pégala en Meta para completar la verificación.');
+  }catch {
+    input.focus();input.select();
+    toast('Selecciona la dirección y cópiala manualmente desde tu navegador.');
+  }
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
@@ -847,6 +916,8 @@ function bindEvents() {
   $('recoveryForm').addEventListener('submit',finishRecovery);
   $('requestStarter').addEventListener('click',requestStarter);
   $('refreshAdmin').addEventListener('click',loadAdmin);
+  $('apiCheckStatus').addEventListener('click',checkApiConnection);
+  $('apiCopyWebhook').addEventListener('click',copyApiWebhookUrl);
   $('adminRows').addEventListener('click',event=>{const btn=event.target.closest('[data-admin-activate]');if(btn)activatePaidPlan(btn.dataset.adminActivate);});
   $('inviteForm').addEventListener('submit',submitInvite);
   $('copyInvite').addEventListener('click',copyInviteLink);
