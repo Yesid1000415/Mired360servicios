@@ -1421,6 +1421,7 @@ async function inboxRefreshBadge(){
   if(!state.isSuperAdmin||state.page==='bandeja'||document.visibilityState!=='visible')return;
   try{
     const response=await inboxRequest('GET',{action:'list'});
+    if(state.page==='bandeja')return; // evitar que un refresco del menú sobrescriba la búsqueda del chat
     inboxState.conversations=response.conversations||[];
     inboxState.moreMayExist=Boolean(response.more_may_exist);
     inboxUpdateCounters();
