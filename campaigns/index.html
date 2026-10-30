@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261030-template-meta-4">
+  <link rel="stylesheet" href="./styles.css?v=20261030-inbox-enterprise-5">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -59,6 +59,7 @@
         <button data-page="resumen" class="nav-btn active"><span class="nav-ico">▦</span> Resumen</button>
         <button data-page="contactos" class="nav-btn"><span class="nav-ico">♧</span> Contactos</button>
         <button data-page="campanas" class="nav-btn"><span class="nav-ico">◈</span> Campañas</button>
+        <button data-page="bandeja" id="inboxNav" hidden class="nav-btn"><span class="nav-ico">▤</span> Bandeja WhatsApp <span id="inboxNavCount" class="wa-inbox-nav-pill" hidden>0</span></button>
         <div class="sidebar-sep"></div>
         <div class="sidebar-label">ADMINISTRACIÓN</div>
         <button data-page="equipo" class="nav-btn"><span class="nav-ico">♙</span> Equipo</button>
@@ -304,6 +305,78 @@
             <div class="card" style="margin-top:20px" id="invitesPanel"><div class="card-header"><h2>Invitaciones</h2><span class="mini-badge">Acceso restringido</span></div><div class="table-scroll"><table><thead><tr><th>CORREO</th><th>ROL</th><th>FECHA DE INVITACIÓN</th><th>ESTADO</th><th>ACCIÓN</th></tr></thead><tbody id="inviteRows"></tbody></table></div></div>
           </section>
 
+          <section data-section="bandeja" class="page-section wa-inbox-section" hidden>
+            <div class="page-head wa-inbox-pagehead">
+              <div><span class="eyebrow">CENTRO DE ATENCIÓN · MIRED360SERVICIOS</span>
+                <h1>Bandeja de WhatsApp</h1>
+                <p class="muted">Conversaciones recibidas en el número corporativo +57 313 393 8312. Consulta, atiende y da seguimiento desde un mismo lugar.</p>
+              </div>
+              <div class="head-actions">
+                <span class="wa-inbox-live"><span></span> API oficial conectada</span>
+                <button type="button" class="btn btn-secondary" id="inboxRefresh">↻ Actualizar</button>
+              </div>
+            </div>
+            <div class="wa-inbox-stats">
+              <div class="wa-inbox-stat"><div class="wa-stat-icon">◉</div><div><span>Conversaciones</span><strong id="inboxConversationCount">—</strong></div></div>
+              <div class="wa-inbox-stat"><div class="wa-stat-icon green">●</div><div><span>Sin leer</span><strong id="inboxUnreadCount">—</strong></div></div>
+              <div class="wa-inbox-stat"><div class="wa-stat-icon blue">◇</div><div><span>Atención humana</span><strong id="inboxHumanCount">—</strong></div></div>
+            </div>
+            <div class="wa-inbox-shell" id="inboxShell">
+              <aside class="wa-inbox-sidebar" aria-label="Lista de conversaciones">
+                <div class="wa-inbox-side-top">
+                  <div class="wa-inbox-side-title">
+                    <div><h2>Mensajes</h2><small>Tu línea empresarial</small></div>
+                    <span id="inboxLastSync" class="wa-sync-indicator">Sin sincronizar</span>
+                  </div>
+                  <label class="wa-inbox-search" for="inboxSearch"><span>⌕</span><input id="inboxSearch" placeholder="Buscar nombre o número" autocomplete="off" aria-label="Buscar conversaciones"></label>
+                  <div class="wa-inbox-filters" role="group" aria-label="Filtrar conversaciones">
+                    <button type="button" data-inbox-filter="todos" class="wa-filter active">Todos</button>
+                    <button type="button" data-inbox-filter="nuevos" class="wa-filter">Sin leer</button>
+                    <button type="button" data-inbox-filter="humano" class="wa-filter">En atención</button>
+                  </div>
+                </div>
+                <div id="inboxList" class="wa-inbox-list" role="list" aria-label="Conversaciones recientes">
+                  <div class="wa-inbox-list-empty">Actualiza para consultar los mensajes recibidos.</div>
+                </div>
+                <div class="wa-inbox-side-foot">Conexión corporativa verificada. Actualización aproximada cada 20 segundos.</div>
+              </aside>
+              <div class="wa-inbox-chat" id="inboxChatColumn">
+                <div id="inboxWelcome" class="wa-inbox-welcome">
+                  <div class="wa-inbox-welcome-icon">▤</div>
+                  <h2>Tu centro de conversaciones</h2>
+                  <p>Selecciona un cliente para ver su historial de mensajes y responder desde WhatsApp Cloud API.</p>
+                  <div class="wa-welcome-points"><span>◉ Historial organizado</span><span>◇ Control de atención IA / humana</span><span>✓ Datos protegidos</span></div>
+                </div>
+                <div id="inboxConversation" class="wa-inbox-conversation" hidden>
+                  <div class="wa-inbox-chat-header">
+                    <button id="inboxBack" type="button" class="wa-inbox-back" aria-label="Volver a conversaciones">‹</button>
+                    <div class="wa-inbox-chat-avatar" id="inboxChatAvatar">M</div>
+                    <div class="wa-inbox-chat-person"><strong id="inboxChatName">Contacto</strong><small id="inboxChatPhone">Número</small></div>
+                    <span id="inboxChatMode" class="wa-inbox-mode-chip">IA activa</span>
+                  </div>
+                  <div class="wa-inbox-agent-bar">
+                    <div>
+                      <strong id="inboxAttentionLabel">Atención automática</strong>
+                      <small id="inboxAttentionHint">MIRED360 IA puede responder a este cliente.</small>
+                    </div>
+                    <button id="inboxToggleHuman" type="button" class="btn btn-secondary wa-inbox-agent-btn">Atender personalmente</button>
+                  </div>
+                  <div class="wa-inbox-thread" id="inboxThread" role="log" aria-live="polite" aria-label="Historial de mensajes de WhatsApp"></div>
+                  <form id="inboxReplyForm" class="wa-inbox-composer">
+                    <div id="inboxWindowNotice" class="wa-inbox-window-notice">Abre un chat para consultar la ventana de atención.</div>
+                    <div class="wa-inbox-reply-row">
+                      <label for="inboxReply" class="sr-only">Escribir respuesta</label>
+                      <textarea id="inboxReply" maxlength="4000" rows="2" placeholder="Escribe una respuesta profesional..." disabled></textarea>
+                      <button id="inboxSend" type="submit" class="wa-inbox-send" disabled aria-label="Enviar mensaje por WhatsApp">➤</button>
+                    </div>
+                    <div class="wa-inbox-composer-foot"><span>Mensajes oficiales · solo dentro de la ventana de 24 horas</span><span id="inboxReplyCount">0 / 4.000</span></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <p class="wa-inbox-disclaimer">Bandeja exclusiva de MIRED360SERVICIOS. Las empresas que se registren en el SaaS no pueden acceder a estas conversaciones ni utilizar este número. Los mensajes comerciales iniciados por la empresa requieren plantillas aprobadas y autorización previa.</p>
+          </section>
+
           <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
             <div class="two-col">
               <div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div>
@@ -398,6 +471,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-template-meta-4"></script>
+  <script type="module" src="./app.js?v=20261030-inbox-enterprise-5"></script>
 </body>
 </html>
