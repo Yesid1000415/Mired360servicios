@@ -362,6 +362,13 @@
                     <button id="inboxToggleHuman" type="button" class="btn btn-secondary wa-inbox-agent-btn">Atender personalmente</button>
                   </div>
                   <div class="wa-inbox-thread" id="inboxThread" role="log" aria-live="polite" aria-label="Historial de mensajes de WhatsApp"></div>
+                  <div id="inboxTemplatePanel" hidden class="card" style="padding:14px;margin:12px 0;border:1px solid #cddcf7;background:#f4f8ff">
+                    <strong>Reabrir conversación con Meta</strong>
+                    <p class="muted" style="margin:6px 0 10px">Cuando pasen 24 horas, envía la plantilla aprobada de Claro Hogar. El contacto debe tener autorización comercial registrada.</p>
+                    <label class="check-row" style="margin-bottom:9px"><input type="checkbox" id="inboxTemplateConsent"> Confirmo que el cliente autorizó mensajes comerciales.</label>
+                    <button id="inboxSendTemplate" type="button" class="btn btn-primary">Enviar plantilla aprobada por Meta</button>
+                    <p id="inboxTemplateStatus" class="muted" style="margin:8px 0 0;font-size:.84rem" role="status"></p>
+                  </div>
                   <form id="inboxReplyForm" class="wa-inbox-composer">
                     <div id="inboxWindowNotice" class="wa-inbox-window-notice">Abre un chat para consultar la ventana de atención.</div>
                     <div class="wa-inbox-reply-row">
@@ -500,7 +507,31 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                     <button id="apiCopyCustomerLink" type="button" class="btn btn-secondary">Copiar enlace de atención</button>
                   </div>
                 </section>
-                <p class="small-notice">Esta herramienta es exclusiva del administrador de MIRED360, no de las empresas suscritas. Las campañas API comerciales a gran escala aún no están habilitadas.</p>
+                <section id="apiBatchPanel" class="card" style="margin-top:22px;padding:22px;border:1px solid #d5e2fa;background:#f8fbff">
+                  <span class="eyebrow">CAMPAÑAS API · EXCEL</span>
+                  <h3 style="margin:8px 0">Envíos automáticos por tandas</h3>
+                  <p class="muted">Sube un archivo .xlsx o .csv con columnas <strong>nombre</strong> y <strong>celular</strong>. El sistema agrupa hasta <strong>30 contactos por tanda</strong> y espera <strong>120 segundos</strong> antes de la siguiente. No tienes que agregarlos uno por uno.</p>
+                  <div class="field">
+                    <label for="apiBatchFile">Archivo Excel o CSV</label>
+                    <input id="apiBatchFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                  </div>
+                  <p id="apiBatchPreview" role="status" class="muted" style="margin:8px 0">Selecciona el archivo para revisar los contactos.</p>
+                  <div class="field">
+                    <label for="apiBatchSource">Fuente verificable del consentimiento</label>
+                    <input id="apiBatchSource" type="text" maxlength="240" placeholder="Ej. Formulario web de ofertas, 30/10/2026">
+                  </div>
+                  <label class="check-row" style="margin:12px 0"><input type="checkbox" id="apiBatchConsent"> Confirmo que los clientes de este Excel autorizaron recibir ofertas de MIRED360SERVICIOS por WhatsApp.</label>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0">
+                    <button id="apiBatchStart" type="button" class="btn btn-primary" disabled>Iniciar envíos por la API</button>
+                    <button id="apiBatchPause" type="button" class="btn btn-secondary" hidden>Pausar tandas</button>
+                    <button id="apiBatchResume" type="button" class="btn btn-secondary" hidden>Reanudar tandas</button>
+                    <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button>
+                  </div>
+                  <progress id="apiBatchProgress" max="100" value="0" style="width:100%;height:14px"></progress>
+                  <div id="apiBatchStatus" role="status" class="muted" style="margin-top:9px">Sin tandas iniciadas.</div>
+                  <p class="small-notice">Solo se utilizará la plantilla aprobada <code>mired360_claro_hogar_info_v1</code>. Meta puede cobrar los mensajes y limitar las entregas. Mantén esta página abierta hasta terminar; cada envío quedará registrado para evitar duplicados.</p>
+                </section>
+                <p class="small-notice">Los envíos a clientes requieren autorización verificable. Respeta solicitudes SALIR y revisa los errores de entrega antes de iniciar otra campaña.</p>
               </section>
             </div>
             <div id="apiTenantNotice" class="card" hidden><h2>Conexión independiente para cada empresa</h2><p class="muted">La integración oficial de WhatsApp Cloud API para clientes aún no está disponible. Mientras tanto, utiliza las campañas asistidas con contactos autorizados. Nunca compartimos el número o las credenciales de MIRED360 entre empresas.</p></div>
@@ -514,6 +545,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-inbox-v14"></script>
+  <script type="module" src="./app.js?v=20261030-api-batch-v15"></script>
 </body>
 </html>
