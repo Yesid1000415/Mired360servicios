@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261030-api-check-1">
+  <link rel="stylesheet" href="./styles.css?v=20261030-composer-2">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -125,7 +125,50 @@
           <section data-section="campanas" class="page-section" hidden>
             <div class="page-head"><div><span class="eyebrow">MARKETING COMERCIAL</span><h1>Campañas</h1><p class="muted">Mensajes personalizados y seguimiento de contactos autorizados.</p></div><button id="campaignFormToggle" class="btn btn-primary">＋ Crear campaña</button></div>
             <div id="campaignFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nueva campaña asistida</h2><button class="icon-btn" type="button" data-hide="campaignFormPanel">✕</button></div>
-              <form id="campaignForm"><div class="field"><label for="campaignName">Nombre de la campaña</label><input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Clientes interesados de octubre"></div><div class="field"><label for="campaignText">Mensaje</label><textarea id="campaignText" required minlength="3" maxlength="4000" rows="5" placeholder="Hola {nombre}, te escribimos porque solicitaste información..."></textarea><small class="hint">Usa <code>{nombre}</code> para personalizar. Cada conversación se abre manualmente.</small></div><button class="btn btn-primary" type="submit">Guardar campaña</button></form></div>
+              <form id="campaignForm">
+  <div class="field">
+    <label for="campaignName">Nombre de la campaña</label>
+    <input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Internet para recién mudados, Software para negocios...">
+  </div>
+  <div class="message-composer">
+    <div class="message-composer-heading">
+      <div><span class="eyebrow">ESTRUCTURA A TU ELECCIÓN</span><h3>Diseña tu mensaje de venta</h3>
+      <p class="muted">Elige una idea inicial y cambia absolutamente todo: saludo, producto, beneficios, precio y llamado a la acción.</p></div>
+    </div>
+    <div class="field">
+      <label for="campaignMessagePreset">¿Qué vas a ofrecer?</label>
+      <select id="campaignMessagePreset">
+        <option value="personalizado" selected>✍️ Mensaje desde cero</option>
+        <option value="software">💻 Software y plataformas</option>
+        <option value="datafono">💳 Datáfonos y soluciones de cobro</option>
+        <option value="internet">🌐 Internet y televisión</option>
+        <option value="streaming">🎬 Streaming y entretenimiento</option>
+      </select>
+    </div>
+    <div class="message-editor-grid">
+      <div class="field message-editor">
+        <div class="message-editor-label"><label for="campaignText">Tu mensaje comercial</label><small id="campaignMessageCounter">0 de 4.000 caracteres</small></div>
+        <textarea id="campaignText" required minlength="3" maxlength="4000" rows="12" placeholder="Hola, {nombre} 👋&#10;&#10;Te cuento sobre nuestra oferta de...&#10;&#10;✅ Beneficio 1&#10;✅ Beneficio 2&#10;💰 Valor: ...&#10;&#10;¿Te comparto más información?"></textarea>
+        <div class="message-variable-toolbar">
+          <span>Personalizar:</span>
+          <button type="button" data-insert-variable="{nombre}" class="message-variable">{nombre}</button>
+          <button type="button" data-insert-variable="{empresa}" class="message-variable">{empresa}</button>
+        </div>
+        <p class="hint">Para destacar texto en WhatsApp usa *negrita* y _cursiva_. Los mensajes no se envían automáticamente.</p>
+      </div>
+      <div class="message-preview-panel">
+        <div class="message-preview-top"><strong><span class="message-preview-icon">✦</span> Vista previa</strong><small>Ejemplo para un cliente</small></div>
+        <div class="message-preview-chat"><div id="campaignMessagePreview" class="message-preview-bubble">Escribe tu mensaje y aparecerá aquí.</div></div>
+        <p id="campaignMessageWarning" class="message-warning" hidden>Reemplaza los campos entre corchetes antes de guardar el mensaje.</p>
+      </div>
+    </div>
+    <p id="campaignMessagePresetNotice" class="hint" hidden>Al seleccionar otra propuesta se reemplazará el texto que estés editando.</p>
+  </div>
+  <div class="message-composer-actions">
+    <button class="btn btn-primary" id="campaignSaveButton" type="submit">Guardar campaña</button>
+    <button class="btn btn-secondary" id="campaignCancelEdit" type="button" hidden>Cancelar edición</button>
+  </div>
+</form></div>
             <div class="campaign-grid" id="campaignCards"></div><div id="campaignsEmpty" class="card empty-state" hidden>Aún no tienes campañas. Crea la primera para comenzar.</div>
             <div id="campaignDetail" class="card" hidden>
   <div class="card-header campaign-detail-header">
@@ -134,6 +177,7 @@
       <p id="detailHint" class="muted"></p>
     </div>
     <div class="detail-actions">
+      <button class="btn btn-secondary" type="button" id="campaignEditMessage">✎ Editar mensaje</button>
       <button class="btn btn-primary" type="button" id="campaignAddContacts">＋ Agregar contactos</button>
       <button class="btn btn-secondary" type="button" id="exportCampaignReport">↓ Exportar informe</button>
       <button class="btn btn-secondary" type="button" id="closeDetail">Cerrar</button>
@@ -305,6 +349,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-api-check-1"></script>
+  <script type="module" src="./app.js?v=20261030-composer-2"></script>
 </body>
 </html>
