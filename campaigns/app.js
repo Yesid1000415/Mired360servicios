@@ -90,6 +90,7 @@ async function boot() {
   const {data:administrator}=await db.from('wa_superadministradores').select('usuario_id').eq('usuario_id',state.user.id).maybeSingle();
   state.isSuperAdmin=!!administrator;
   $('adminNav').hidden=!state.isSuperAdmin;
+  $('inboxNav').hidden=!state.isSuperAdmin;
   $('apiOwnerPanel').hidden=!state.isSuperAdmin;
   $('apiTenantNotice').hidden=state.isSuperAdmin;
   const invite = pendingInvite();
@@ -196,11 +197,12 @@ function renderAll() {
 }
 function navigate(page) {
   state.page = page;
-  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción',administracion:'Administración'};
+  const names = {resumen:'Resumen',contactos:'Contactos',campanas:'Campañas',bandeja:'Bandeja WhatsApp',equipo:'Equipo',integraciones:'Integraciones',planes:'Suscripción',administracion:'Administración'};
   document.querySelectorAll('[data-section]').forEach(el => el.hidden = el.dataset.section !== page);
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active',el.dataset.page === page));
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
   $('sidebar').classList.remove('open');
+  if(page==='bandeja'&&state.isSuperAdmin)inboxStart(); else inboxStop();
   if(page==='administracion'&&state.isSuperAdmin)loadAdmin();
   if(page==='integraciones'&&state.isSuperAdmin){
     renderMetaTestCampaigns();
@@ -1144,6 +1146,287 @@ async function sendMetaTemplateTest(){
   }
 }
 
+
+/* ── BANDEJA WHATSAPP CORPORATIVA ──
+   Solo superadministrador y propietario: mensajes de la línea 3133938312.
+   Toda acción consulta el servidor; no se exponen credenciales de Meta. */
+const inboxState={
+  conversations:[],current:null,messages:[],mode:'ia',canReply:false,
+  filter:'todos',listBusy:false,threadBusy:false,sendBusy:false,
+  modeBusy:false,searchTimer:null,pollTimer:null,requestSerial:0,
+  lastThreadId:null,lastMessageCount:0,moreMayExist:false
+};
+const inboxTime=(value)=>value?new Date(value).toLocaleTimeString('es-CO',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit'}):'';
+const inboxDate=(value)=>value?new Date(value).toLocaleDateString('es-CO',{timeZone:'America/Bogota',day:'numeric',month:'short',year:'numeric'}):'';
+const inboxSummaryTime=(value)=>{
+  if(!value)return '';
+  const coDay=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
+  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  return coDay===today?inboxTime(value):inboxDate(value);
+};
+const inboxAvatar=(name)=>String(name||'?').trim().slice(0,1).toLocaleUpperCase('es-CO');
+async function inboxRequest(method='GET',params={}){
+  if(!state.isSuperAdmin)throw new Error('La bandeja es exclusiva de MIRED360.');
+  const {data,error}=await db.auth.getSession();
+  if(error)throw error;
+  const token=data?.session?.access_token;
+  if(!token)throw new Error('Inicia sesión nuevamente para acceder a la bandeja.');
+  const url=new URL(API_URL+'/functions/v1/wa-inbox');
+  if(method==='GET'){
+    for(const [k,v] of Object.entries(params))if(v!==undefined&&v!==null)url.searchParams.set(k,String(v));
+  }
+  const res=await fetch(url,{
+    method,headers:{
+      'Authorization':'Bearer '+token,'apikey':PUBLIC_KEY,
+      ...(method==='POST'?{'Content-Type':'application/json'}:{})
+    },...(method==='POST'?{body:JSON.stringify(params)}:{}),cache:'no-store'
+  });
+  const payload=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(payload?.error||
+    'El servidor no pudo completar la operación.');
+  return payload;
+}
+function inboxUpdateCounters(){
+  const rows=inboxState.conversations;
+  const unread=rows.reduce((a,x)=>a+Number(x.no_leidos||0),0);
+  const humans=rows.filter(x=>x.modo==='humano').length;
+  $('inboxConversationCount').textContent=rows.length.toLocaleString('es-CO')+
+    (inboxState.moreMayExist?'+':'');
+  $('inboxUnreadCount').textContent=unread.toLocaleString('es-CO');
+  $('inboxHumanCount').textContent=humans.toLocaleString('es-CO');
+  $('inboxNavCount').hidden=unread===0;
+  $('inboxNavCount').textContent=unread>99?'99+':String(unread);
+}
+function inboxRenderList(){
+  const rows=inboxState.conversations.filter(x=>
+    inboxState.filter==='todos' ||
+    (inboxState.filter==='nuevos'&&Number(x.no_leidos||0)>0) ||
+    (inboxState.filter==='humano'&&x.modo==='humano')
+  );
+  $('inboxList').innerHTML=rows.length?rows.map(c=>{
+    const active=c.telefono===inboxState.current;
+    const name=String(c.nombre||c.telefono);
+    const last=String(c.preview||'');
+    const preview=last||('Mensaje '+(c.tipo||'recibido'));
+    const unread=Number(c.no_leidos||0);
+    const human=c.modo==='humano';
+    return '<button type="button" role="listitem" class="wa-inbox-row'+(active?' active':'')+'" data-inbox-phone="'+html(c.telefono)+'">'+
+      '<span class="wa-inbox-avatar">'+html(inboxAvatar(name))+'</span>'+
+      '<span class="wa-inbox-row-main">'+
+        '<span class="wa-inbox-row-top"><strong title="'+html(name)+'">'+html(name)+'</strong>'+
+           '<time>'+html(inboxSummaryTime(c.ultimo_en))+'</time></span>'+
+        '<span class="wa-inbox-row-excerpt">'+(c.direccion==='saliente'?'✓ ':'')+html(preview)+'</span>'+
+        '<span class="wa-inbox-row-sub"><span class="wa-inbox-tag'+(human?' humano':'')+'">'+(human?'● En atención':'◉ IA disponible')+'</span>'+
+           (unread?'<span class="wa-inbox-unread">'+(unread>99?'99+':unread)+'</span>':'')+
+        '</span>'+
+      '</span></button>';
+  }).join(''):'<div class="wa-inbox-list-empty">'+
+    (inboxState.filter==='nuevos'?'¡Todo al día! No hay mensajes pendientes de leer.':
+     inboxState.filter==='humano'?'No hay conversaciones en atención humana.':
+     'No encontramos conversaciones para esta búsqueda.')+
+    '</div>';
+  $('inboxLastSync').textContent='Actualizado '+inboxTime(new Date().toISOString());
+  inboxUpdateCounters();
+}
+async function inboxLoadList({quiet=false}={}){
+  if(!state.isSuperAdmin||inboxState.listBusy||state.page!=='bandeja')return;
+  inboxState.listBusy=true;
+  const serial=++inboxState.requestSerial;
+  if(!quiet)$('inboxLastSync').textContent='Sincronizando…';
+  try{
+    const result=await inboxRequest('GET',{action:'list',search:$('inboxSearch').value.trim()});
+    if(serial!==inboxState.requestSerial)return;
+    inboxState.conversations=result.conversations||[];
+    inboxState.moreMayExist=Boolean(result.more_may_exist);
+    inboxRenderList();
+  }catch(error){
+    $('inboxLastSync').textContent='Sin conexión';
+    if(!quiet)toast(error?.message||'No fue posible obtener las conversaciones.',true);
+  }finally{inboxState.listBusy=false;}
+}
+function inboxRenderThread(){
+  const messages=inboxState.messages;
+  const scroll=$('inboxThread');
+  const oldNearBottom=scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight<100;
+  const last=messages[messages.length-1];
+  if(last?.id===inboxState.lastThreadId &&
+     messages.length===inboxState.lastMessageCount){
+    // El texto no cambió; podría haber cambios de entrega. Repintar solo en
+    // actualizaciones manuales o si cambia el número de mensajes.
+    return;
+  }
+  let lastDay='';
+  scroll.innerHTML=messages.length?messages.map(m=>{
+    const msgDate=inboxDate(m.creado_en);
+    let divider='';
+    if(msgDate!==lastDay){lastDay=msgDate;divider='<div class="wa-inbox-date">'+html(msgDate)+'</div>';}
+    const outgoing=m.direccion==='saliente';
+    const label=outgoing?(m.estado==='read'?'✓✓ Leído':m.estado==='delivered'?'✓✓ Entregado':m.estado==='failed'?'Error de entrega':'✓ Enviado'):'Recibido';
+    const messageText=String(m.texto||'').trim()||('[Archivo o mensaje '+(m.tipo||'multimedia')+']');
+    return divider+'<div class="wa-inbox-message'+(outgoing?' out':'')+'">'+
+      '<div class="wa-inbox-bubble">'+html(messageText)+'</div>'+
+      '<div class="wa-inbox-meta"><time>'+html(inboxTime(m.creado_en))+'</time>'+
+      '<span>'+html(label)+'</span></div></div>';
+  }).join(''):'<div class="wa-inbox-thread-empty">Todavía no hay mensajes en esta conversación.</div>';
+  if(oldNearBottom||!inboxState.lastThreadId){
+    scroll.scrollTop=scroll.scrollHeight;
+  }
+  inboxState.lastThreadId=last?.id||null;
+  inboxState.lastMessageCount=messages.length;
+}
+function inboxUpdateComposer(){
+  const human=inboxState.mode==='humano';
+  $('inboxChatMode').textContent=human?'Atención humana':'MIRED360 IA';
+  $('inboxChatMode').className='wa-inbox-mode-chip'+(human?' humano':'');
+  $('inboxAttentionLabel').textContent=human?'Conversación tomada por ti':'Atención automática activa';
+  $('inboxAttentionHint').textContent=human
+    ?'MIRED360 IA está pausada en este chat. Tú decides cuándo responder.'
+    :'MIRED360 IA puede responder automáticamente. Para escribir, toma la conversación.';
+  $('inboxToggleHuman').textContent=human?'Devolver a MIRED360 IA':'Atender personalmente';
+  $('inboxToggleHuman').disabled=inboxState.modeBusy;
+  const canSend=human&&inboxState.canReply;
+  $('inboxReply').disabled=!canSend||inboxState.sendBusy;
+  $('inboxSend').disabled=!canSend||inboxState.sendBusy||
+    !$('inboxReply').value.trim();
+  $('inboxWindowNotice').classList.toggle('expired',!inboxState.canReply);
+  $('inboxWindowNotice').textContent=!inboxState.canReply
+    ?'La ventana de atención de 24 horas terminó. Solo podrás iniciar otra conversación con una plantilla aprobada y la autorización correspondiente.'
+    :human?'Ventana activa: puedes responder al cliente por la API oficial de Meta.'
+      :'Ventana activa: pulsa «Atender personalmente» para pausar la IA y responder.';
+  $('inboxReplyCount').textContent=$('inboxReply').value.length.toLocaleString('es-CO')+' / 4.000';
+}
+async function inboxLoadThread(phone,{quiet=false}={}){
+  if(inboxState.threadBusy||!phone)return;
+  inboxState.threadBusy=true;
+  try{
+    const result=await inboxRequest('GET',{action:'thread',phone});
+    if(inboxState.current!==phone)return;
+    inboxState.messages=result.messages||[];
+    inboxState.mode=result.mode||'ia';
+    inboxState.canReply=Boolean(result.can_reply);
+    const listItem=inboxState.conversations.find(x=>x.telefono===phone);
+    const displayName=listItem?.nombre||result.name||phone;
+    $('inboxChatName').textContent=displayName;
+    $('inboxChatPhone').textContent='+'+phone;
+    $('inboxChatAvatar').textContent=inboxAvatar(displayName);
+    inboxRenderThread();
+    inboxUpdateComposer();
+    if(!quiet){
+      const read=await inboxRequest('POST',{action:'read',phone});
+      if(inboxState.current===phone){
+        await inboxLoadList({quiet:true});
+      }
+    }
+  }catch(error){
+    if(!quiet)toast(error?.message||'No se pudo leer la conversación.',true);
+  }finally{inboxState.threadBusy=false;}
+}
+async function inboxOpen(phone){
+  if(!phone||inboxState.sendBusy)return;
+  inboxState.current=phone;
+  inboxState.lastThreadId=null;
+  inboxState.lastMessageCount=0;
+  inboxState.messages=[];
+  $('inboxReply').value='';
+  $('inboxWelcome').hidden=true;
+  $('inboxConversation').hidden=false;
+  $('inboxShell').classList.add('show-chat');
+  $('inboxThread').innerHTML='<div class="wa-inbox-thread-empty">Cargando mensajes…</div>';
+  inboxRenderList();
+  await inboxLoadThread(phone);
+}
+function inboxCloseMobile(){
+  $('inboxShell').classList.remove('show-chat');
+  inboxState.current=null;
+  $('inboxConversation').hidden=true;
+  $('inboxWelcome').hidden=false;
+  inboxRenderList();
+}
+async function inboxChangeMode(){
+  const phone=inboxState.current;
+  if(!phone||inboxState.modeBusy)return;
+  const next=inboxState.mode==='humano'?'ia':'humano';
+  if(next==='ia'&&!confirm('¿Devolver esta conversación a MIRED360 IA? El asistente podrá volver a contestar automáticamente.'))return;
+  inboxState.modeBusy=true;
+  inboxUpdateComposer();
+  try{
+    await inboxRequest('POST',{action:'set_mode',phone,mode:next});
+    inboxState.mode=next;
+    const row=inboxState.conversations.find(x=>x.telefono===phone);
+    if(row)row.modo=next;
+    toast(next==='humano'?'Atención humana activada. IA pausada para este chat.':
+      'MIRED360 IA puede volver a responder.');
+    inboxRenderList();
+  }catch(error){
+    toast(error?.message||'No se pudo cambiar el modo de atención.',true);
+  }finally{inboxState.modeBusy=false;inboxUpdateComposer();}
+}
+async function inboxReplyToClient(event){
+  event.preventDefault();
+  if(inboxState.sendBusy||!inboxState.current)return;
+  const phone=inboxState.current;
+  const text=$('inboxReply').value.trim();
+  if(!text||text.length>4000)return toast('Escribe una respuesta de hasta 4.000 caracteres.',true);
+  if(inboxState.mode!=='humano'||!inboxState.canReply)return toast('Toma primero la conversación y verifica la ventana de atención.',true);
+  inboxState.sendBusy=true;
+  inboxUpdateComposer();
+  try{
+    const result=await inboxRequest('POST',{action:'reply',phone,message:text});
+    if(result.submitted){
+      $('inboxReply').value='';
+      inboxState.lastThreadId=null;
+      await inboxLoadThread(phone);
+      await inboxLoadList({quiet:true});
+      toast(result.history_recorded?'Respuesta aceptada por Meta.':'Meta aceptó la respuesta. Comprueba el historial antes de repetir.');
+    }
+  }catch(error){
+    toast((error?.message||'No se pudo completar el envío.')+' Revisa el chat antes de reenviar.',true);
+  }finally{inboxState.sendBusy=false;inboxUpdateComposer();}
+}
+function inboxStart(){
+  if(inboxState.pollTimer)clearInterval(inboxState.pollTimer);
+  inboxLoadList();
+  inboxState.pollTimer=setInterval(async()=>{
+    if(document.visibilityState!=='visible'||state.page!=='bandeja')return;
+    await inboxLoadList({quiet:true});
+    if(inboxState.current&&!inboxState.threadBusy){
+      await inboxLoadThread(inboxState.current,{quiet:true});
+      // El operador tiene este chat abierto: marcar como leídos los
+      // mensajes nuevos que ya estén visibles.
+      if(inboxState.current) {
+        try{await inboxRequest('POST',{action:'read',phone:inboxState.current});}
+        catch(_error){}
+      }
+    }
+  },20000);
+}
+function inboxStop(){
+  if(inboxState.pollTimer){clearInterval(inboxState.pollTimer);inboxState.pollTimer=null;}
+}
+function inboxBindEvents(){
+  $('inboxRefresh').addEventListener('click',async()=>{
+    await inboxLoadList();
+    if(inboxState.current)await inboxLoadThread(inboxState.current);
+  });
+  $('inboxList').addEventListener('click',event=>{
+    const target=event.target.closest('[data-inbox-phone]');
+    if(target)inboxOpen(target.dataset.inboxPhone);
+  });
+  $('inboxSearch').addEventListener('input',()=>{
+    if(inboxState.searchTimer)clearTimeout(inboxState.searchTimer);
+    inboxState.searchTimer=setTimeout(()=>inboxLoadList(),320);
+  });
+  document.querySelectorAll('[data-inbox-filter]').forEach(btn=>btn.addEventListener('click',()=>{
+    inboxState.filter=btn.dataset.inboxFilter;
+    document.querySelectorAll('[data-inbox-filter]').forEach(b=>b.classList.toggle('active',b===btn));
+    inboxRenderList();
+  }));
+  $('inboxBack').addEventListener('click',inboxCloseMobile);
+  $('inboxToggleHuman').addEventListener('click',inboxChangeMode);
+  $('inboxReply').addEventListener('input',inboxUpdateComposer);
+  $('inboxReplyForm').addEventListener('submit',inboxReplyToClient);
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
@@ -1155,6 +1438,7 @@ function bindEvents() {
   $('refreshAdmin').addEventListener('click',loadAdmin);
   $('apiCheckStatus').addEventListener('click',checkApiConnection);
   $('apiCopyWebhook').addEventListener('click',copyApiWebhookUrl);
+  inboxBindEvents();
   $('apiTemplateRefresh').addEventListener('click',refreshMetaTemplate);
   $('apiTemplateCreate').addEventListener('click',submitMetaTemplate);
   $('apiTemplateTestSend').addEventListener('click',sendMetaTemplateTest);
