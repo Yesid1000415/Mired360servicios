@@ -5,7 +5,7 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, manualQueues: [], selectedCampaign: null, page: 'resumen', authMode: 'login' };
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, manualQueues: [], selectedCampaign: null, editingCampaignId: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -147,6 +147,7 @@ async function selectOrg(id) {
   localStorage.setItem('wa_current_org',id);
   $('orgSelect').value = id;
   state.selectedCampaign = null;
+  state.editingCampaignId = null;
   state.recipientAssignments = [];
   state.manualQueues = [];
   state.campaignPick = new Set();
@@ -415,21 +416,101 @@ async function importCSV(event) {
     toast('Importados '+added+' contactos nuevos. '+invalid+' filas descartadas.');await loadData();
   } catch(error) {reportError(error);} 
 }
+
+const CAMPAIGN_MESSAGE_EXAMPLES = {
+  personalizado: '',
+  software: '¡Hola, {nombre}! 👋\n\n💻 *SOFTWARE PARA TU NEGOCIO*\n\nEn *{empresa}* tenemos soluciones digitales para tu actividad.\n\n✅ Conoce las funciones disponibles\n✅ Consulta planes y precios\n✅ Solicita una demostración\n\n📲 ¿Quieres conocer cómo funciona?',
+  datafono: '¡Hola, {nombre}! 👋\n\n💳 *SOLUCIONES DE COBRO PARA NEGOCIOS*\n\nEn *{empresa}* te presentamos opciones de datáfonos y equipos para recibir pagos.\n\n✅ Consulta equipos y modelos disponibles\n✅ Conoce las funciones y métodos de pago admitidos\n✅ Pregunta por precio y condiciones\n\n📲 ¿Te comparto información para tu negocio?',
+  internet: '¡Hola, {nombre}! 👋\n\n🌐 *INTERNET PARA TU HOGAR O NEGOCIO*\n\nEn *{empresa}* te asesoramos para encontrar el plan que necesitas.\n\n✅ Internet según disponibilidad y cobertura\n✅ Opciones de entretenimiento\n✅ Consulta precios, instalación y promociones\n\n📍 ¿En qué municipio y barrio necesitas el servicio?',
+  streaming: '¡Hola, {nombre}! 👋\n\n🎬 *STREAMING Y ENTRETENIMIENTO*\n\nEn *{empresa}* puedes consultar las opciones de entretenimiento disponibles.\n\n✅ Conoce aplicaciones y planes\n✅ Consulta precios y condiciones\n✅ Elige según tus preferencias\n\n📲 ¿Quieres conocer las ofertas vigentes?'
+};
+function personalizeCampaignText(message,name) {
+  return String(message||'').replace(/\{nombre\}/gi,name||'Cliente')
+    .replace(/\{empresa\}/gi,state.org?.nombre||'Tu empresa');
+}
+function renderCampaignMessagePreview(){
+  const content=$('campaignText').value;
+  $('campaignMessageCounter').textContent=content.length.toLocaleString('es-CO')+' de 4.000 caracteres';
+  $('campaignMessagePreview').textContent=content.trim()
+    ?personalizeCampaignText(content,'Cliente'):'Escribe tu mensaje y aparecerá aquí.';
+  $('campaignMessageWarning').hidden=!/\[[^\]\n]{2,70}\]/.test(content);
+}
+function resetCampaignComposer(){
+  state.editingCampaignId=null;
+  $('campaignForm').reset();
+  $('campaignMessagePreset').value='personalizado';
+  $('campaignSaveButton').textContent='Guardar campaña';
+  $('campaignCancelEdit').hidden=true;
+  $('campaignMessagePresetNotice').hidden=true;
+  renderCampaignMessagePreview();
+}
+function applyCampaignMessagePreset(event){
+  const value=event.target.value;
+  const proposal=CAMPAIGN_MESSAGE_EXAMPLES[value];
+  if(proposal===undefined)return;
+  if($('campaignText').value.trim() && $('campaignText').value!==proposal &&
+      !confirm('¿Reemplazar el mensaje actual con este ejemplo editable?')){
+    event.target.value='personalizado';
+    return;
+  }
+  $('campaignText').value=proposal;
+  $('campaignMessagePresetNotice').hidden=value==='personalizado';
+  renderCampaignMessagePreview();
+}
+function insertCampaignVariable(value){
+  const field=$('campaignText'),start=field.selectionStart??field.value.length,end=field.selectionEnd??start;
+  if(field.value.length-(end-start)+value.length>4000)return toast('Límite de 4.000 caracteres.',true);
+  field.value=field.value.slice(0,start)+value+field.value.slice(end);
+  field.focus();field.setSelectionRange(start+value.length,start+value.length);
+  renderCampaignMessagePreview();
+}
+function beginCampaignEdit(){
+  const campaign=state.campaigns.find(c=>c.id===state.selectedCampaign);
+  if(!campaign)return toast('Elige una campaña para editar.',true);
+  const queue=queueController.getQueue();
+  if(queue && queue.estado!=='completada')
+    return toast('Detén la tanda activa antes de cambiar el mensaje.',true);
+  state.editingCampaignId=campaign.id;
+  $('campaignName').value=campaign.nombre||'';
+  $('campaignText').value=campaign.mensaje||'';
+  $('campaignMessagePreset').value='personalizado';
+  $('campaignSaveButton').textContent='Guardar cambios';
+  $('campaignCancelEdit').hidden=false;
+  $('campaignMessagePresetNotice').hidden=true;
+  $('campaignFormPanel').hidden=false;
+  renderCampaignMessagePreview();
+  $('campaignFormPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 async function addCampaign(event) {
   event.preventDefault();
   if(!state.org)return;
   if(!licenseEnabled())return toast('Activa tu plan para crear campañas.',true);
+  const nombre=$('campaignName').value.trim(),mensaje=$('campaignText').value.trim();
+  if(nombre.length<2||mensaje.length<3)return toast('Completa el nombre y el mensaje.',true);
+  if(/\[[^\]\n]{2,70}\]/.test(mensaje)&&
+      !confirm('El mensaje contiene textos entre corchetes. ¿Seguro que deseas guardarlo así?'))return;
+  const editId=state.editingCampaignId;
   try {
-    const {data,error}=await db.from('wa_campanas').insert({
-      organizacion_id:state.org.id, creado_por:state.user.id, nombre:$('campaignName').value.trim(),
-      mensaje:$('campaignText').value.trim(), canal:'asistido', estado:'activa'
-    }).select('id').single();
+    let data,error;
+    if(editId){
+      const q=queueController.getQueue();
+      if(q&&q.estado!=='completada')return toast('Detén la tanda antes de modificar el mensaje.',true);
+      ({data,error}=await db.from('wa_campanas').update({nombre,mensaje})
+        .eq('id',editId).eq('organizacion_id',state.org.id).select('id').single());
+    }else{
+      ({data,error}=await db.from('wa_campanas').insert({
+        organizacion_id:state.org.id,creado_por:state.user.id,nombre,mensaje,
+        canal:'asistido',estado:'activa'
+      }).select('id').single());
+    }
     if(error)throw error;
-    $('campaignForm').reset();$('campaignFormPanel').hidden=true;
-    toast('Campaña creada. Ahora selecciona los contactos.');
+    resetCampaignComposer();
+    $('campaignFormPanel').hidden=true;
+    toast(editId?'Mensaje de campaña actualizado.':'Campaña creada. Ahora selecciona los contactos.');
     await loadData();
     openCampaign(data.id);
-  } catch(error){reportError(error);}
+  }catch(error){reportError(error);}
 }
 
 function assignmentsForCampaign(campaignId) {
@@ -630,7 +711,7 @@ async function openWhatsApp(contactId) {
   if(person.telefono_e164.startsWith('+57') && !permittedCommercialHourCO())
     return toast('Fuera del horario legal comercial de Colombia. L-V: 7 a 19 h; sábado: 8 a 15 h. Nunca domingos ni festivos.',true);
   if(person.telefono_e164.startsWith('+57') && !confirm('¿Confirmas que hoy NO es festivo en Colombia y que el destinatario autorizó mensajes comerciales?'))return;
-  const msg=c.mensaje.replace(/\{nombre\}/gi,person.nombre);
+  const msg=personalizeCampaignText(c.mensaje,person.nombre);
   window.open('https://wa.me/'+person.telefono_e164.replace('+','')+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
   try {await recordAction(contactId,'preparado');toast('Conversación abierta. No se ha confirmado el envío.');}
   catch(error){reportError(error);}
@@ -940,7 +1021,20 @@ function bindEvents() {
   document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>navigate(el.dataset.go)));
   document.querySelectorAll('[data-hide]').forEach(el=>el.addEventListener('click',()=>{if(el.dataset.hide==='consentFormPanel')state.returnToCampaign=false;$(el.dataset.hide).hidden=true;}));
   $('contactFormToggle').addEventListener('click',()=>$('contactFormPanel').hidden=!$('contactFormPanel').hidden);
-  $('campaignFormToggle').addEventListener('click',()=>$('campaignFormPanel').hidden=!$('campaignFormPanel').hidden);
+  $('campaignFormToggle').addEventListener('click',()=>{
+    const show=$('campaignFormPanel').hidden;
+    if(show)resetCampaignComposer();
+    $('campaignFormPanel').hidden=!show;
+    if(show)$('campaignFormPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  $('campaignMessagePreset').addEventListener('change',applyCampaignMessagePreset);
+  $('campaignText').addEventListener('input',renderCampaignMessagePreview);
+  document.querySelectorAll('[data-insert-variable]').forEach(button=>
+    button.addEventListener('click',()=>insertCampaignVariable(button.dataset.insertVariable)));
+  $('campaignCancelEdit').addEventListener('click',()=>{
+    resetCampaignComposer();$('campaignFormPanel').hidden=true;
+  });
+  $('campaignEditMessage').addEventListener('click',beginCampaignEdit);
   $('contactForm').addEventListener('submit',addContact);
   $('contactSearch').addEventListener('input',()=>{state.contactLimit=250;renderContacts();});
   $('contactFilter').addEventListener('change',()=>{state.contactLimit=250;renderContacts();});
@@ -986,6 +1080,7 @@ function bindEvents() {
 }
 async function init() {
   bindEvents();
+  renderCampaignMessagePreview();
   queueController.startClock();
   const recoveryHash=new URLSearchParams(window.location.hash.replace(/^#/,''));
   if(recoveryHash.get('type')==='recovery')showRecovery();
