@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261030-inbox-enterprise-6">
+  <link rel="stylesheet" href="./styles.css?v=20261030-contact-selector-7">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -449,10 +449,16 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                     <div class="field"><label for="apiTestCampaign">Campaña</label>
                       <select id="apiTestCampaign"><option value="">Selecciona una campaña</option></select>
                     </div>
-                    <div class="field"><label for="apiTestContact">Contacto autorizado y asignado</label>
+                    <div class="field"><label for="apiTestContact">Contacto con autorización comercial registrada</label>
                       <select id="apiTestContact"><option value="">Selecciona un contacto</option></select>
                     </div>
                   </div>
+                  <p id="apiContactAvailability" class="api-contact-availability" role="status">Cargando contactos autorizados…</p>
+                  <div class="api-contact-actions">
+                    <button id="apiAssignTestContact" type="button" class="btn btn-secondary" hidden>＋ Vincular a esta campaña</button>
+                    <button id="apiOpenContactForm" type="button" class="btn btn-secondary">＋ Registrar contacto autorizado</button>
+                  </div>
+                  <p class="small-notice">Los contactos de prueba deben estar registrados en tu empresa, tener evidencia de autorización comercial y estar vinculados a la campaña antes de enviar. Agregar o vincular un contacto no envía mensajes.</p>
                   <label class="api-test-confirm"><input id="apiTestConsentConfirm" type="checkbox"> <span>Confirmo que esta persona autorizó recibir mensajes comerciales de MIRED360SERVICIOS y que puedo demostrarlo.</span></label>
                   <button id="apiTemplateTestSend" class="btn btn-primary" type="button" disabled>Enviar una prueba por API</button>
                   <p class="small-notice" id="apiTemplateTestResult">La plataforma enviará únicamente un mensaje cuando pulses este botón y confirmes la operación. Evitará enviarlo dos veces al mismo contacto en la misma campaña.</p>
@@ -471,6 +477,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-delivery-diagnostics-6"></script>
+  <script type="module" src="./app.js?v=20261030-contact-selector-7"></script>
 </body>
 </html>
