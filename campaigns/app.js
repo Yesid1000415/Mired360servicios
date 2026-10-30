@@ -1580,6 +1580,13 @@ function inboxUpdateCounters(){
   $('inboxNavCount').hidden=unread===0;
   $('inboxNavCount').textContent=unread>99?'99+':String(unread);
 }
+function inboxMarkReadLocally(phone){
+  const row=inboxState.conversations.find(c=>c.telefono===phone);
+  if(row&&Number(row.no_leidos||0)>0){
+    row.no_leidos=0;
+    inboxRenderList();
+  }
+}
 function inboxRenderList(){
   const rows=inboxState.conversations.filter(x=>
     inboxState.filter==='todos' ||
@@ -1704,8 +1711,9 @@ async function inboxLoadThread(phone,{quiet=false}={}){
       node.scrollIntoView({block:'start',behavior:'instant'});
     }
     if(!quiet){
-      const read=await inboxRequest('POST',{action:'read',phone});
+      await inboxRequest('POST',{action:'read',phone});
       if(inboxState.current===phone){
+        inboxMarkReadLocally(phone);
         await inboxLoadList({quiet:true});
       }
     }
@@ -1785,16 +1793,19 @@ function inboxStart(){
   inboxLoadList();
   inboxState.pollTimer=setInterval(async()=>{
     if(document.visibilityState!=='visible'||state.page!=='bandeja')return;
-    await inboxLoadList({quiet:true});
-    if(inboxState.current&&!inboxState.threadBusy){
-      await inboxLoadThread(inboxState.current,{quiet:true});
-      // El operador tiene este chat abierto: marcar como leídos los
-      // mensajes nuevos que ya estén visibles.
-      if(inboxState.current) {
-        try{await inboxRequest('POST',{action:'read',phone:inboxState.current});}
-        catch(_error){}
+    const currentPhone=inboxState.current;
+    if(currentPhone&&!inboxState.threadBusy){
+      await inboxLoadThread(currentPhone,{quiet:true});
+      // Actualizar lectura ANTES de recargar «Sin leer», sin marcar
+      // mensajes futuros como leídos.
+      if(inboxState.current===currentPhone){
+        try{
+          await inboxRequest('POST',{action:'read',phone:currentPhone});
+          inboxMarkReadLocally(currentPhone);
+        }catch(error){console.warn('No se actualizó lectura del chat',error);}
       }
     }
+    await inboxLoadList({quiet:true});
   },20000);
 }
 function inboxStop(){
