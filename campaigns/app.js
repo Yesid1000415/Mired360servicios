@@ -128,6 +128,7 @@ async function boot() {
     toast('Esta bandeja corporativa requiere ingresar como administrador de MIRED360.',true);
   }
   if(state.isSuperAdmin)inboxStartBadge();else inboxStopBadge();
+  if(state.isSuperAdmin&&state.org)apiBatchStartPoll();
 }
 async function loadOrgs() {
   const {data,error} = await db.from('wa_organizaciones').select('id,nombre,plan,estado_suscripcion,prueba_hasta,vigente_hasta,creado_en').order('creado_en',{ascending:true});
@@ -1360,6 +1361,154 @@ async function sendMetaTemplateTest(){
 /* ── BANDEJA WHATSAPP CORPORATIVA ──
    Solo superadministrador y propietario: mensajes de la línea 3133938312.
    Toda acción consulta el servidor; no se exponen credenciales de Meta. */
+
+const apiBatchState={contacts:[],fileName:"",busy:false,timer:null,currentId:null};
+async function apiBatchRequest(method="GET",params={}){
+  if(!state.isSuperAdmin||!state.org)throw Error("Inicia sesión como administrador de MIRED360.");
+  const {data,error}=await db.auth.getSession();
+  if(error)throw error;
+  const token=data?.session?.access_token;
+  if(!token)throw Error("La sesión caducó. Ingresa de nuevo.");
+  const url=new URL(API_URL+"/functions/v1/wa-batch-api");
+  if(method==="GET")for(const [k,v] of Object.entries(params))if(v!==undefined&&v!==null)url.searchParams.set(k,String(v));
+  const response=await fetch(url,{method,headers:{
+    "authorization":"Bearer "+token,"apikey":PUBLIC_KEY,
+    ...(method==="POST"?{"Content-Type":"application/json"}:{})
+  },...(method==="POST"?{body:JSON.stringify(params)}:{}),cache:"no-store"});
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error((payload.error||"Error de la API")+(payload.meta?.message?" — "+payload.meta.message:""));
+  return payload;
+}
+function apiBatchShow(batch){
+  const pause=$("apiBatchPause"),resume=$("apiBatchResume"),progress=$("apiBatchProgress"),status=$("apiBatchStatus");
+  if(!batch){
+    progress.value=0;pause.hidden=true;resume.hidden=true;
+    status.textContent="Sin tandas registradas. Importa un Excel para iniciar.";
+    return;
+  }
+  apiBatchState.currentId=batch.id;
+  const percent=batch.total?Math.round(100*batch.procesados/batch.total):0;
+  progress.value=percent;
+  pause.hidden=batch.estado!=="activa";
+  resume.hidden=batch.estado!=="pausada";
+  const next=Math.max(0,Math.ceil((new Date(batch.siguiente_tanda_en).getTime()-Date.now())/1000));
+  const clock=String(Math.floor(next/60)).padStart(2,"0")+":"+String(next%60).padStart(2,"0");
+  const label=batch.estado==="finalizada"?"Finalizado":batch.estado==="pausada"?"En pausa":"En proceso";
+  status.textContent=label+" · "+batch.procesados+"/"+batch.total+
+    " procesados ("+percent+"%) · "+batch.aceptados_meta+" aceptados por Meta · "+
+    batch.entregados+" entregados · "+batch.fallidos+" fallidos · "+batch.inciertos+
+    " por verificar"+(batch.estado==="activa"?" · Próxima tanda: "+clock:"");
+}
+async function apiBatchTick(){
+  if(apiBatchState.busy||!state.isSuperAdmin||!state.org)return;
+  apiBatchState.busy=true;
+  try{
+    let output=await apiBatchRequest("GET",{action:"status",org_id:state.org.id});
+    if(output.batch?.estado==="activa"&&new Date(output.batch.siguiente_tanda_en).getTime()<=Date.now()){
+      $("apiBatchStatus").textContent="Procesando hasta 30 contactos y registrando la respuesta de Meta…";
+      output=await apiBatchRequest("POST",{action:"process",org_id:state.org.id,batch_id:output.batch.id});
+    }
+    apiBatchShow(output.batch);
+    if(output.processed_now)refreshMetaDeliveries();
+  }catch(error){
+    $("apiBatchStatus").textContent="No se pudo sincronizar la tanda: "+String(error.message||error);
+  }finally{apiBatchState.busy=false;}
+}
+function apiBatchStartPoll(){
+  if(apiBatchState.timer)clearInterval(apiBatchState.timer);
+  if(!state.isSuperAdmin||!state.org)return;
+  apiBatchState.timer=setInterval(apiBatchTick,10000);
+  apiBatchTick();
+}
+async function apiBatchReadExcel(event){
+  const file=event.target.files?.[0];
+  apiBatchState.contacts=[];apiBatchState.fileName="";
+  $("apiBatchStart").disabled=true;
+  if(!file){$("apiBatchPreview").textContent="Selecciona un Excel o CSV.";return;}
+  if(file.size>5*1024*1024){$("apiBatchPreview").textContent="El archivo supera 5 MB.";return;}
+  $("apiBatchPreview").textContent="Leyendo Excel…";
+  try{
+    const rows=await readContactRows(file),headers=detectCSVHeaders(rows);
+    if(!headers)throw Error("No encuentro las columnas nombre y celular en las primeras 20 filas.");
+    const unique=new Map();
+    let invalid=0;
+    for(const row of rows.slice(headers.row+1)){
+      const nombre=String(row[headers.name]||"").trim().slice(0,160);
+      let telefono="";
+      try{telefono=normalizePhone(row[headers.phone]);}
+      catch{invalid++;continue;}
+      if(nombre.length<2||!/^\+573\d{9}$/.test(telefono)){invalid++;continue;}
+      if(!unique.has(telefono))unique.set(telefono,{nombre,telefono});
+    }
+    if(!unique.size)throw Error("No encontré contactos colombianos válidos.");
+    if(unique.size>2000)throw Error("Máximo 2.000 contactos por Excel. Divide la base.");
+    apiBatchState.contacts=[...unique.values()];
+    apiBatchState.fileName=file.name;
+    $("apiBatchPreview").textContent=unique.size+" contactos únicos listos para verificar. "+
+      invalid+" filas inválidas; "+Math.max(0,rows.length-headers.row-1-invalid-unique.size)+
+      " duplicados. Se enviarán solamente a clientes con autorización.";
+    $("apiBatchStart").disabled=false;
+  }catch(error){$("apiBatchPreview").textContent=error.message||"Error leyendo el Excel.";}
+}
+async function apiBatchCreate(){
+  if(!apiBatchState.contacts.length||apiBatchState.busy)return;
+  const source=$("apiBatchSource").value.trim();
+  if(source.length<8)return toast("Escribe una fuente concreta del consentimiento (mínimo 8 caracteres).",true);
+  if(!$("apiBatchConsent").checked)return toast("Debes confirmar la autorización comercial de todos los contactos.",true);
+  const total=apiBatchState.contacts.length;
+  if(!confirm("Vas a iniciar el envío de la plantilla aprobada por Meta a hasta "+total+
+    " contactos autorizados desde el 3133938312, en tandas de 30 cada 120 segundos. Meta puede cobrar cada mensaje. ¿Confirmas el inicio real?"))return;
+  apiBatchState.busy=true;$("apiBatchStart").disabled=true;
+  $("apiBatchStatus").textContent="Creando campaña y comprobando autorizaciones…";
+  try{
+    const created=await apiBatchRequest("POST",{action:"create_batch",org_id:state.org.id,
+      file_name:apiBatchState.fileName,contacts:apiBatchState.contacts,
+      consent_confirmed:true,consent_source:source});
+    apiBatchState.currentId=created.batch_id;
+    toast("Tanda creada: "+created.total+" contactos autorizados.");
+    $("apiBatchPreview").textContent=created.total+" contactos preparados; "+
+      created.excluded+" excluidos o sin autorización; "+created.invalid_or_duplicate+" filas omitidas.";
+  }catch(error){
+    toast(error.message||"No se creó la tanda.",true);
+    $("apiBatchStatus").textContent="No se inició el envío: "+String(error.message||error);
+  }finally{
+    apiBatchState.busy=false;$("apiBatchStart").disabled=false;
+    await apiBatchTick();
+  }
+}
+async function apiBatchChange(action){
+  if(apiBatchState.busy||!apiBatchState.currentId||!state.org)return;
+  apiBatchState.busy=true;
+  try{
+    const result=await apiBatchRequest("POST",{action,org_id:state.org.id,batch_id:apiBatchState.currentId});
+    apiBatchShow(result.batch);
+    toast(action==="pause"?"Tandas pausadas.":"Tandas reanudadas.");
+  }catch(error){toast(error.message||"No fue posible cambiar el estado.",true);}
+  finally{apiBatchState.busy=false;}
+}
+async function inboxSendApprovedTemplate(){
+  if(!inboxState.current||!state.org)return;
+  if(!$("inboxTemplateConsent").checked)return toast("Confirma la autorización comercial del cliente.",true);
+  if(!confirm("¿Enviar al cliente la plantilla comercial aprobada por Meta desde el número 313? Meta puede cobrarla."))return;
+  const btn=$("inboxSendTemplate");
+  btn.disabled=true;
+  $("inboxTemplateStatus").textContent="Enviando solicitud a Meta…";
+  try{
+    const result=await apiBatchRequest("POST",{action:"single",org_id:state.org.id,phone:inboxState.current});
+    $("inboxTemplateStatus").textContent=result.submitted
+      ?"Meta aceptó la plantilla. Confirma después si fue entregada."
+      :"No se envió: "+(result.reason||"Revisa el consentimiento.");
+    if(result.submitted){
+      await inboxLoadThread(inboxState.current);
+      await inboxLoadList({quiet:true});
+      toast("Plantilla aceptada por Meta. Pendiente confirmar entrega.");
+    }
+  }catch(error){
+    $("inboxTemplateStatus").textContent=error.message||"No se pudo enviar la plantilla.";
+    toast(error.message||"No se envió la plantilla.",true);
+  }finally{btn.disabled=false;}
+}
+
 const inboxState={
   conversations:[],current:null,messages:[],mode:'ia',canReply:false,
   filter:'todos',listBusy:false,threadBusy:false,sendBusy:false,
@@ -1497,6 +1646,7 @@ function inboxUpdateComposer(){
     :'MIRED360 IA puede responder automáticamente. Para escribir, toma la conversación.';
   $('inboxToggleHuman').textContent=human?'Devolver a MIRED360 IA':'Atender personalmente';
   $('inboxToggleHuman').disabled=inboxState.modeBusy;
+  $('inboxTemplatePanel').hidden=inboxState.canReply;
   const canSend=human&&inboxState.canReply;
   $('inboxReply').disabled=!canSend||inboxState.sendBusy;
   $('inboxSend').disabled=!canSend||inboxState.sendBusy||
@@ -1547,6 +1697,8 @@ async function inboxOpen(phone){
   inboxState.lastMessageCount=0;
   inboxState.messages=[];
   $('inboxReply').value='';
+  $('inboxTemplateConsent').checked=false;
+  $('inboxTemplateStatus').textContent='';
   $('inboxWelcome').hidden=true;
   $('inboxConversation').hidden=false;
   $('inboxShell').classList.add('show-chat');
@@ -1679,6 +1831,12 @@ function bindEvents() {
   $('apiCheckStatus').addEventListener('click',checkApiConnection);
   $('apiCopyWebhook').addEventListener('click',copyApiWebhookUrl);
   inboxBindEvents();
+  $('inboxSendTemplate').addEventListener('click',inboxSendApprovedTemplate);
+  $('apiBatchFile').addEventListener('change',apiBatchReadExcel);
+  $('apiBatchStart').addEventListener('click',apiBatchCreate);
+  $('apiBatchPause').addEventListener('click',()=>apiBatchChange('pause'));
+  $('apiBatchResume').addEventListener('click',()=>apiBatchChange('resume'));
+  $('apiBatchRefresh').addEventListener('click',apiBatchTick);
   $('apiTemplateRefresh').addEventListener('click',refreshMetaTemplate);
   $('apiDeliveryRefresh').addEventListener('click',refreshMetaDeliveries);
   $('apiCopyCustomerLink').addEventListener('click',copyCustomerInitiationLink);
