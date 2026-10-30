@@ -1494,7 +1494,7 @@ async function inboxSendApprovedTemplate(){
   btn.disabled=true;
   $("inboxTemplateStatus").textContent="Enviando solicitud a Meta…";
   try{
-    const result=await apiBatchRequest("POST",{action:"single",org_id:state.org.id,phone:inboxState.current});
+    const result=await apiBatchRequest("POST",{action:"single",org_id:state.org.id,phone:inboxState.current,consent_confirmed:true,consent_source:$('inboxConsentSource').value.trim(),name:$('inboxChatName').textContent});
     $("inboxTemplateStatus").textContent=result.submitted
       ?"Meta aceptó la plantilla. Confirma después si fue entregada."
       :"No se envió: "+(result.reason||"Revisa el consentimiento.");
@@ -1698,6 +1698,7 @@ async function inboxOpen(phone){
   inboxState.messages=[];
   $('inboxReply').value='';
   $('inboxTemplateConsent').checked=false;
+  $('inboxConsentSource').value='';
   $('inboxTemplateStatus').textContent='';
   $('inboxWelcome').hidden=true;
   $('inboxConversation').hidden=false;
