@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261029-tandas-9">
+  <link rel="stylesheet" href="./styles.css?v=20261030-api-check-1">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -261,7 +261,40 @@
           </section>
 
           <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
-            <div class="two-col"><div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div><div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Próxima integración: plantillas aprobadas, webhooks, bandeja multiagente y estados de entrega. Los tokens deberán configurarse únicamente en un servidor seguro.</p><span class="status pending">En desarrollo · no conectada</span></div></div>
+            <div class="two-col">
+              <div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div>
+              <div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Conexión oficial de Meta. Se necesitan token vigente, número registrado, webhook firmado y plantillas aprobadas. La conexión de MIRED360 aún no está verificada; no habilita envíos automáticos.</p><span class="status pending">Reactivación pendiente</span></div>
+            </div>
+            <div id="apiOwnerPanel" class="card api-control-panel" hidden>
+              <div class="card-header api-control-head">
+                <div><span class="eyebrow">SOLO ADMINISTRADOR MIRED360</span><h2>Diagnóstico de WhatsApp Cloud API</h2><p class="muted">Comprueba la conexión de nuestro número antiguo sin enviar ningún mensaje y sin revelar credenciales.</p></div>
+                <button id="apiCheckStatus" type="button" class="btn btn-primary">Comprobar conexión</button>
+              </div>
+              <div class="api-status-grid">
+                <div class="api-status-item"><small>Estado con Meta</small><strong id="apiConnectionStatus">Sin comprobar</strong></div>
+                <div class="api-status-item"><small>Número esperado</small><strong>+57 313 393 8312</strong></div>
+                <div class="api-status-item"><small>Número devuelto por Meta</small><strong id="apiPhoneObserved">Sin comprobar</strong></div>
+                <div class="api-status-item"><small>Verificación del webhook</small><strong id="apiWebhookStatus">Sin comprobar</strong></div>
+              </div>
+              <p id="apiStatusDescription" class="muted" role="status">La conexión del número 3133938312 es independiente de tu WhatsApp Business 3229432085. Esta herramienta no envía mensajes.</p>
+              <div class="api-setup-panel">
+                <h3>Pasos para terminar de reactivar</h3>
+                <ol>
+                  <li>En <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer">Meta for Developers</a>, revisa que el número antiguo esté asociado a la aplicación.</li>
+                  <li>Genera un token nuevo de usuario del sistema, con los permisos de WhatsApp necesarios, desde tu cuenta empresarial de Meta.</li>
+                  <li>En <a href="https://supabase.com/dashboard/project/lpiusomsuswdcraoozdn/settings/functions" target="_blank" rel="noopener noreferrer">Supabase → Edge Function Secrets</a>, guarda los valores <code>WHATSAPP_ACCESS_TOKEN</code>, <code>WHATSAPP_PHONE_NUMBER_ID</code>, <code>META_APP_SECRET</code> y <code>WHATSAPP_VERIFY_TOKEN</code>. No los pegues en el chat ni en GitHub.</li>
+                  <li>En Meta, configura la URL del webhook siguiente con el mismo <code>WHATSAPP_VERIFY_TOKEN</code> que guardaste en Supabase. Suscribe los eventos necesarios.</li>
+                  <li>Pulsa «Comprobar conexión» otra vez. Una verificación positiva no autoriza enviar campañas hasta revisar plantillas, permisos y consentimiento.</li>
+                </ol>
+                <label for="apiWebhookUrl" class="api-webhook-label">URL del webhook (se puede compartir con Meta)</label>
+                <div class="api-webhook-copy">
+                  <input id="apiWebhookUrl" readonly value="https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/whatsapp-webhook">
+                  <button id="apiCopyWebhook" type="button" class="btn btn-secondary">Copiar URL</button>
+                </div>
+              </div>
+              <p class="small-notice">Diagnóstico exclusivo de la conexión MIRED360. Las empresas que se registren en el SaaS no heredan este número ni pueden usar el token corporativo. La API aún no está habilitada en las campañas de clientes.</p>
+            </div>
+            <div id="apiTenantNotice" class="card" hidden><h2>Conexión independiente para cada empresa</h2><p class="muted">La integración oficial de WhatsApp Cloud API para clientes aún no está disponible. Mientras tanto, utiliza las campañas asistidas con contactos autorizados. Nunca compartimos el número o las credenciales de MIRED360 entre empresas.</p></div>
           </section>
           <section data-section="planes" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">SUSCRIPCIONES</span><h1>Planes comerciales</h1><p class="muted">Inicia con el plan asistido. La activación y pago son verificados por un administrador.</p></div></div><div id="licenseInfo" class="card license-info"></div><div class="price-grid"><article class="card price-card"><h2>Emprendedor</h2><div class="price">$49.900 <span>/mes</span></div><p>Contactos y campañas asistidas.</p><button id="requestStarter" type="button" class="btn btn-primary">Solicitar activación por WhatsApp</button></article><article class="card price-card featured"><h2>Profesional</h2><div class="price">$129.900 <span>/mes</span></div><p>API oficial y equipos, cuando esté integrada.</p><span class="status pending">Próximamente</span></article><article class="card price-card"><h2>Empresa</h2><div class="price">$299.900 <span>/mes</span></div><p>Gestión avanzada y sucursales.</p><span class="status pending">Próximamente</span></article></div><p class="small-notice">Plan Emprendedor disponible mediante gestión comercial y verificación manual del pago. Los planes con API oficial aún no se venden. No hay pagos dentro del panel.</p></section>
           <section data-section="administracion" class="page-section" hidden>
@@ -272,6 +305,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261029-tandas-9"></script>
+  <script type="module" src="./app.js?v=20261030-api-check-1"></script>
 </body>
 </html>
