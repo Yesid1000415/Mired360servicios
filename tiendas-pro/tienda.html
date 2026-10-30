@@ -90,6 +90,61 @@ header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #
 @media(max-width:640px){#catalog.grid{grid-template-columns:1fr;gap:19px;max-width:485px;margin-left:auto;margin-right:auto}#catalog .premiumInfo{padding:18px}#catalog .premiumVisual{aspect-ratio:1 / 1}#catalog .premiumTitle{font-size:17px;min-height:auto}#catalog .premiumSummary{min-height:auto;max-height:63px}#catalog .premiumPrice{font-size:27px}#productos .sectionHeader{gap:15px}#productos .sectionHeader h2{font-size:27px}.detailDialog .premiumDetailPhoto{height:100%!important}}
 @media(prefers-reduced-motion:reduce){#catalog .premiumProduct,#catalog .premiumWhatsApp{transition:none}}
 
+
+/* Catálogo ordenado por familia de productos y lista compacta para móvil */
+#catalog.grid{display:flex;flex-direction:column;gap:34px;align-items:stretch;grid-template-columns:none}
+#catalog .catalogCategoryGroup{display:block;min-width:0}
+#catalog .catalogGroupHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:0 2px 11px;border-bottom:1px solid #e5ebf3}
+#catalog .catalogGroupHead>div{display:flex;align-items:center;min-width:0;gap:10px}
+#catalog .catalogGroupHead h3{font-size:18px;letter-spacing:-.4px;font-weight:850;color:#192a4c;line-height:1.3}
+#catalog .catalogGroupOrdinal{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:11px;background:color-mix(in srgb,var(--store-color) 11%,white);color:var(--store-color);font-size:12px;font-weight:900}
+#catalog .catalogGroupCount{flex:none;font-size:11px;color:#6b7b92;background:#eff3f9;border-radius:20px;padding:7px 9px;font-weight:750}
+#catalog .catalogGroupItems{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:20px}
+#catalog .premiumProduct{display:flex;flex-direction:column;height:100%;min-width:0}
+#catalog .premiumTop{display:flex;flex-direction:column}
+#catalog .premiumVisual{width:100%;flex:none}
+#catalog .premiumTopText{display:flex;flex-direction:column;padding:19px 20px 0;min-width:0}
+#catalog .premiumTopText .premiumOffer{margin-top:10px;margin-bottom:0}
+#catalog .premiumRest{display:flex;flex-direction:column;flex:1;padding:13px 20px 19px}
+#catalog .premiumRest .premiumSummary{flex:none;min-height:58px;max-height:58px;margin-bottom:14px}
+#catalog .premiumRest .premiumWhatsApp{margin-top:auto}
+#catalog .premiumRest .premiumActions{margin-top:9px}
+@media(max-width:1020px){
+ #catalog .catalogGroupItems{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+}
+@media(max-width:640px){
+ #productos .filters{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:9px;margin-bottom:22px;padding:0 1px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+ #productos .filters .chip{flex:none;white-space:nowrap}
+ #catalog.grid{max-width:none;margin-left:0;margin-right:0;gap:28px}
+ #catalog .catalogGroupHead{margin-bottom:12px}
+ #catalog .catalogGroupHead h3{font-size:16px}
+ #catalog .catalogGroupItems{grid-template-columns:1fr;gap:12px}
+ #catalog .premiumProduct{display:flex;flex-direction:column;border-radius:16px;box-shadow:0 5px 18px #18284212;transform:none!important}
+ #catalog .premiumTop{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:start;gap:12px;padding:12px 12px 0}
+ #catalog .premiumVisual{width:118px;height:118px;aspect-ratio:1/1;border:1px solid #e4e9f2;border-radius:11px}
+ #catalog .premiumTag{top:6px;left:6px;font-size:8px;padding:5px 6px;letter-spacing:0}
+ #catalog .premiumUnavailable{bottom:5px;left:5px;font-size:9px}
+ #catalog .premiumTopText{padding:2px 0 0;min-width:0}
+ #catalog .premiumCategory{font-size:10px;margin-bottom:5px;letter-spacing:.3px}
+ #catalog .premiumTitle{font-size:14px;line-height:1.32;min-height:0;max-height:57px;-webkit-line-clamp:3;line-clamp:3;margin:0 0 6px}
+ #catalog .premiumTopText .premiumOffer{background:none;border:0;border-radius:0;padding:0;margin:4px 0 0;gap:1px}
+ #catalog .premiumOfferLabel{font-size:10px}
+ #catalog .premiumPrice{font-size:clamp(16px,5.1vw,20px);letter-spacing:-.5px;line-height:1.2}
+ #catalog .premiumConditions{display:none}
+ #catalog .premiumRest{padding:9px 12px 13px;display:flex;flex-direction:column;gap:0}
+ #catalog .premiumRest .premiumSummary{font-size:11px;line-height:1.4;min-height:0;max-height:32px;-webkit-line-clamp:2;line-clamp:2;margin:0 0 10px}
+ #catalog .premiumRest .premiumWhatsApp{min-height:43px;padding:10px 12px;border-radius:10px;font-size:12px;order:0}
+ #catalog .premiumRest .premiumActions{order:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+ #catalog .premiumRest .premiumActions .btn{min-height:37px;padding:8px 9px;font-size:11px;border-radius:9px}
+}
+@media(max-width:355px){
+ #catalog .premiumTop{grid-template-columns:102px minmax(0,1fr);gap:9px;padding:10px 10px 0}
+ #catalog .premiumVisual{width:102px;height:102px}
+ #catalog .premiumRest{padding:9px 10px 11px}
+ #catalog .premiumTitle{font-size:13px}
+ #catalog .premiumPrice{font-size:16px}
+}
+
 </style><script src="config.js"></script></head><body>
 <header><div class="container head"><a class="logo" href="#"><span class="symbol">M</span><span id="brand">MIRED360 <small>TIENDAS PRO</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><a class="btn contactMini hidden" id="headerContact" href="#" target="_blank" rel="noopener noreferrer">✆ WhatsApp</a><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
 <main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><img id="coverImage" class="coverImage hidden" alt="Portada de la tienda" loading="eager"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="trust" id="beneficios"><article><span>✦</span> Experiencia fácil<small>Compra desde cualquier dispositivo</small></article><article><span>♧</span> Atención cercana<small>Conversa con un asesor comercial</small></article><article><span>▣</span> Catálogo actualizado<small>Consulta nuestras ofertas publicadas</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Nuestra selección</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar productos..." aria-label="Buscar productos"></div><div class="filters" id="filters"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
@@ -111,39 +166,51 @@ function renderCatalogPremium(){
  const cats=['Todos',...new Set(products.map(p=>p.categoria||'General'))];
  $('#filters').innerHTML=cats.map(c=>`<button type="button" class="chip ${category===c?'active':''}" data-category="${esc(c)}" aria-pressed="${category===c?'true':'false'}">${esc(c)}</button>`).join('');
  const query=filter.trim().toLowerCase();
- const filtered=products.filter(p=>(category==='Todos'||p.categoria===category)&&[p.nombre,p.categoria,p.descripcion,p.descripcion_larga].join(' ').toLowerCase().includes(query))
-  .sort((a,b)=>Number(Boolean(b.destacado))-Number(Boolean(a.destacado)));
+ const filtered=products.filter(p=>(category==='Todos'||(p.categoria||'General')===category)&&[p.nombre,p.categoria,p.descripcion,p.descripcion_larga].join(' ').toLowerCase().includes(query))
+  .sort((a,b)=>Number(Boolean(b.destacado))-Number(Boolean(a.destacado))||Number(a.precio_cop)-Number(b.precio_cop));
  $('#subtitle').textContent=filtered.length===1?'1 producto o servicio disponible':filtered.length+' productos y servicios disponibles';
- $('#catalog').innerHTML=filtered.map(p=>{
+ const names=category==='Todos'?[...new Set(filtered.map(p=>p.categoria||'General'))]:[category];
+ const cards=p=>{
   const available=p.tipo!=='producto'||Number(p.inventario)>0;
   const contact=contactLinkPro(productContactMessagePro(p));
   const provider=contactProviderPro();
   return `<article class="product premiumProduct">
-   <div class="premiumVisual">
-    <button type="button" class="premiumVisualButton" data-detail="${esc(p.id)}" aria-label="Ver imágenes y detalles de ${esc(p.nombre)}">
-     ${photoMarkupPro(p)}
-    </button>
-    <span class="premiumTag">${p.destacado?'✦ Destacado':p.tipo==='servicio'?'Servicio':'Producto'}</span>
-    ${p.tipo==='producto'&&!available?'<span class="premiumUnavailable">Agotado</span>':''}
-   </div>
-   <div class="info premiumInfo">
-    <div class="premiumCategory">${esc(p.categoria||'General')}</div>
-    <h3 class="premiumTitle">${esc(p.nombre)}</h3>
-    <p class="premiumSummary">${esc(p.descripcion||'Consulta los detalles y condiciones de esta oferta.')}</p>
-    <div class="premiumOffer">
-     <span class="premiumOfferLabel">Precio publicado</span>
-     <strong class="premiumPrice">${money(p.precio_cop)}</strong>
-     <span class="premiumConditions">Confirma disponibilidad y condiciones con la tienda.</span>
+   <div class="premiumTop">
+    <div class="premiumVisual">
+     <button type="button" class="premiumVisualButton" data-detail="${esc(p.id)}" aria-label="Ver imagen ampliada y detalles de ${esc(p.nombre)}">
+      ${photoMarkupPro(p)}
+     </button>
+     <span class="premiumTag">${p.destacado?'✦ Destacado':p.tipo==='servicio'?'Servicio':'Producto'}</span>
+     ${p.tipo==='producto'&&!available?'<span class="premiumUnavailable">Agotado</span>':''}
     </div>
+    <div class="premiumTopText">
+     <div class="premiumCategory">${esc(p.categoria||'General')}</div>
+     <h3 class="premiumTitle">${esc(p.nombre)}</h3>
+     <div class="premiumOffer">
+      <span class="premiumOfferLabel">Precio publicado</span>
+      <strong class="premiumPrice">${money(p.precio_cop)}</strong>
+      <span class="premiumConditions">Confirma disponibilidad y condiciones con la tienda.</span>
+     </div>
+    </div>
+   </div>
+   <div class="premiumRest">
+    <p class="premiumSummary">${esc(p.descripcion||'Consulta los detalles y condiciones de esta oferta.')}</p>
     ${contact?`<a class="premiumWhatsApp" data-product-contact="${esc(p.id)}" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">✆ Consultar por ${esc(provider)}</a>`:
      '<button class="premiumWhatsApp" type="button" disabled>Contacto no disponible</button>'}
     <div class="premiumActions">
      <button type="button" class="btn premiumDetail" data-detail="${esc(p.id)}">Ver detalles</button>
-     <button type="button" class="btn premiumAdd" data-add="${esc(p.id)}" ${available?'':'disabled'}>${available?'＋ Agregar a consulta':'Agotado'}</button>
+     <button type="button" class="btn premiumAdd" data-add="${esc(p.id)}" ${available?'':'disabled'}>${available?'＋ Agregar':'Agotado'}</button>
     </div>
    </div>
   </article>`;
- }).join('')||`<div class="notice">${products.length?'No encontramos productos con esos filtros. Prueba otra búsqueda.':'Pronto encontrarás aquí nuestro catálogo. Estamos preparando los primeros productos.'}</div>`;
+ };
+ $('#catalog').innerHTML=filtered.length?names.map((name,i)=>{
+  const items=filtered.filter(p=>(p.categoria||'General')===name);
+  return `<section class="catalogCategoryGroup" aria-label="${esc(name)}">
+    <div class="catalogGroupHead"><div><span class="catalogGroupOrdinal">${String(i+1).padStart(2,'0')}</span><h3>${esc(name)}</h3></div><span class="catalogGroupCount">${items.length===1?'1 opción':items.length+' opciones'}</span></div>
+    <div class="catalogGroupItems">${items.map(cards).join('')}</div>
+   </section>`;
+ }).join(''):`<div class="notice">${products.length?'No encontramos productos con esos filtros. Prueba otra búsqueda.':'Pronto encontrarás aquí nuestro catálogo. Estamos preparando los primeros productos.'}</div>`;
  $('#count').textContent=Object.values(cart).reduce((a,b)=>a+b,0);
 }
 function safeVideoPro(value){
