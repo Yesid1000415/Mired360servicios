@@ -366,6 +366,7 @@
                     <strong>Reabrir conversación con Meta</strong>
                     <p class="muted" style="margin:6px 0 10px">Cuando pasen 24 horas, envía la plantilla aprobada de Claro Hogar. El contacto debe tener autorización comercial registrada.</p>
                     <label class="check-row" style="margin-bottom:9px"><input type="checkbox" id="inboxTemplateConsent"> Confirmo que el cliente autorizó mensajes comerciales.</label>
+                    <div class="field" style="margin:9px 0"><label for="inboxConsentSource">Fuente del consentimiento (si aún no está registrado)</label><input type="text" id="inboxConsentSource" maxlength="240" placeholder="Ej. Cliente solicitó información en formulario, fecha"></div>
                     <button id="inboxSendTemplate" type="button" class="btn btn-primary">Enviar plantilla aprobada por Meta</button>
                     <p id="inboxTemplateStatus" class="muted" style="margin:8px 0 0;font-size:.84rem" role="status"></p>
                   </div>
@@ -545,6 +546,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-api-batch-v15"></script>
+  <script type="module" src="./app.js?v=20261030-api-batch-v16"></script>
 </body>
 </html>
