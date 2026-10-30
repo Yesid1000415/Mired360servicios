@@ -111,6 +111,7 @@ async function boot() {
     window.history.replaceState({},'',window.location.pathname);
   }
   await loadOrgs();
+  if(state.isSuperAdmin)inboxStartBadge();else inboxStopBadge();
 }
 async function loadOrgs() {
   const {data,error} = await db.from('wa_organizaciones').select('id,nombre,plan,estado_suscripcion,prueba_hasta,vigente_hasta,creado_en').order('creado_en',{ascending:true});
@@ -1159,7 +1160,7 @@ async function sendMetaTemplateTest(){
 const inboxState={
   conversations:[],current:null,messages:[],mode:'ia',canReply:false,
   filter:'todos',listBusy:false,threadBusy:false,sendBusy:false,
-  modeBusy:false,searchTimer:null,pollTimer:null,requestSerial:0,
+  modeBusy:false,searchTimer:null,pollTimer:null,badgePoll:null,searchPending:false,requestSerial:0,
   lastThreadId:null,lastMessageCount:0,lastThreadFingerprint:'',threadRequestId:0,moreMayExist:false
 };
 const inboxTime=(value)=>value?new Date(value).toLocaleTimeString('es-CO',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit'}):'';
@@ -1235,7 +1236,8 @@ function inboxRenderList(){
   inboxUpdateCounters();
 }
 async function inboxLoadList({quiet=false}={}){
-  if(!state.isSuperAdmin||inboxState.listBusy||state.page!=='bandeja')return;
+  if(!state.isSuperAdmin||state.page!=='bandeja')return;
+  if(inboxState.listBusy){inboxState.searchPending=true;return;}
   inboxState.listBusy=true;
   const serial=++inboxState.requestSerial;
   if(!quiet)$('inboxLastSync').textContent='Sincronizando…';
@@ -1248,7 +1250,13 @@ async function inboxLoadList({quiet=false}={}){
   }catch(error){
     $('inboxLastSync').textContent='Sin conexión';
     if(!quiet)toast(error?.message||'No fue posible obtener las conversaciones.',true);
-  }finally{inboxState.listBusy=false;}
+  }finally{
+    inboxState.listBusy=false;
+    if(inboxState.searchPending&&state.page==='bandeja'){
+      inboxState.searchPending=false;
+      inboxLoadList({quiet:true});
+    }
+  }
 }
 function inboxRenderThread(){
   const messages=inboxState.messages;
@@ -1409,6 +1417,25 @@ function inboxStart(){
 function inboxStop(){
   if(inboxState.pollTimer){clearInterval(inboxState.pollTimer);inboxState.pollTimer=null;}
 }
+async function inboxRefreshBadge(){
+  if(!state.isSuperAdmin||state.page==='bandeja'||document.visibilityState!=='visible')return;
+  try{
+    const response=await inboxRequest('GET',{action:'list'});
+    inboxState.conversations=response.conversations||[];
+    inboxState.moreMayExist=Boolean(response.more_may_exist);
+    inboxUpdateCounters();
+  }catch(_error){
+    // La bandeja podrá consultarse manualmente; no interrumpir otras secciones.
+  }
+}
+function inboxStartBadge(){
+  if(inboxState.badgePoll)clearInterval(inboxState.badgePoll);
+  inboxRefreshBadge();
+  inboxState.badgePoll=setInterval(inboxRefreshBadge,60000);
+}
+function inboxStopBadge(){
+  if(inboxState.badgePoll){clearInterval(inboxState.badgePoll);inboxState.badgePoll=null;}
+}
 function inboxBindEvents(){
   $('inboxRefresh').addEventListener('click',async()=>{
     await inboxLoadList();
@@ -1465,6 +1492,8 @@ function bindEvents() {
   $('orgSelect').addEventListener('change',event=>selectOrg(event.target.value));
   $('signOut').addEventListener('click',async()=>{
     await db.auth.signOut();
+    inboxStop();
+    inboxStopBadge();
     state.user=null;state.org=null;state.contacts=[];state.campaigns=[];state.actions=[];state.recipientAssignments=[];state.manualQueues=[];state.campaignPick=new Set();state.invites=[];state.member=null;
     $('authScreen').hidden=false;$('appScreen').hidden=true;
   });
