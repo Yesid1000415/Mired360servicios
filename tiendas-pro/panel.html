@@ -23,16 +23,48 @@
 .catalogo-actions .btn{padding:8px 12px;font-size:12px;border-radius:9px}
 @media(max-width:560px){.catalogo-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr));gap:10px}.catalogo-thumb{height:116px;max-height:116px;flex-basis:116px}.catalogo-thumb img{max-height:116px}.catalogo-info{padding:11px;gap:6px}.catalogo-name{font-size:13px}.catalogo-description{min-height:29px}.catalogo-price{font-size:16px}.catalogo-actions .btn{padding:8px 11px}}
 
+
+/* Editor fácil por propietario: no modifica el escaparate público */
+.easyNotice{background:#eef6ff;border:1px solid #cfe1fc;color:#25426b;padding:13px 17px;border-radius:13px;margin-bottom:20px;font-size:13px;line-height:1.6}
+.easyNotice span{margin-left:8px}
+.easyLayout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,0.95fr);gap:20px;align-items:start}
+.easySection{padding:22px;min-width:0}.easySection h2{font-size:19px}
+.easyDesc{margin:7px 0 20px;line-height:1.5}
+.easyForm{display:grid;gap:10px}
+.easyForm label{margin-top:9px;margin-bottom:0}
+.easyLogo{max-width:100%;min-height:82px;display:flex;justify-content:flex-start;align-items:center;padding:10px;border:1px solid #e7ebf4;border-radius:13px;background:#f7f9ff}
+.easyLogo img{width:100%;max-width:280px;height:80px;object-fit:contain;object-position:left center}
+.easyCover{max-width:100%;border:1px solid #e7ebf4;border-radius:13px;background:#13244c;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:120px}
+.easyCover img{display:block;width:100%;max-height:250px;object-fit:contain}
+.easyNoLogo,.easyNoCover{color:#fff;background:#455bdd;padding:20px;border-radius:13px}.easyNoLogo{font-weight:800}
+.easyForm input[type=file]{padding:10px;border:1px dashed #aebde1;background:#f6f8ff}
+.easyForm input[type=color]{height:50px;max-width:155px;padding:6px}
+.easySave{margin-top:12px;min-height:49px;font-size:14px!important;white-space:normal}
+.easyProducts{display:grid;gap:10px}
+.easyProduct{display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;border:1px solid #e5eaf4;border-radius:13px;padding:10px}
+.easyProductImage{display:grid;place-items:center;width:72px;height:66px;background:#102040;border-radius:10px;overflow:hidden;color:#b9bfff}
+.easyProductImage img{width:100%;height:100%;object-fit:contain}
+.easyProductText{min-width:0}.easyProductText b{font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.easyProductText p{font-size:11px;margin-top:6px;line-height:1.45}
+.easyProduct .btn{padding:9px 12px}
+.easyFull{margin-top:16px;width:100%;white-space:normal}
+.easyHelp{margin-top:24px;padding:16px;border-radius:13px;border:1px solid #e5eaf4;background:#f8faff}
+.easyHelp h3{font-size:15px}.easyHelp p{line-height:1.5;margin:9px 0 13px}.easyHelp input{margin-bottom:12px}
+.easyCheck{display:flex!important;align-items:center;gap:9px;padding:12px;background:#f5f7ff;border-radius:11px;cursor:pointer}
+.easyCheck input{width:18px!important;height:18px!important;flex:none}
+.easyActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:9px;margin-top:12px}
+@media(max-width:1030px){.easyLayout{grid-template-columns:1fr}}
+@media(max-width:560px){.easySection{padding:17px}.easyProduct{grid-template-columns:58px minmax(0,1fr);gap:9px}.easyProductImage{width:58px;height:56px}.easyProduct .btn{grid-column:2;justify-self:end}.easyNotice span{margin-left:0;display:block}}
+
 </style>
 <script src="config.js"></script>
 </head><body><div id="app"></div><div id="modal" class="overlay"></div><div id="toasts" class="toasts" aria-live="polite"></div>
 <script type="module">
 const config=window.MIRED360_CLOUD||{};
 const validConfig=/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(config.url||'') && config.publishableKey && !config.publishableKey.includes('CAMBIAR');if(new URLSearchParams(location.search).get('modo')==='registro')window.authMode='signup';
-let db=null,session=null,tiendas=[],tienda=null,sucursales=[],productos=[],pedidos=[],miembros=[],prospectosCRM=[],crmError='',crmSearch='',crmFilter='todos',consultas=[],consultasTotal=0,consultasError='',tab=['configuracion','consultas','prospectos'].includes(new URLSearchParams(location.search).get('seccion'))?new URLSearchParams(location.search).get('seccion'):'resumen',busy=false;
+let db=null,session=null,tiendas=[],tienda=null,sucursales=[],productos=[],pedidos=[],miembros=[],prospectosCRM=[],crmError='',crmSearch='',crmFilter='todos',consultas=[],consultasTotal=0,consultasError='',tab=['configuracion','consultas','prospectos','editor','productos'].includes(new URLSearchParams(location.search).get('seccion'))?new URLSearchParams(location.search).get('seccion'):'resumen',busy=false;
 const $=(s)=>document.querySelector(s), esc=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])), money=v=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(v||0));
 function toast(msg){let el=document.createElement('div');el.className='toast';el.textContent=msg;$('#toasts').append(el);setTimeout(()=>el.remove(),5000)}
-function icon(v){return {resumen:'◫',pedidos:'▤',productos:'◈',sucursales:'▣',equipo:'♧',prospectos:'◎',consultas:'☎',configuracion:'⚙'}[v]||'◈'}
+function icon(v){return {resumen:'◫',pedidos:'▤',productos:'◈',sucursales:'▣',equipo:'♧',editor:'✎',prospectos:'◎',consultas:'☎',configuracion:'⚙'}[v]||'◈'}
 function btn(text,onclick,kind=''){return `<button class="btn ${kind}" data-act="${onclick}">${text}</button>`}
 function role(){return miembros.find(x=>x.tienda_id===tienda?.id && x.usuario_id===session?.user.id)?.rol||''}
 function empty(txt='Aún no hay registros'){return `<div class="empty"><div style="font-size:32px">◇</div><b>${esc(txt)}</b><span class="small">Cuando agregues información aparecerá aquí.</span></div>`}
@@ -219,9 +251,101 @@ await crmDetail(p.id);
 toast('Gestión guardada y verificada en el historial');
 }catch(e){toast(e.message||'No fue posible registrar la gestión');const errorBox=form.querySelector('[data-crm-error]');if(errorBox)errorBox.textContent='No se pudo confirmar la gestión: '+(e.message||'Error');btn.disabled=false}
 }
-function renderPanel(){let r=role(),owner=r==='propietario',nav=[['resumen','Resumen'],['pedidos','Pedidos'],['productos','Productos'],['sucursales','Sucursales'],['equipo','Equipo'],['prospectos','Prospectos y ventas'],['consultas','Consultas WhatsApp'],['configuracion','Información de la tienda']].filter(([k])=>owner||['resumen','pedidos','consultas','prospectos'].includes(k));let mobileNav=owner?[['configuracion','Mi tienda'],['resumen','Inicio'],['prospectos','Prospectos'],['consultas','Consultas'],['productos','Productos'],['pedidos','Pedidos'],['sucursales','Sedes'],['equipo','Equipo']]:nav;$('#app').innerHTML=`<div class="shell"><aside class="side"><div class="logo"><span class="logoIcon">M</span><div>MIRED360<small>TIENDAS PRO</small></div></div><div class="navhint">CENTRO DE OPERACIONES</div>${nav.map(([k,t])=>`<button class="nav ${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}<div class="sidefoot"><span class="role">${esc(r)}</span><h3 style="margin-top:6px;color:white">${esc(tienda?.nombre||'Tu primera tienda')}</h3><p>Operación centralizada y segura</p></div></aside><div class="work"><header class="top"><div><div class="tiny muted">MIRED360 / ESPACIO DE TRABAJO</div><strong>${esc(tienda?.nombre||'Crea tu negocio')}</strong></div><div class="flex"><select id="tiendaSelect" aria-label="Seleccionar tienda" style="max-width:180px;padding:9px">${tiendas.length?tiendas.map(t=>`<option value="${esc(t.id)}" ${t.id===tienda?.id?'selected':''}>${esc(t.nombre)}</option>`).join(''):'<option>Sin tiendas</option>'}</select><span class="avatar">${esc((session.user.email||'M')[0].toUpperCase())}</span><button class="btn" data-act="logout">Salir</button></div></header><main class="main">${!tienda?firstShop():((owner&&tab!=='configuracion')?'<div class="personalizationStrip"><div><b>✨ Personaliza tu tienda</b><p>Aquí puedes cambiar logo, portada, colores, URL, WhatsApp y redes sociales.</p></div><button class="btn primary" data-nav="configuracion">⚙ Abrir información de la tienda</button></div>':'')+page()}</main></div></div><nav class="mobilebar">${mobileNav.map(([k,t])=>`<button class="${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}</nav>`;$('#tiendaSelect')?.addEventListener('change',async e=>{tienda=tiendas.find(x=>x.id===e.target.value);await loadAll();render()});}
+function quickEditor(){
+ const logo=tienda.logo_url?`<img id="easyLogoPreview" src="${esc(tienda.logo_url)}" alt="Logo de ${esc(tienda.nombre)}">`:`<div id="easyLogoPreview" class="easyNoLogo">Mi marca</div>`;
+ const cover=tienda.portada_url?`<img id="easyCoverPreview" src="${esc(tienda.portada_url)}" alt="Portada de ${esc(tienda.nombre)}">`:`<div id="easyCoverPreview" class="easyNoCover">Añade una portada atractiva para tus clientes</div>`;
+ const visible=productos.filter(x=>x.publicada&&x.activa).length;
+ const status=tienda.publicada?'Publicada':'En preparación';
+ const productRows=productos.map(p=>`<div class="easyProduct"><div class="easyProductImage">${p.imagen_url?`<img src="${esc(p.imagen_url)}" alt="" loading="lazy">`:'◈'}</div><div class="easyProductText"><b>${esc(p.nombre)}</b><p class="tiny muted">${money(p.precio_cop)} · ${p.publicada?'Visible en tienda':'Borrador'}</p></div><button class="btn" data-act="easyProduct:${esc(p.id)}" type="button">✎ Editar</button></div>`).join('');
+ return `${panelTitle('Editar mi tienda','Cambia imágenes, información y precios sin usar código',`<a class="btn primary" href="${esc(publicStoreURL())}" target="_blank" rel="noopener noreferrer">↗ Ver mi tienda</a>`)}
+ <div class="easyNotice"><strong>Tu tienda está ${esc(status.toLowerCase())}.</strong> <span>${visible} productos visibles.</span> Los cambios se mostrarán en tu catálogo después de guardarlos. Solo tú, como propietario, puedes editar esta información.</div>
+ <div class="easyLayout">
+ <section class="surface easySection">
+ <h2>1. Tu imagen y contacto</h2><p class="small muted easyDesc">Cambia lo que tus clientes ven primero.</p>
+ <form id="quickEditForm" class="easyForm">
+ <label for="easyLogoInput">Logo de tu negocio</label>
+ <div class="easyLogo">${logo}</div>
+ <input id="easyLogoInput" type="file" name="logo_file" accept="image/png,image/jpeg,image/webp">
+ <p class="tiny muted">Selecciona una imagen. El logo se mostrará completo, sin recortarse.</p>
+ <label for="easyCoverInput">Imagen de portada</label>
+ <div class="easyCover">${cover}</div>
+ <input id="easyCoverInput" type="file" name="portada_file" accept="image/png,image/jpeg,image/webp">
+ <p class="tiny muted">Sugerencia: una imagen horizontal. Se mostrará completa en la tienda.</p>
+ <label for="easyName">Nombre de tu tienda</label><input id="easyName" name="nombre" maxlength="160" minlength="3" required value="${esc(tienda.nombre)}">
+ <label for="easyTag">Frase principal de tu tienda</label><input id="easyTag" name="lema" maxlength="180" value="${esc(tienda.lema||'')}" placeholder="Ej. Calidad y servicio a tu alcance">
+ <label for="easyPhone">WhatsApp donde recibirás las consultas</label><input id="easyPhone" name="whatsapp" type="tel" inputmode="tel" required value="${esc(tienda.whatsapp||'')}" placeholder="Ej. 3229432085">
+ <label for="easyColor">Color principal de la tienda</label><input id="easyColor" name="color_marca" type="color" value="${/^#[\da-f]{6}$/i.test(tienda.color_marca||'')?esc(tienda.color_marca):'#6659ed'}">
+ <p class="tiny muted">Si utilizas una URL personalizada de contacto, podrás modificarla en Configuración avanzada.</p>
+ <button type="submit" class="btn primary easySave">✓ Guardar cambios de mi tienda</button>
+ </form>
+ </section>
+ <section class="surface easySection">
+ <div class="easyHeader"><div><h2>2. Tus productos y precios</h2><p class="small muted easyDesc">Pulsa Editar en el producto que quieras modificar.</p></div>${btn('＋ Añadir producto','newProduct','primary')}</div>
+ <div class="easyProducts">${productRows||empty('Aún no hay productos. Añade el primero.')}</div>
+ <button class="btn easyFull" data-nav="productos" type="button">Ver catálogo y galería completa</button>
+ <div class="easyHelp"><h3>3. Más opciones cuando las necesites</h3><p class="small muted">Para redes sociales, dominio, publicación y ajustes adicionales, tienes una sección avanzada.</p><button type="button" class="btn" data-nav="configuracion">⚙ Configuración avanzada</button></div>
+ <div class="easyHelp"><h3>Comparte tu enlace</h3><p class="small muted">Este es el enlace que puedes enviar a tus clientes.</p><input value="${esc(publicStoreURL())}" readonly aria-label="Enlace de mi tienda"><button type="button" class="btn" data-copy="${esc(publicStoreURL())}">Copiar enlace</button></div>
+ </section></div>`;
+}
+function easyEditProduct(p){
+ if(!p)return toast('No se encontró ese producto');
+ const cover=p.imagen_url?`<img src="${esc(p.imagen_url)}" style="display:block;width:100%;max-height:170px;object-fit:contain;background:#14264b;border-radius:13px" alt="${esc(p.nombre)}">`:'<p class="small muted">Todavía no tiene imagen.</p>';
+ $('#modal').className='overlay show';
+ $('#modal').innerHTML=`<div class="dialog" style="max-width:590px"><div class="headrow"><h2>Editar producto fácilmente</h2><button class="btn" type="button" data-act="close">✕</button></div>
+ <form id="easyProductForm" data-id="${esc(p.id)}" class="easyForm">
+ <label>Foto del producto</label>${cover}<input name="foto" type="file" accept="image/jpeg,image/png,image/webp"><p class="tiny muted">Deja vacío para conservar la imagen actual.</p>
+ <label>Nombre del producto</label><input name="nombre" required minlength="2" maxlength="160" value="${esc(p.nombre)}">
+ <label>Precio en pesos colombianos</label><input name="precio" type="number" required min="0" step="1" value="${Number(p.precio_cop||0)}">
+ <label>Descripción corta</label><textarea name="descripcion" rows="3" maxlength="800">${esc(p.descripcion||'')}</textarea>
+ <label class="easyCheck"><input type="checkbox" name="publicada" ${p.publicada?'checked':''}> Mostrar este producto en la tienda</label>
+ <p class="tiny muted">Los detalles, galería y otras opciones siguen disponibles en el editor completo.</p>
+ <div class="easyActions"><button class="btn" type="button" data-act="close">Cancelar</button><button class="btn primary" type="submit">✓ Guardar producto</button></div>
+ </form></div>`;
+}
+async function saveEasyShop(form){
+ const submit=form.querySelector('button[type=submit]');
+ if(submit.disabled)return;
+ const f=new FormData(form),name=String(f.get('nombre')||'').trim(),phone=String(f.get('whatsapp')||'').replace(/[\s()-]/g,'').trim();
+ if(name.length<3||name.length>160||!/^\+?[0-9]{7,15}$/.test(phone)){toast('Revisa el nombre y el número de WhatsApp.');return}
+ submit.disabled=true;submit.textContent='Guardando...';
+ try{
+  const oldPhone=String(tienda.whatsapp||'').replace(/\D/g,'');
+  const cleanPhone=phone.replace(/\D/g,'');
+  const payload={nombre:name,lema:String(f.get('lema')||'').trim(),whatsapp:phone,color_marca:String(f.get('color_marca')||'#6659ed')};
+  const img=f.get('logo_file');if(img?.size)payload.logo_url=await uploadMediaPro(img,'logos');
+  const banner=f.get('portada_file');if(banner?.size)payload.portada_url=await uploadMediaPro(banner,'portadas');
+  // Conserva cualquier URL de contacto personalizada que no sea el WhatsApp anterior.
+  if(cleanPhone!==oldPhone){
+   const custom=String(tienda.contacto_url||'').trim();
+   if(/^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(custom)){
+    try{const u=new URL(custom),num=u.hostname==='wa.me'?u.pathname.slice(1):u.searchParams.get('phone');if((num||'').replace(/\D/g,'').endsWith(oldPhone.slice(-10))&&oldPhone.length>=7)payload.contacto_url='';}catch{}
+   }
+  }
+  const res=await db.from('tiendas').update(payload).eq('id',tienda.id).eq('propietario_id',session.user.id).select('id').single();
+  if(res.error)throw res.error;
+  toast('Tu tienda fue actualizada. Abre la vista pública para ver los cambios.');
+  await loadAll();render();
+ }catch(err){toast('No fue posible guardar: '+(err.message||String(err)))}finally{submit.disabled=false;submit.textContent='✓ Guardar cambios de mi tienda'}
+}
+async function saveEasyProduct(form){
+ const p=productos.find(x=>x.id===form.dataset.id);
+ if(!p){toast('Producto no encontrado');return}
+ const btn=form.querySelector('button[type=submit]');if(btn.disabled)return;
+ const f=new FormData(form),name=String(f.get('nombre')||'').trim(),price=Number(f.get('precio'));
+ if(name.length<2||name.length>160||!Number.isSafeInteger(price)||price<0){toast('Corrige el nombre y el precio.');return}
+ btn.disabled=true;btn.textContent='Guardando...';
+ try{
+  const payload={nombre:name,precio_cop:price,descripcion:String(f.get('descripcion')||'').trim(),publicada:f.has('publicada')};
+  const photo=f.get('foto');if(photo?.size)payload.imagen_url=await uploadMediaPro(photo,'productos');
+  const res=await db.from('productos').update(payload).eq('id',p.id).eq('tienda_id',tienda.id).select('id').single();
+  if(res.error)throw res.error;
+  $('#modal').className='overlay';
+  await loadAll();render();toast('Producto actualizado correctamente');
+ }catch(err){toast('Error al guardar el producto: '+(err.message||String(err)))}finally{btn.disabled=false;btn.textContent='✓ Guardar producto'}
+}
+function renderPanel(){let r=role(),owner=r==='propietario',nav=[['resumen','Resumen'],['editor','✎ Editar mi tienda'],['pedidos','Pedidos'],['productos','Productos'],['sucursales','Sucursales'],['equipo','Equipo'],['prospectos','Prospectos y ventas'],['consultas','Consultas WhatsApp'],['configuracion','Información de la tienda']].filter(([k])=>owner||['resumen','pedidos','consultas','prospectos'].includes(k));let mobileNav=owner?[['editor','Editar tienda'],['resumen','Inicio'],['prospectos','Prospectos'],['consultas','Consultas'],['productos','Productos'],['pedidos','Pedidos'],['sucursales','Sedes'],['equipo','Equipo']]:nav;$('#app').innerHTML=`<div class="shell"><aside class="side"><div class="logo"><span class="logoIcon">M</span><div>MIRED360<small>TIENDAS PRO</small></div></div><div class="navhint">CENTRO DE OPERACIONES</div>${nav.map(([k,t])=>`<button class="nav ${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}<div class="sidefoot"><span class="role">${esc(r)}</span><h3 style="margin-top:6px;color:white">${esc(tienda?.nombre||'Tu primera tienda')}</h3><p>Operación centralizada y segura</p></div></aside><div class="work"><header class="top"><div><div class="tiny muted">MIRED360 / ESPACIO DE TRABAJO</div><strong>${esc(tienda?.nombre||'Crea tu negocio')}</strong></div><div class="flex"><select id="tiendaSelect" aria-label="Seleccionar tienda" style="max-width:180px;padding:9px">${tiendas.length?tiendas.map(t=>`<option value="${esc(t.id)}" ${t.id===tienda?.id?'selected':''}>${esc(t.nombre)}</option>`).join(''):'<option>Sin tiendas</option>'}</select><span class="avatar">${esc((session.user.email||'M')[0].toUpperCase())}</span><button class="btn" data-act="logout">Salir</button></div></header><main class="main">${!tienda?firstShop():((owner&&tab!=='configuracion')?'<div class="personalizationStrip"><div><b>✎ Edita tu tienda sin complicaciones</b><p>Cambia logo, portada, WhatsApp, fotos y precios desde un mismo lugar.</p></div><button class="btn primary" data-nav="editor">✎ Editar mi tienda</button></div>':'')+page()}</main></div></div><nav class="mobilebar">${mobileNav.map(([k,t])=>`<button class="${tab===k?'sel':''}" data-nav="${k}"><span>${icon(k)}</span>${t}</button>`).join('')}</nav>`;$('#tiendaSelect')?.addEventListener('change',async e=>{tienda=tiendas.find(x=>x.id===e.target.value);await loadAll();render()});}
 function firstShop(){return `<div class="hero"><span class="tag">BIENVENIDO A MIRED360</span><h1 style="margin-top:8px">Comienza con tu primera tienda.</h1><p>Tu negocio tendrá un espacio propio con catálogo, sedes y colaboradores.</p></div><div class="surface pad" style="max-width:700px"><h2>Registrar mi negocio</h2><p class="small muted" style="margin:9px 0 18px">La tienda se crea inicialmente privada y sin acceso público.</p><form id="crearTienda" class="fieldgrid"><div><label>Nombre de la empresa</label><input name="nombre" required minlength="3" placeholder="Mi negocio"></div><div><label>Identificador web</label><input name="slug" required pattern="[a-z0-9-]{3,50}" placeholder="mi-negocio"></div><div><label>WhatsApp comercial</label><input name="whatsapp" pattern="[0-9+ ]{7,20}" placeholder="3229432085"></div><div style="align-self:end"><button class="btn primary" type="submit">Crear mi tienda</button></div></form></div>`}
-function page(){if(tab==='prospectos')return crmPage();if(tab==='consultas')return consultasView();if(tab==='pedidos')return orders();if(tab==='productos')return products();if(tab==='sucursales')return branches();if(tab==='equipo')return team();if(tab==='configuracion')return settings();return dashboard()}
+function page(){if(tab==='editor')return role()==='propietario'?quickEditor():dashboard();if(tab==='prospectos')return crmPage();if(tab==='consultas')return consultasView();if(tab==='pedidos')return orders();if(tab==='productos')return products();if(tab==='sucursales')return branches();if(tab==='equipo')return team();if(tab==='configuracion')return settings();return dashboard()}
 function dashboard(){let complete=pedidos.filter(x=>x.estado==='completado'),total=complete.reduce((s,x)=>s+Number(x.total_cop),0),pending=pedidos.filter(x=>x.estado==='pendiente').length;return `${panelTitle('Tu negocio, en perspectiva.','Resumen operacional de '+esc(tienda.nombre),btn('Ver consultas WhatsApp','view:consultas','primary'))}<div class="hero"><span class="tag">◇ TU PANEL CENTRAL</span><h2 style="font-size:25px;margin-top:13px">Cada venta cuenta. Cada sucursal importa.</h2><p>Visualiza tus pedidos, tus colaboradores y la evolución de tu operación desde un mismo lugar.</p>${role()==='propietario'?btn('＋ Crear producto','newProduct'):''}</div><div class="grid statgrid">${[['◉','Ventas completadas',money(total)],['◎','Prospectos',prospectosCRM.length],['☎','Clics WhatsApp (30 días)',consultasTotal],['▤','Pedidos registrados',pedidos.length],['◷','Pendientes',pending],['▣','Sucursales activas',sucursales.filter(x=>x.activa).length]].map(([i,t,n])=>`<div class="surface stat"><em>${i}</em><div class="muted small">${t}</div><div class="number">${n}</div></div>`).join('')}</div><div class="chart"><div class="surface pad"><div class="headrow"><h2>Actividad reciente</h2>${btn('Ver pedidos','view:pedidos')}</div>${pedidos.length?pedidos.slice(0,5).map(x=>`<div class="feedItem"><div><b>${esc(x.cliente_nombre)}</b><p class="tiny">${esc(x.estado)} · ${new Date(x.created_at).toLocaleDateString('es-CO')}</p></div><b>${money(x.total_cop)}</b></div>`).join(''):empty('Aún no hay pedidos reales')}</div><div class="surface pad"><div class="headrow"><h2>Tus sucursales</h2>${role()==='propietario'?btn('Crear','newBranch'):''}</div>${sucursales.length?sucursales.slice(0,5).map(x=>`<div class="feedItem"><div><b>${esc(x.nombre)}</b><p class="tiny">${esc(x.ciudad||'Sucursal digital')}</p></div><span class="pill ${x.activa?'green':''}">${x.activa?'Activa':'Inactiva'}</span></div>`).join(''):empty('Crea tu primera sucursal')}</div></div>`}
 function orders(){return `${panelTitle('Pedidos y ventas','Pedidos reales autorizados por tu rol',btn('↻ Actualizar','refresh'))}<div class="surface tablebox">${pedidos.length?`<table class="table"><thead><tr><th>Pedido</th><th>Cliente</th><th>Sucursal</th><th>Importe</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${pedidos.map(x=>`<tr><td><b>${esc(x.id.slice(0,8).toUpperCase())}</b><div class="tiny muted">${new Date(x.created_at).toLocaleDateString('es-CO')}</div></td><td><strong>${esc(x.cliente_nombre)}</strong><div class="tiny muted">${esc(x.cliente_ciudad)}</div></td><td>${esc(sucursales.find(s=>s.id===x.sucursal_id)?.nombre||'—')}</td><td><b>${money(x.total_cop)}</b></td><td><span class="pill ${x.estado==='completado'?'green':''}">${esc(x.estado)}</span></td><td>${role()!=='asesor'?btn('Cambiar estado','status:'+x.id):'<span class="muted">Consulta</span>'}</td></tr>`).join('')}</tbody></table>`:empty('Todavía no tienes pedidos sincronizados')}</div>`}
 function products(){return productsPro()}
@@ -350,7 +474,7 @@ if(action==='invite')popup('Invitar colaborador',field('Nombre del colaborador',
 if(action.startsWith('status:')){let id=action.slice(7),o=pedidos.find(x=>x.id===id);if(!o)return;popup('Estado del pedido',`<div class="wide"><label>Estado</label><select name="estado">${['pendiente','confirmado','en_proceso','completado','cancelado'].map(x=>`<option ${o.estado===x?'selected':''} value="${x}">${x.replace('_',' ')}</option>`).join('')}</select><input type="hidden" name="id" value="${esc(o.id)}"></div>`,'status') }}
 async function doPopup(form){if(form.dataset.kind==='productPremium')return saveProductPro(form);const kind=form.dataset.kind,f=new FormData(form),v=Object.fromEntries(f.entries());let r;if(kind==='branch')r=await db.from('sucursales').insert({tienda_id:tienda.id,nombre:v.nombre,ciudad:v.ciudad||'',whatsapp:v.whatsapp||''});if(kind==='product')r=await db.from('productos').insert({tienda_id:tienda.id,nombre:v.nombre,categoria:v.categoria||'General',precio_cop:Number(v.precio),inventario:Number(v.inventario||0),tipo:v.tipo,publicada:f.has('publicada')});if(kind==='status')r=await db.from('pedidos').update({estado:v.estado}).eq('id',v.id).eq('tienda_id',tienda.id);if(kind==='invite'){const {data,error}=await db.functions.invoke('invitar-miembro',{body:{tienda_id:tienda.id,sucursal_id:v.sucursal_id,rol:v.rol,nombre:v.nombre,email:v.email}});r={error:error||(data?.error?{message:data.error}:null)};}if(r?.error){toast(r.error.message||String(r.error));return}$('#modal').className='overlay';toast('Guardado correctamente');await loadAll();render()}
 async function submitMainForm(e){if(e.target.id==='brandForm'){e.preventDefault();return saveBrandPro(e.target)}if(e.target.id==='crearTienda'){e.preventDefault();let f=new FormData(e.target),r=await db.from('tiendas').insert({propietario_id:session.user.id,nombre:f.get('nombre'),slug:f.get('slug'),whatsapp:f.get('whatsapp')||''}).select('id').single();if(r.error){toast(r.error.message);return}toast('Tu tienda fue creada');await loadAll();render()}if(e.target.id==='settingsForm'){e.preventDefault();let f=new FormData(e.target),r=await db.from('tiendas').update({nombre:f.get('nombre'),whatsapp:f.get('whatsapp')||'',publicada:f.has('publicada')}).eq('id',tienda.id);if(r.error){toast(r.error.message);return}toast('Configuración actualizada');await loadAll();render()}}
-document.addEventListener('submit',e=>{if(e.target.id==='popupForm'){e.preventDefault();doPopup(e.target)}else if(e.target.id==='crmForm'){e.preventDefault();crmSave(e.target)}else if(e.target.id==='crmNoteForm'){e.preventDefault();crmSaveNote(e.target)}else if(e.target.id==='crearTienda'||e.target.id==='settingsForm'||e.target.id==='brandForm')submitMainForm(e)});
+document.addEventListener('submit',e=>{if(e.target.id==='quickEditForm'){e.preventDefault();saveEasyShop(e.target)}else if(e.target.id==='easyProductForm'){e.preventDefault();saveEasyProduct(e.target)}else if(e.target.id==='popupForm'){e.preventDefault();doPopup(e.target)}else if(e.target.id==='crmForm'){e.preventDefault();crmSave(e.target)}else if(e.target.id==='crmNoteForm'){e.preventDefault();crmSaveNote(e.target)}else if(e.target.id==='crearTienda'||e.target.id==='settingsForm'||e.target.id==='brandForm')submitMainForm(e)});
 document.addEventListener('click',e=>{
  const el=e.target.closest('[data-crm]');if(!el)return;
  e.preventDefault();const [action,id]=el.dataset.crm.split(':');
@@ -364,6 +488,6 @@ document.addEventListener('change',e=>{
  if(e.target.id==='crmStatusFilter'){crmFilter=e.target.value;crmFilterCards()}
  if(e.target.id==='crmBranchInput'){const input=$('#crmAdvisorInput');if(input)input.innerHTML=crmAssignOptions(e.target.value,null)}
 });
-document.addEventListener('click',async e=>{const copyBtn=e.target.closest('[data-copy]');if(copyBtn){try{await navigator.clipboard.writeText(copyBtn.dataset.copy);toast('Enlace comercial copiado')}catch{toast('No fue posible copiar automáticamente. Revisa permisos del navegador.')}return}const auth=e.target.closest('[data-auth]');if(auth){window.authMode=auth.dataset.auth;renderAuth();return}const nav=e.target.closest('[data-nav]');if(nav){tab=nav.dataset.nav;if(['configuracion','consultas','prospectos'].includes(tab)){const u=new URL(location.href);u.searchParams.set('seccion',tab);history.replaceState(null,'',u)}else{const u=new URL(location.href);u.searchParams.delete('seccion');history.replaceState(null,'',u)}render();return}const btn=e.target.closest('[data-act]');if(!btn)return;const a=btn.dataset.act;if(a==='close'){$('#modal').className='overlay';return}if(a==='logout'){await db.auth.signOut();session=null;render();return}if(a==='refresh'){await loadAll();render();toast('Datos sincronizados');return}if(a==='newCrmFromClick'){crmEditor(null);return}if(a.startsWith('view:')){tab=a.slice(5);render();return}openModal(a)});
+document.addEventListener('click',async e=>{const copyBtn=e.target.closest('[data-copy]');if(copyBtn){try{await navigator.clipboard.writeText(copyBtn.dataset.copy);toast('Enlace comercial copiado')}catch{toast('No fue posible copiar automáticamente. Revisa permisos del navegador.')}return}const auth=e.target.closest('[data-auth]');if(auth){window.authMode=auth.dataset.auth;renderAuth();return}const nav=e.target.closest('[data-nav]');if(nav){tab=nav.dataset.nav;if(['configuracion','consultas','prospectos','editor','productos'].includes(tab)){const u=new URL(location.href);u.searchParams.set('seccion',tab);history.replaceState(null,'',u)}else{const u=new URL(location.href);u.searchParams.delete('seccion');history.replaceState(null,'',u)}render();return}const btn=e.target.closest('[data-act]');if(!btn)return;const a=btn.dataset.act;if(a==='close'){$('#modal').className='overlay';return}if(a==='logout'){await db.auth.signOut();session=null;render();return}if(a==='refresh'){await loadAll();render();toast('Datos sincronizados');return}if(a==='newCrmFromClick'){crmEditor(null);return}if(a.startsWith('easyProduct:')){easyEditProduct(productos.find(p=>p.id===a.slice('easyProduct:'.length)));return}if(a.startsWith('view:')){tab=a.slice(5);render();return}openModal(a)});
 if(validConfig){try{const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm');db=createClient(config.url,config.publishableKey);let {data}=await db.auth.getSession();session=data.session;db.auth.onAuthStateChange((event,s)=>{session=s;if(event==='PASSWORD_RECOVERY'){window.authMode='newpass';renderAuth();return}setTimeout(async()=>{if(session)await loadAll();render()},0)});if(session){if(location.hash.includes('type=invite')||location.hash.includes('type=recovery'))window.authMode='newpass';await loadAll()}render()}catch(e){toast('Error de conexión. Revisa configuración y acceso a internet.');console.error(e);renderSetup()}}else render();
 </script></body></html>
