@@ -112,9 +112,18 @@ async function boot() {
     window.history.replaceState({},'',window.location.pathname);
   }
   await loadOrgs();
-  const targetView=new URLSearchParams(window.location.search).get('view');
+  const inboxParams=new URLSearchParams(window.location.search);
+  const targetView=inboxParams.get('view');
+  let initialChat=String(inboxParams.get('phone')||'').replace(/\D/g,'');
+  if(/^3\d{9}$/.test(initialChat))initialChat='57'+initialChat;
   if(targetView==='bandeja' && state.isSuperAdmin && state.org){
+    if(/^57\d{10}$/.test(initialChat)){
+      $('inboxSearch').value=initialChat;
+      inboxState.filter='todos';
+      document.querySelectorAll('[data-inbox-filter]').forEach(btn=>btn.classList.toggle('active',btn.dataset.inboxFilter==='todos'));
+    }
     navigate('bandeja');
+    if(/^57\d{10}$/.test(initialChat))await inboxOpen(initialChat);
   }else if(targetView==='bandeja' && !state.isSuperAdmin){
     toast('Esta bandeja corporativa requiere ingresar como administrador de MIRED360.',true);
   }
