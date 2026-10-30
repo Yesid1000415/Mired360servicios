@@ -18,6 +18,9 @@ Los archivos están guardados en GitHub, pero se requiere validar manualmente qu
 - Consentimiento declarado, registro de fuente, exclusiones y historial básico de cambios.
 - Creación de campañas asistidas, selección de contactos por campaña y apertura individual del chat desde WhatsApp; no hay envíos automáticos desde la aplicación normal.
 - Tandas personales de 10, 25 o 50 contactos autorizados, con intervalo de 120 segundos **después de confirmar manualmente el envío**, pausa, continuación, omisión y progreso persistido en Supabase.
+- Editor comercial de mensajes con borradores para software, datáfonos, internet/televisión y streaming, más opción de crear desde cero. El contenido es completamente editable y tiene vista previa por contacto con variables {nombre} y {empresa}.
+- Permite editar nombre/mensaje de campañas ya creadas, excepto mientras tienen una tanda activa. Los mensajes aprobados por Meta para Cloud API siguen siendo un proceso diferente.
+- Panel de diagnóstico de WhatsApp Cloud API exclusivo para administradores, sin revelar tokens ni enviar mensajes; comprueba validez de acceso y número esperado por Meta. Esto NO conecta por sí solo una cuenta ni habilita campañas automáticas.
 - Gestiones manuales y resumen comercial.
 - Período de prueba de 14 días por propietario (no reinicia por crear otra empresa).
 - Estado de licencias, solicitud de plan Emprendedor y activación manual después de verificar el pago; historial.
