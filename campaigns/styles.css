@@ -470,3 +470,41 @@ td strong{color:#263d58}
 .api-contact-actions .btn{font-size:.77rem}
 .api-contact-actions [hidden]{display:none!important}
 @media(max-width:740px){.api-contact-actions{flex-direction:column;align-items:stretch}.api-contact-actions .btn{width:100%}.api-contact-availability{font-size:.76rem}}
+
+
+/* Reporte de entregas Meta - MIRED360 corporativo */
+.api-delivery-report{margin:24px 0 18px;border:1px solid #dae8ed;border-radius:16px;padding:20px;background:#fff;box-shadow:0 9px 30px rgba(24,67,79,.035)}
+.api-delivery-report-head{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:17px}
+.api-delivery-report-head h4{margin:7px 0;color:#1c465b;font-size:1.1rem;font-weight:850}
+.api-delivery-report-head p{color:#78909b;font-size:.77rem;line-height:1.55;max-width:550px}
+.api-delivery-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:17px}
+.api-delivery-metrics>div{border:1px solid #e1ecef;border-radius:11px;background:#f7fafc;padding:14px;display:flex;flex-direction:column;gap:7px}
+.api-delivery-metrics small{color:#8194a0;font-size:.68rem;font-weight:700}
+.api-delivery-metrics strong{color:#214b60;font-size:1.4rem;font-weight:850}
+#apiDeliverySuccess{color:#15856a}.api-delivery-metrics #apiDeliveryFailed{color:#b55750}
+.api-delivery-list{display:flex;flex-direction:column;gap:9px}
+.api-delivery-row{display:flex;align-items:start;justify-content:space-between;gap:18px;padding:14px;border:1px solid #e6edf0;border-radius:10px;background:#fcfefe}
+.api-delivery-row-details{min-width:0;display:flex;flex-direction:column;gap:6px}
+.api-delivery-row-details strong{font-size:.83rem;color:#2d5265;font-weight:800;overflow-wrap:anywhere}
+.api-delivery-row-details small{font-size:.71rem;color:#8396a1;line-height:1.5}
+.api-delivery-row-details p{color:#7e8491;font-size:.73rem;line-height:1.48;margin:2px 0 0}
+.api-delivery-state{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.68rem;font-weight:800;border-radius:30px;padding:8px 10px;background:#e8eff2;color:#557180}
+.api-delivery-state.delivered{color:#0b7c68;background:#d9f7ea}
+.api-delivery-state.failed{color:#a23e3d;background:#fee9e7}
+.api-delivery-state.pending{color:#967011;background:#fff3d6}
+.api-delivery-empty{padding:22px;text-align:center;color:#8a99a4;font-size:.8rem}
+.api-delivery-explainer{margin:15px 0;color:#576d7a;font-size:.77rem;line-height:1.6}
+.api-delivery-fallback{display:flex;align-items:center;justify-content:space-between;gap:17px;padding:17px;border-radius:11px;background:#edf8f5;border:1px solid #d8ede4}
+.api-delivery-fallback strong{font-size:.81rem;color:#1c695f}
+.api-delivery-fallback p{font-size:.73rem;color:#66847c;line-height:1.55;margin:6px 0 0}
+.api-delivery-fallback button{flex-shrink:0}
+@media(max-width:740px){
+ .api-delivery-report{padding:13px}
+ .api-delivery-report-head .btn{width:100%}
+ .api-delivery-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .api-delivery-metrics>div{padding:11px}.api-delivery-metrics strong{font-size:1.2rem}
+ .api-delivery-row{flex-direction:column;gap:9px;padding:12px}
+ .api-delivery-row-details small{font-size:.68rem}
+ .api-delivery-fallback{flex-direction:column;align-items:stretch;padding:14px}
+ .api-delivery-fallback button{width:100%}
+}
