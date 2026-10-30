@@ -508,3 +508,11 @@ td strong{color:#263d58}
  .api-delivery-fallback{flex-direction:column;align-items:stretch;padding:14px}
  .api-delivery-fallback button{width:100%}
 }
+
+
+/* Corrección de historial inmóvil: los mensajes no deben comprimirse dentro del contenedor. */
+.wa-inbox-shell{min-height:0}
+.wa-inbox-chat,.wa-inbox-conversation{min-height:0;overflow:hidden}
+.wa-inbox-thread{min-height:0;min-width:0;overflow-y:scroll!important;overflow-x:hidden;flex:1 1 0!important;scroll-behavior:auto;overscroll-behavior-y:contain}
+.wa-inbox-thread>.wa-inbox-message,.wa-inbox-thread>.wa-inbox-date,.wa-inbox-thread>.wa-inbox-thread-empty{flex-shrink:0!important}
+.wa-inbox-chat-header,.wa-inbox-agent-bar,.wa-inbox-composer{flex-shrink:0}
