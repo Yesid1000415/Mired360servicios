@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261030-contact-selector-7">
+  <link rel="stylesheet" href="./styles.css?v=20261030-delivery-report-8">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -463,6 +463,33 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                   <button id="apiTemplateTestSend" class="btn btn-primary" type="button" disabled>Enviar una prueba por API</button>
                   <p class="small-notice" id="apiTemplateTestResult">La plataforma enviará únicamente un mensaje cuando pulses este botón y confirmes la operación. Evitará enviarlo dos veces al mismo contacto en la misma campaña.</p>
                 </div>
+                <section class="api-delivery-report" aria-labelledby="apiDeliveryTitle">
+                  <div class="api-delivery-report-head">
+                    <div>
+                      <span class="eyebrow">INFORME REAL DE META</span>
+                      <h4 id="apiDeliveryTitle">Seguimiento de entregas</h4>
+                      <p>Comprueba quién recibió la plantilla y qué contactos requieren verificación. La aceptación de Meta no significa entrega.</p>
+                    </div>
+                    <button id="apiDeliveryRefresh" type="button" class="btn btn-secondary">↻ Consultar entregas</button>
+                  </div>
+                  <div class="api-delivery-metrics">
+                    <div><small>Pruebas registradas</small><strong id="apiDeliveryTotal">—</strong></div>
+                    <div><small>Entregados</small><strong id="apiDeliverySuccess">—</strong></div>
+                    <div><small>No entregados</small><strong id="apiDeliveryFailed">—</strong></div>
+                    <div><small>Pendientes</small><strong id="apiDeliveryPending">—</strong></div>
+                  </div>
+                  <div id="apiDeliveryRows" class="api-delivery-list" role="list">
+                    <p class="api-delivery-empty">Pulsa «Consultar entregas» para cargar los resultados de Meta.</p>
+                  </div>
+                  <p id="apiDeliveryHint" class="api-delivery-explainer" role="status">Si aparece el error 131026, confirma el número y que el cliente tenga WhatsApp activo. No reenvíes automáticamente a ese contacto.</p>
+                  <div class="api-delivery-fallback">
+                    <div>
+                      <strong>¿El cliente no recibe el mensaje?</strong>
+                      <p>Invítalo por llamada, SMS o correo a escribir primero al WhatsApp corporativo. De esa forma podrás atenderlo dentro de la ventana de 24 horas. No uses este enlace para enviar mensajes sin autorización.</p>
+                    </div>
+                    <button id="apiCopyCustomerLink" type="button" class="btn btn-secondary">Copiar enlace de atención</button>
+                  </div>
+                </section>
                 <p class="small-notice">Esta herramienta es exclusiva del administrador de MIRED360, no de las empresas suscritas. Las campañas API comerciales a gran escala aún no están habilitadas.</p>
               </section>
             </div>
@@ -477,6 +504,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-contact-selector-7"></script>
+  <script type="module" src="./app.js?v=20261030-delivery-report-8"></script>
 </body>
 </html>
