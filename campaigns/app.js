@@ -191,6 +191,7 @@ function renderAll() {
   renderCampaigns();
   renderTeam();
   renderLicense();
+  renderMetaTestCampaigns();
   if(state.selectedCampaign) renderCampaignDetail();
 }
 function navigate(page) {
@@ -201,6 +202,10 @@ function navigate(page) {
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
   $('sidebar').classList.remove('open');
   if(page==='administracion'&&state.isSuperAdmin)loadAdmin();
+  if(page==='integraciones'&&state.isSuperAdmin){
+    renderMetaTestCampaigns();
+    refreshMetaTemplate();
+  }
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function addContact(event) {
@@ -995,6 +1000,150 @@ async function copyApiWebhookUrl() {
   }
 }
 
+
+let metaTemplateBusy=false;
+let metaTemplateApproved=false;
+
+async function metaTemplateRequest(method='GET',payload=null){
+  if(!state.isSuperAdmin)throw Error('Solo la administración puede utilizar la API corporativa.');
+  const {data,error}=await db.auth.getSession();
+  if(error)throw error;
+  const token=data?.session?.access_token;
+  if(!token)throw Error('La sesión ha caducado. Inicia sesión nuevamente.');
+  const response=await fetch(API_URL+'/functions/v1/wa-meta-templates',{
+    method,
+    headers:{
+      'Authorization':'Bearer '+token,
+      'apikey':PUBLIC_KEY,
+      ...(payload?{'Content-Type':'application/json'}:{})
+    },
+    ...(payload?{body:JSON.stringify(payload)}:{}),
+    cache:'no-store'
+  });
+  const dataResponse=await response.json().catch(()=>({}));
+  if(!response.ok){
+    const meta=dataResponse?.meta?.message;
+    throw Error((dataResponse?.error||'Error consultando Meta')+(meta?' — '+meta:''));
+  }
+  return dataResponse;
+}
+function renderMetaTemplateState(info){
+  const status=String(info?.status||'UNKNOWN').toUpperCase();
+  const labels={APPROVED:'Aprobada',PENDING:'En revisión',REJECTED:'Rechazada',NOT_CREATED:'Sin crear',PAUSED:'Pausada',DISABLED:'Desactivada',UNKNOWN:'Sin confirmar'};
+  const approved=info?.approved===true;
+  metaTemplateApproved=approved;
+  $('apiTemplateStatus').textContent=labels[status]||status;
+  $('apiTemplateStatus').className='template-status-pill '+(approved?'approved':status==='PENDING'?'pending':status==='REJECTED'?'rejected':'');
+  $('apiTemplateCreate').hidden=info?.exists===true;
+  $('apiTemplateResult').textContent=approved
+    ?'Meta aprobó esta plantilla de marketing. Puedes hacer una única prueba con un contacto que haya autorizado comunicaciones comerciales.'
+    :status==='PENDING'
+      ?'La plantilla fue recibida por Meta y está pendiente de revisión. No puede utilizarse hasta que aparezca Aprobada.'
+      :status==='REJECTED'
+        ?'Meta rechazó esta plantilla. No intentes enviar mensajes con ella. Es necesario revisar el motivo y crear una versión corregida.'
+        :status==='NOT_CREATED'
+          ?'Todavía no existe en Meta. Pulsa Solicitar aprobación para enviar esta propuesta a revisión.'
+          :'El estado actual no permite enviar. Consulta nuevamente la aprobación de Meta.';
+  updateMetaTestButton();
+}
+async function refreshMetaTemplate(){
+  if(metaTemplateBusy)return;
+  metaTemplateBusy=true;
+  $('apiTemplateRefresh').disabled=true;
+  $('apiTemplateCreate').disabled=true;
+  $('apiTemplateStatus').textContent='Consultando…';
+  try{
+    const info=await metaTemplateRequest();
+    renderMetaTemplateState(info);
+  }catch(error){
+    metaTemplateApproved=false;
+    $('apiTemplateStatus').textContent='No se pudo comprobar';
+    $('apiTemplateStatus').className='template-status-pill';
+    $('apiTemplateResult').textContent=error?.message||'No fue posible consultar Meta.';
+    updateMetaTestButton();
+  }finally{
+    metaTemplateBusy=false;
+    $('apiTemplateRefresh').disabled=false;
+    $('apiTemplateCreate').disabled=false;
+  }
+}
+async function submitMetaTemplate(){
+  if(metaTemplateBusy||!state.isSuperAdmin)return;
+  if(!confirm('Vas a enviar a Meta una plantilla comercial de Claro Hogar para revisión. Esta operación NO envía mensajes a tus clientes. ¿Continuar?'))return;
+  metaTemplateBusy=true;
+  $('apiTemplateCreate').disabled=true;
+  $('apiTemplateRefresh').disabled=true;
+  $('apiTemplateStatus').textContent='Solicitando aprobación…';
+  try{
+    const info=await metaTemplateRequest('POST',{action:'create'});
+    renderMetaTemplateState(info);
+    toast('Solicitud enviada a Meta. Revisa el estado antes de probar un envío.');
+  }catch(error){
+    metaTemplateApproved=false;
+    $('apiTemplateStatus').textContent='Solicitud no completada';
+    $('apiTemplateStatus').className='template-status-pill';
+    $('apiTemplateResult').textContent=error?.message||'Meta no pudo recibir la plantilla.';
+  }finally{
+    metaTemplateBusy=false;
+    $('apiTemplateCreate').disabled=false;
+    $('apiTemplateRefresh').disabled=false;
+  }
+}
+function renderMetaTestCampaigns(){
+  const selected=$('apiTestCampaign').value;
+  const options=state.campaigns||[];
+  $('apiTestCampaign').innerHTML='<option value="">Selecciona una campaña</option>'+
+    options.map(c=>'<option value="'+html(c.id)+'">'+html(c.nombre)+'</option>').join('');
+  if(options.some(c=>c.id===selected))$('apiTestCampaign').value=selected;
+  renderMetaTestContacts();
+}
+function renderMetaTestContacts(){
+  const campaignId=$('apiTestCampaign').value;
+  const selected=$('apiTestContact').value;
+  const assigned=new Set(state.recipientAssignments
+    .filter(x=>x.campana_id===campaignId)
+    .map(x=>x.contacto_id));
+  const options=state.contacts.filter(p=>assigned.has(p.id)&&
+    !p.excluido&&Boolean(p.consentimiento_fecha)&&Boolean(String(p.consentimiento_fuente||'').trim()));
+  $('apiTestContact').innerHTML='<option value="">Selecciona un contacto</option>'+
+    options.map(p=>'<option value="'+html(p.id)+'">'+html(p.nombre)+' — '+html(p.telefono_e164)+'</option>').join('');
+  if(options.some(p=>p.id===selected))$('apiTestContact').value=selected;
+  if(!options.length){
+    $('apiTemplateTestResult').textContent='No hay contactos asignados con autorización verificable para esta campaña. Primero asigna un contacto autorizado en Campañas.';
+  }
+  updateMetaTestButton();
+}
+function updateMetaTestButton(){
+  $('apiTemplateTestSend').disabled=metaTemplateBusy || !state.isSuperAdmin ||
+    !state.org || !metaTemplateApproved || !$('apiTestCampaign').value ||
+    !$('apiTestContact').value || !$('apiTestConsentConfirm').checked;
+}
+async function sendMetaTemplateTest(){
+  if(metaTemplateBusy||!metaTemplateApproved||!state.isSuperAdmin)return;
+  const contact=state.contacts.find(p=>p.id===$('apiTestContact').value);
+  const campaign=state.campaigns.find(c=>c.id===$('apiTestCampaign').value);
+  if(!contact||!campaign||!state.org||!$('apiTestConsentConfirm').checked)
+    return toast('Debes seleccionar una campaña, un contacto autorizado y confirmar el consentimiento.',true);
+  if(!confirm('¿Enviar UNA plantilla comercial aprobada desde el número 3133938312 a '+contact.nombre+' ('+contact.telefono_e164+')? Meta puede generar cargos. Esta acción no es una simulación.'))return;
+  metaTemplateBusy=true;
+  $('apiTemplateTestSend').disabled=true;
+  $('apiTemplateTestResult').textContent='Solicitando el envío individual a Meta…';
+  try{
+    const result=await metaTemplateRequest('POST',{
+      action:'send_test',org_id:state.org.id,campaign_id:campaign.id,contact_id:contact.id
+    });
+    $('apiTemplateTestResult').textContent=result?.message||'Meta aceptó la operación. Revisa el teléfono antes de repetir.';
+    toast('Meta aceptó el envío de prueba. Comprueba la entrega en WhatsApp.');
+    $('apiTestConsentConfirm').checked=false;
+  }catch(error){
+    $('apiTemplateTestResult').textContent=error?.message||'No fue posible completar el envío de prueba.';
+    toast('Error en la prueba. No repitas sin revisar el registro.',true);
+  }finally{
+    metaTemplateBusy=false;
+    updateMetaTestButton();
+  }
+}
+
 function bindEvents() {
   $('loginTab').addEventListener('click',()=>switchAuth('login'));
   $('registerTab').addEventListener('click',()=>switchAuth('register'));
@@ -1006,6 +1155,12 @@ function bindEvents() {
   $('refreshAdmin').addEventListener('click',loadAdmin);
   $('apiCheckStatus').addEventListener('click',checkApiConnection);
   $('apiCopyWebhook').addEventListener('click',copyApiWebhookUrl);
+  $('apiTemplateRefresh').addEventListener('click',refreshMetaTemplate);
+  $('apiTemplateCreate').addEventListener('click',submitMetaTemplate);
+  $('apiTemplateTestSend').addEventListener('click',sendMetaTemplateTest);
+  $('apiTestCampaign').addEventListener('change',renderMetaTestContacts);
+  $('apiTestContact').addEventListener('change',updateMetaTestButton);
+  $('apiTestConsentConfirm').addEventListener('change',updateMetaTestButton);
   $('adminRows').addEventListener('click',event=>{const btn=event.target.closest('[data-admin-activate]');if(btn)activatePaidPlan(btn.dataset.adminActivate);});
   $('inviteForm').addEventListener('submit',submitInvite);
   $('copyInvite').addEventListener('click',copyInviteLink);
