@@ -91,6 +91,12 @@ async function boot() {
   state.isSuperAdmin=!!administrator;
   $('adminNav').hidden=!state.isSuperAdmin;
   $('inboxNav').hidden=!state.isSuperAdmin;
+  $('inboxQuickLink').hidden=!state.isSuperAdmin;
+  $('apiSummaryDescription').textContent=state.isSuperAdmin
+    ?'Número corporativo 3133938312 operativo. Respuestas y conversaciones en la Bandeja WhatsApp.'
+    :'La integración oficial para tu empresa se encuentra en preparación. Puedes utilizar campañas asistidas.';
+  $('apiSummaryState').textContent=state.isSuperAdmin?'Operativa':'Pendiente';
+  $('apiSummaryState').className=state.isSuperAdmin?'status available':'status pending';
   $('apiOwnerPanel').hidden=!state.isSuperAdmin;
   $('apiTenantNotice').hidden=state.isSuperAdmin;
   const invite = pendingInvite();
