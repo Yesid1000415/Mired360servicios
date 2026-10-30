@@ -1453,7 +1453,8 @@ async function inboxLoadList({quiet=false}={}){
   }
 }
 function inboxRenderThread(){
-  const messages=inboxState.messages;
+  // Más recientes primero: no dependemos de un desplazamiento interno roto.
+  const messages=[...inboxState.messages].reverse();
   const scroll=$('inboxThread');
   const oldNearBottom=scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight<100;
   const last=messages[messages.length-1];
@@ -1472,13 +1473,7 @@ function inboxRenderThread(){
       '<div class="wa-inbox-meta"><time>'+html(inboxTime(m.creado_en))+'</time>'+
       '<span>'+html(label)+'</span></div></div>';
   }).join(''):'<div class="wa-inbox-thread-empty">Todavía no hay mensajes en esta conversación.</div>';
-  if(oldNearBottom||!inboxState.lastThreadId){
-    scroll.scrollTop=scroll.scrollHeight;
-  }
-  // Abrir el chat mostrando los mensajes más recientes, incluso tras un repintado.
-  if(!inboxState.lastThreadId){
-    requestAnimationFrame(()=>{scroll.scrollTop=scroll.scrollHeight;});
-  }
+  scroll.scrollTop=0;
   inboxState.lastThreadId=last?.id||null;
   inboxState.lastMessageCount=messages.length;
   inboxState.lastThreadFingerprint=fingerprint;
@@ -1521,6 +1516,10 @@ async function inboxLoadThread(phone,{quiet=false}={}){
     $('inboxChatAvatar').textContent=inboxAvatar(displayName);
     inboxRenderThread();
     inboxUpdateComposer();
+    if(!quiet) {
+      const node=$('inboxConversation');
+      node.scrollIntoView({block:'start',behavior:'instant'});
+    }
     if(!quiet){
       const read=await inboxRequest('POST',{action:'read',phone});
       if(inboxState.current===phone){
