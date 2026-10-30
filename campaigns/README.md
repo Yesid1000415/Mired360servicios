@@ -59,3 +59,13 @@ Excel .xlsx o CSV UTF-8 con encabezados nombre y celular. Las filas inválidas y
 
 ## Contacto comercial
 WhatsApp 3229432085 · ventas@mired360servicios.com
+
+## Plantilla oficial de WhatsApp Cloud API — primera fase
+- Herramienta del administrador en **Integraciones → Internet Claro Hogar — plantilla oficial**.
+- La función privada \`wa-meta-templates\` consulta y solicita aprobación de la plantilla \`mired360_claro_hogar_info_v1\`, categoría \`MARKETING\`, idioma \`es_CO\`. Usa el token del servidor y la WABA MIRED360, no envía secretos al navegador.
+- Al aprobar Meta la plantilla, el administrador puede probar **un solo contacto autorizado y asignado** a una campaña que sea de su propiedad. El backend revalida la autorización, la exclusión y la relación empresa-campaña-contacto.
+- \`wa_api_envios\` guarda reserva, estado y \`wamid\` con deduplicación por campaña/contacto/plantilla. Está bloqueada para roles públicos y accesible solamente al servidor.
+- Un envío aceptado por Meta **no equivale a entregado**. Los eventos de entrega se siguen en \`whatsapp_mensajes\` mediante el webhook existente.
+- MIRED360 IA procesa \`SALIR\`, \`BAJA\`, \`STOP\` y expresiones inequívocas de cancelación, bloqueando futuras comunicaciones comerciales para los contactos corporativos correspondientes.
+- Esto **no** habilita campañas masivas automáticas. Cada empresa SaaS necesitará su propia conexión oficial y controles de opt-in, suscripciones, plantillas, calidad y facturación.
+
