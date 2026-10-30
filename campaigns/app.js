@@ -214,6 +214,7 @@ function navigate(page) {
   if(page==='integraciones'&&state.isSuperAdmin){
     renderMetaTestCampaigns();
     refreshMetaTemplate();
+    refreshMetaDeliveries();
   }
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1013,13 +1014,15 @@ async function copyApiWebhookUrl() {
 let metaTemplateBusy=false;
 let metaTemplateApproved=false;
 
-async function metaTemplateRequest(method='GET',payload=null){
+async function metaTemplateRequest(method='GET',payload=null,query=null){
   if(!state.isSuperAdmin)throw Error('Solo la administración puede utilizar la API corporativa.');
   const {data,error}=await db.auth.getSession();
   if(error)throw error;
   const token=data?.session?.access_token;
   if(!token)throw Error('La sesión ha caducado. Inicia sesión nuevamente.');
-  const response=await fetch(API_URL+'/functions/v1/wa-meta-templates',{
+  const targetUrl=API_URL+'/functions/v1/wa-meta-templates'+
+    (method==='GET'&&query?'?'+new URLSearchParams(query).toString():'');
+  const response=await fetch(targetUrl,{
     method,
     headers:{
       'Authorization':'Bearer '+token,
@@ -1036,6 +1039,83 @@ async function metaTemplateRequest(method='GET',payload=null){
   }
   return dataResponse;
 }
+
+let metaDeliveryBusy=false;
+const deliveryHelp=(code)=>{
+  if(code==='131026')return 'Meta no pudo entregar este mensaje. Verifica por otro canal que el número tenga WhatsApp activo y que el cliente pueda recibir mensajes. No insistas automáticamente.';
+  if(code==='131049')return 'Meta limitó los mensajes de marketing a este destinatario. No reintentes inmediatamente.';
+  if(code==='131050')return 'El destinatario rechazó recibir mensajes de marketing. Respeta su decisión y no reenvíes.';
+  if(code==='131047')return 'Fuera de la ventana de atención. Utiliza solamente una plantilla aprobada con autorización.';
+  return 'Comprueba los datos y la disponibilidad del destinatario antes de cualquier nuevo intento.';
+};
+function renderMetaDeliveries(report){
+  const rows=Array.isArray(report?.attempts)?report.attempts:[];
+  const delivered=Number(report?.delivered||0);
+  const failed=Number(report?.failed||0);
+  const pending=Number(report?.pending||0);
+  $('apiDeliveryTotal').textContent=String(rows.length);
+  $('apiDeliverySuccess').textContent=String(delivered);
+  $('apiDeliveryFailed').textContent=String(failed);
+  $('apiDeliveryPending').textContent=String(pending);
+  $('apiDeliveryRows').innerHTML=rows.length?rows.map(item=>{
+    const status=String(item.status||'pendiente');
+    const failedItem=status==='failed'||item.request_status==='error_meta';
+    const success=status==='delivered'||status==='read';
+    const label=failedItem?'No entregado':status==='read'?'Leído':
+      success?'Entregado':status==='sent'?'Enviado · sin entrega':'Pendiente';
+    const className=failedItem?'failed':success?'delivered':'pending';
+    const code=item.error_code?' · Error Meta '+html(item.error_code):'';
+    const when=item.created_at?new Date(item.created_at).toLocaleString('es-CO',{
+      timeZone:'America/Bogota',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'
+    }):'';
+    const detail=failedItem
+      ?deliveryHelp(String(item.error_code||''))+
+        (item.error_detail?' Detalle Meta: '+String(item.error_detail).slice(0,120):'')
+      :status==='sent'?'Meta informó envío, pero aún no confirmó recepción.':
+        status==='pendiente'?'Meta aceptó o está procesando la solicitud; entrega sin confirmar.':'';
+    return '<article role="listitem" class="api-delivery-row">'+
+      '<div class="api-delivery-row-details">'+
+        '<strong>'+html(item.name||'Contacto')+
+          (item.phone_last4?' · ***'+html(item.phone_last4):'')+'</strong>'+
+        '<small>'+html(item.campaign||'Campaña')+' · '+html(when)+html(code)+'</small>'+
+        (detail?'<p>'+html(detail)+'</p>':'')+
+      '</div><span class="api-delivery-state '+className+'">'+html(label)+'</span>'+
+      '</article>';
+  }).join(''):'<p class="api-delivery-empty">No se han registrado pruebas de plantillas oficiales en esta empresa.</p>';
+  $('apiDeliveryHint').textContent=failed
+    ?'Hay '+failed+' entrega(s) fallida(s) entre las últimas '+rows.length+
+      ' pruebas. Antes de insistir, confirma con esos clientes que su número tenga WhatsApp activo y que acepten recibir mensajes.'
+    :rows.length?'Sin fallos registrados en las últimas '+rows.length+
+      ' pruebas. Los pendientes todavía no cuentan como entregados.'
+      :'Los resultados aparecerán después del primer envío de una plantilla aprobada.';
+}
+async function refreshMetaDeliveries(){
+  if(!state.isSuperAdmin||metaDeliveryBusy)return;
+  metaDeliveryBusy=true;
+  const btn=$('apiDeliveryRefresh');
+  btn.disabled=true;
+  btn.textContent='Consultando entregas…';
+  try{
+    const report=await metaTemplateRequest('GET',null,{action:'deliveries'});
+    renderMetaDeliveries(report);
+  }catch(error){
+    $('apiDeliveryHint').textContent=error?.message||'No fue posible consultar el estado de entregas.';
+  }finally{
+    metaDeliveryBusy=false;
+    btn.disabled=false;
+    btn.textContent='↻ Consultar entregas';
+  }
+}
+async function copyCustomerInitiationLink(){
+  const link='https://wa.me/573133938312?text='+encodeURIComponent('Hola, quiero recibir información de MIRED360SERVICIOS.');
+  try{
+    await navigator.clipboard.writeText(link);
+    toast('Enlace copiado. Compártelo por otro canal únicamente con personas que acepten contactarte.');
+  }catch(error){
+    toast('El navegador no permitió copiar automáticamente. Usa el número 3133938312 para que el cliente escriba primero.',true);
+  }
+}
+
 function renderMetaTemplateState(info){
   const status=String(info?.status||'UNKNOWN').toUpperCase();
   const labels={APPROVED:'Aprobada',PENDING:'En revisión',REJECTED:'Rechazada',NOT_CREATED:'Sin crear',PAUSED:'Pausada',DISABLED:'Desactivada',UNKNOWN:'Sin confirmar'};
@@ -1244,8 +1324,9 @@ async function sendMetaTemplateTest(){
       action:'send_test',org_id:state.org.id,campaign_id:campaign.id,contact_id:contact.id
     });
     $('apiTemplateTestResult').textContent=result?.message||'Meta aceptó la operación. Revisa el teléfono antes de repetir.';
-    toast('Meta aceptó el envío de prueba. Comprueba la entrega en WhatsApp.');
+    toast('Meta aceptó la solicitud. Comprueba el reporte: solo «Entregado» confirma la recepción.');
     $('apiTestConsentConfirm').checked=false;
+    refreshMetaDeliveries();
   }catch(error){
     $('apiTemplateTestResult').textContent=error?.message||'No fue posible completar el envío de prueba.';
     toast('Error en la prueba. No repitas sin revisar el registro.',true);
@@ -1576,6 +1657,8 @@ function bindEvents() {
   $('apiCopyWebhook').addEventListener('click',copyApiWebhookUrl);
   inboxBindEvents();
   $('apiTemplateRefresh').addEventListener('click',refreshMetaTemplate);
+  $('apiDeliveryRefresh').addEventListener('click',refreshMetaDeliveries);
+  $('apiCopyCustomerLink').addEventListener('click',copyCustomerInitiationLink);
   $('apiTemplateCreate').addEventListener('click',submitMetaTemplate);
   $('apiTemplateTestSend').addEventListener('click',sendMetaTemplateTest);
   $('apiTestCampaign').addEventListener('change',()=>{
