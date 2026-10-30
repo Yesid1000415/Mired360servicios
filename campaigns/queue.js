@@ -195,7 +195,7 @@ export function createManualQueueController(ctx) {
       return toast('Estás fuera del horario comercial para Colombia.',true);
     if(person.telefono_e164.startsWith('+57') &&
       !confirm('¿Confirmas que hoy NO es festivo en Colombia y que este cliente autorizó mensajes comerciales?'))return;
-    const text=campaign.mensaje.replace(/\{nombre\}/gi,person.nombre);
+    const text=campaign.mensaje.replace(/\{nombre\}/gi,person.nombre).replace(/\{empresa\}/gi,state.org?.nombre||'Tu empresa');
     const url='https://wa.me/'+person.telefono_e164.replace('+','')+'?text='+encodeURIComponent(text);
     // Esta llamada solo ocurre tras pulsar el botón: jamás hay apertura automática.
     const tab=window.open(url,'_blank');
