@@ -5,6 +5,24 @@
 
 #brandForm input[type=file],#popupForm input[type=file]{padding:9px;background:#f7f8ff;border-style:dashed}#popupForm textarea{resize:vertical}#brandForm textarea{resize:vertical}#brandForm .fieldgrid{gap:17px}
 .personalizationStrip{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:linear-gradient(120deg,#f0efff,#eaf3ff);border:1px solid #dcdffc;border-radius:17px;padding:18px 20px;margin-bottom:22px}.personalizationStrip b{font-size:15px;color:#263565}.personalizationStrip p{font-size:12px;margin-top:5px;color:#6c7493}.personalizationStrip button{white-space:normal;text-align:center}@media(max-width:760px){.personalizationStrip{padding:16px}.personalizationStrip button{width:100%}.main{padding-bottom:108px}}
+
+/* Tarjetas compactas exclusivamente en Catálogo profesional del panel */
+.catalogo-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:14px;align-items:start}
+.catalogo-card{overflow:hidden;display:flex;flex-direction:column;min-width:0;height:auto;transition:box-shadow .18s ease,transform .18s ease}
+.catalogo-card:hover{box-shadow:0 11px 24px #18294b16;transform:translateY(-2px)}
+.catalogo-thumb{position:relative;height:132px;max-height:132px;flex:0 0 132px;min-width:0;display:grid;place-items:center;overflow:hidden;background:#122044;color:#7868e8}
+.catalogo-thumb img{display:block;width:100%;height:100%;max-height:132px;object-fit:contain;object-position:center}
+.catalogo-thumb .catalogo-empty{display:grid;place-items:center;width:100%;height:100%;font-size:29px;background:linear-gradient(135deg,#eeecff,#dce8f6)}
+.catalogo-thumb .catalogo-state{position:absolute;top:9px;left:9px;background:#fff;box-shadow:0 2px 8px #0002}
+.catalogo-info{padding:13px 14px 14px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.catalogo-category{margin:0;min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.catalogo-name{font-size:14px;line-height:1.36;min-height:38px;font-weight:800;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.catalogo-description{font-size:11px;line-height:1.45;min-height:31px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.catalogo-price{display:block;font-size:18px;letter-spacing:-.45px;color:#152039;margin:3px 0}
+.catalogo-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:3px}
+.catalogo-actions .btn{padding:8px 12px;font-size:12px;border-radius:9px}
+@media(max-width:560px){.catalogo-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,155px),1fr));gap:10px}.catalogo-thumb{height:116px;max-height:116px;flex-basis:116px}.catalogo-thumb img{max-height:116px}.catalogo-info{padding:11px;gap:6px}.catalogo-name{font-size:13px}.catalogo-description{min-height:29px}.catalogo-price{font-size:16px}.catalogo-actions .btn{padding:8px 11px}}
+
 </style>
 <script src="config.js"></script>
 </head><body><div id="app"></div><div id="modal" class="overlay"></div><div id="toasts" class="toasts" aria-live="polite"></div>
@@ -247,8 +265,8 @@ function settingsPro(){
 }
 
 function productsPro(){
- const item=(x)=>`<article class="surface" style="overflow:hidden"><div style="height:150px;background:linear-gradient(135deg,#edeaff,#dceaf8);display:grid;place-items:center;font-size:35px;color:#7661d6;position:relative">${x.imagen_url?`<img src="${esc(x.imagen_url)}" loading="lazy" alt="${esc(x.nombre)}" style="height:100%;width:100%;object-fit:cover">`:'✦'}<span class="pill" style="position:absolute;top:12px;left:12px;background:white">${x.publicada?'Publicado':'Borrador'}</span></div><div style="padding:18px"><p class="tiny muted" style="margin-bottom:6px">${esc(x.categoria||'General')}</p><h3 style="font-size:16px;min-height:40px">${esc(x.nombre)}</h3><p class="tiny" style="margin:8px 0;min-height:34px">${esc((x.descripcion||'').slice(0,105))}</p><strong style="display:block;font-size:21px;margin:14px 0">${money(x.precio_cop)}</strong><div class="flex between"><span class="tiny muted">${x.tipo==='servicio'?'Servicio':`Existencias: ${x.inventario}`} · ${(x.galeria_urls||[]).length+(x.imagen_url?1:0)} fotos</span>${btn('Editar','editProduct:'+x.id,'primary')}</div></div></article>`;
- return `${panelTitle('Catálogo profesional','Fotos, galerías, videos, descripción, promociones y precios',btn('＋ Nuevo producto','newProduct','primary'))}<p class="small muted" style="margin-bottom:20px">Puedes subir fotografías y videos directamente. Las ofertas nuevas se guardan como borrador hasta que las publiques.</p><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-items:stretch">${productos.length?productos.map(item).join(''):empty('Empieza creando tu primer producto o servicio')}</div>`;
+ const item=(x)=>`<article class="surface catalogo-card"><div class="catalogo-thumb">${x.imagen_url?`<img src="${esc(x.imagen_url)}" loading="lazy" alt="${esc(x.nombre)}" >`:'<span class="catalogo-empty" aria-hidden="true">✦</span>'}<span class="pill catalogo-state">${x.publicada?'Publicado':'Borrador'}</span></div><div class="catalogo-info"><p class="tiny muted catalogo-category">${esc(x.categoria||'General')}</p><h3 class="catalogo-name">${esc(x.nombre)}</h3><p class="tiny catalogo-description">${esc((x.descripcion||'').slice(0,105))}</p><strong class="catalogo-price">${money(x.precio_cop)}</strong><div class="catalogo-actions"><span class="tiny muted">${x.tipo==='servicio'?'Servicio':`Existencias: ${x.inventario}`} · ${(x.galeria_urls||[]).length+(x.imagen_url?1:0)} fotos</span>${btn('Editar','editProduct:'+x.id,'primary')}</div></div></article>`;
+ return `${panelTitle('Catálogo profesional','Fotos, galerías, videos, descripción, promociones y precios',btn('＋ Nuevo producto','newProduct','primary'))}<p class="small muted" style="margin-bottom:20px">Puedes subir fotografías y videos directamente. Las ofertas nuevas se guardan como borrador hasta que las publiques.</p><div class="grid catalogo-grid">${productos.length?productos.map(item).join(''):empty('Empieza creando tu primer producto o servicio')}</div>`;
 }
 
 function openProductDialogPro(p){
