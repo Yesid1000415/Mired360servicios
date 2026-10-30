@@ -272,3 +272,51 @@ td strong{color:#263d58}
  .queue-control-actions .btn{min-width:0;white-space:normal;line-height:1.25}
  #queueOpenNext,#queueConfirmSent{grid-column:1/-1}
 }
+
+
+/* Editor de mensajes para campañas: producto, estilo libre y vista previa */
+.message-composer{margin:18px 0 20px;padding:19px;background:linear-gradient(130deg,#f8fcff,#effaf8);border-radius:15px;border:1px solid #d5e8e7}
+.message-composer-heading h3{font:800 1.14rem 'Manrope',sans-serif;margin:7px 0;color:#173b57}
+.message-composer-heading .muted{font-size:.83rem;line-height:1.5;margin:5px 0 16px}
+.message-composer .field{margin-bottom:14px}
+.message-composer select{width:100%;max-width:100%}
+.message-editor-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);gap:17px;align-items:stretch}
+.message-editor-label{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.message-editor-label small{font-size:.7rem;color:#74859a}
+.message-editor textarea{width:100%;min-height:260px;resize:vertical;line-height:1.52}
+.message-variable-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.message-variable-toolbar span{font-size:.77rem;color:#688096}
+.message-variable{border:1px solid #bfe7de;background:#fff;border-radius:8px;padding:6px 11px;color:#0e8b7b;font-weight:700;font-family:inherit;font-size:.77rem;cursor:pointer}
+.message-variable:hover{border-color:#0eb8a0;background:#ebfbf6}
+.message-preview-panel{background:#fff;border:1px solid #dae8e7;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.message-preview-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 15px;background:#f6fbfa;border-bottom:1px solid #e7f0ec}
+.message-preview-top strong{font-size:.8rem;color:#244b58}
+.message-preview-top small{font-size:.68rem;color:#8396a4}
+.message-preview-icon{color:#08ae92}
+.message-preview-chat{flex:1;min-height:235px;padding:17px;background:radial-gradient(circle at 10% 20%,#d8eee7,#e9f5f0 50%,#f3faf7);display:flex;align-items:flex-start;justify-content:flex-end}
+.message-preview-bubble{font-size:.82rem;color:#25463c;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;background:#d3f7e5;border:1px solid #b5e9ce;box-shadow:0 2px 8px rgba(18,50,52,.06);padding:14px;max-width:100%;border-radius:11px 11px 3px 11px}
+.message-warning{margin:10px;padding:9px 12px;border-radius:8px;background:#fff1dd;color:#96651a;font-size:.75rem}
+.message-composer-actions{display:flex;flex-wrap:wrap;gap:10px}
+.message-editor .hint{margin-top:8px;font-size:.72rem}
+@media(max-width:810px){.message-editor-grid{grid-template-columns:1fr}.message-composer{padding:13px}.message-editor textarea{min-height:230px}.message-preview-chat{min-height:145px}.message-composer-actions .btn{flex:1}}
+/* Panel seguro de diagnóstico oficial de Meta */
+.api-control-panel{margin-top:19px;background:linear-gradient(135deg,#f8fbff,#f2fbf8);border:1px solid #d8ebe6}
+.api-control-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.api-control-head>div{flex:1;min-width:210px}
+.api-control-head h2{margin:8px 0}
+.api-control-head .muted{font-size:.82rem;line-height:1.52}
+.api-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:17px 0}
+.api-status-item{background:#fff;border:1px solid #e1ede8;padding:13px;border-radius:11px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.api-status-item small{font-size:.72rem;color:#748ca0}
+.api-status-item strong{font-size:.89rem;color:#194c57;overflow-wrap:anywhere}
+.api-setup-panel{margin-top:18px;padding:17px;border:1px solid #dbeae6;background:#fff;border-radius:12px}
+.api-setup-panel h3{margin:0 0 12px;font-size:1rem;color:#25475d}
+.api-setup-panel ol{padding-left:20px;color:#536a7b;font-size:.81rem;line-height:1.7}
+.api-setup-panel li{margin-bottom:8px}
+.api-setup-panel a{color:#0b8a86;text-decoration:underline}
+.api-setup-panel code{word-break:break-word;font-size:.75rem}
+.api-webhook-label{display:block;font-size:.76rem;color:#597a87;margin-bottom:8px}
+.api-webhook-copy{display:flex;gap:8px;flex-wrap:wrap}
+.api-webhook-copy input{flex:1;min-width:0;font-size:.76rem}
+.api-webhook-copy .btn{white-space:nowrap}
+@media(max-width:690px){.api-status-grid{grid-template-columns:1fr}.api-setup-panel{padding:12px}.api-webhook-copy input{flex-basis:100%}.api-webhook-copy button{width:100%}}
