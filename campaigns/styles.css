@@ -516,3 +516,22 @@ td strong{color:#263d58}
 .wa-inbox-thread{min-height:0;min-width:0;overflow-y:scroll!important;overflow-x:hidden;flex:1 1 0!important;scroll-behavior:auto;overscroll-behavior-y:contain}
 .wa-inbox-thread>.wa-inbox-message,.wa-inbox-thread>.wa-inbox-date,.wa-inbox-thread>.wa-inbox-thread-empty{flex-shrink:0!important}
 .wa-inbox-chat-header,.wa-inbox-agent-bar,.wa-inbox-composer{flex-shrink:0}
+
+
+/* BANDEJA v13: vista sin scroll anidado, respuesta y mensajes recientes visibles */
+.wa-inbox-shell{height:auto!important;max-height:none!important;min-height:420px!important;overflow:visible!important;align-items:start}
+.wa-inbox-sidebar{max-height:75vh;min-height:420px;position:sticky;top:12px;overflow:hidden}
+.wa-inbox-chat{height:auto!important;min-height:420px!important;overflow:visible!important}
+.wa-inbox-conversation{height:auto!important;min-height:420px!important;overflow:visible!important}
+.wa-inbox-chat-header{order:0}
+.wa-inbox-agent-bar{order:1}
+.wa-inbox-composer{order:2;position:relative;z-index:1;border-bottom:1px solid #e4edeb}
+.wa-inbox-thread{order:3;display:flex!important;flex-direction:column!important;flex:none!important;height:auto!important;min-height:120px!important;max-height:none!important;overflow:visible!important;scroll-behavior:auto}
+.wa-inbox-thread::before{content:"MENSAJES MÁS RECIENTES PRIMERO";display:block;align-self:center;color:#64847f;font-size:.65rem;font-weight:800;letter-spacing:.08em;padding:8px}
+@media(max-width:740px){
+ .wa-inbox-shell{height:auto!important;min-height:500px!important;max-height:none!important}
+ .wa-inbox-shell.show-chat .wa-inbox-chat{display:flex!important;min-height:500px!important}
+ .wa-inbox-shell.show-chat .wa-inbox-sidebar{display:none!important}
+ .wa-inbox-sidebar{position:static;max-height:75vh}
+ .wa-inbox-thread{padding:15px!important}
+}
