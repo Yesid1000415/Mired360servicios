@@ -945,14 +945,21 @@ async function checkApiConnection() {
     const phone=String(result.observed_number||'');
     $('apiPhoneObserved').textContent=phone||'No disponible';
     const webhookConfigured=!!result.webhook_signature_configured&&!!result.webhook_verification_configured;
-    $('apiWebhookStatus').textContent=webhookConfigured
-      ?'Credenciales configuradas; prueba pendiente'
+    const webhookReceived=webhookConfigured&&result.webhook_test_received===true;
+    const testReplyObserved=!!result.test_reply_observed;
+    $('apiWebhookStatus').textContent=webhookReceived
+      ?'Recepción verificada con mensaje real'
+      :webhookConfigured?'Credenciales listas; sin mensaje reciente de prueba'
       :result.webhook_signature_configured?'Falta token de verificación':'Falta secreto de firma de Meta';
     if(status==='connected'){
       $('apiConnectionStatus').textContent='Número reconocido por Meta';
-      $('apiStatusDescription').textContent=webhookConfigured
-        ?'Meta reconoció el número 3133938312. El webhook aún requiere una prueba con eventos reales y aprobación de plantillas antes de habilitar envíos.'
-        :'El token permite consultar el número correcto, pero faltan secretos del webhook. La API no está lista para campañas.';
+      $('apiStatusDescription').textContent=webhookReceived
+        ?(testReplyObserved
+          ?'Meta reconoce el número y registramos recepción y respuesta del 3229432085. La automatización de campañas con plantillas aprobadas sigue pendiente.'
+          :'Meta reconoce el número y recibimos el mensaje real del 3229432085 mediante el webhook. La respuesta automática todavía requiere una nueva prueba; acabamos de corregir una condición que bloqueaba ese número.')
+        :webhookConfigured
+          ?'Meta reconoce el número y el webhook tiene credenciales. Aún no encontramos mensajes recientes desde el 3229432085 para verificar el flujo.'
+          :'El token permite consultar el número correcto, pero faltan secretos del webhook. La API no está lista para campañas.';
     }else if(status==='number_mismatch'){
       $('apiConnectionStatus').textContent='Número diferente';
       $('apiStatusDescription').textContent='Meta devolvió otro número. No conectaremos la API hasta verificar que corresponda al 3133938312; el 3229432085 debe seguir independiente.';
