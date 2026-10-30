@@ -320,3 +320,35 @@ td strong{color:#263d58}
 .api-webhook-copy input{flex:1;min-width:0;font-size:.76rem}
 .api-webhook-copy .btn{white-space:nowrap}
 @media(max-width:690px){.api-status-grid{grid-template-columns:1fr}.api-setup-panel{padding:12px}.api-webhook-copy input{flex-basis:100%}.api-webhook-copy button{width:100%}}
+
+
+/* Primeras plantillas comerciales oficiales Meta - MIRED360 solo administración */
+.template-workspace{border:1px solid #c6e6e1;border-radius:16px;padding:22px;background:linear-gradient(140deg,#f7fcff,#f0faf7);margin:22px 0 8px}
+.template-workspace-head{display:flex;justify-content:space-between;align-items:start;gap:20px;flex-wrap:wrap}
+.template-workspace-head>div{flex:1;min-width:200px}
+.template-workspace-head h3{margin:8px 0;font-family:'Manrope',sans-serif;font-size:1.2rem;font-weight:800;color:#18415b;letter-spacing:-.02em}
+.template-workspace-head p{color:#6b8192;font-size:.83rem;line-height:1.55;margin:6px 0 15px}
+.template-status-pill{border-radius:30px;padding:9px 13px;font-size:.74rem;background:#e6edf0;color:#526d7c;font-weight:800;white-space:nowrap}
+.template-status-pill.approved{background:#dcf8ec;color:#087c66}
+.template-status-pill.pending{background:#fff1d8;color:#97670f}
+.template-status-pill.rejected{background:#fee7e7;color:#a43c3c}
+.template-meta-row{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:.75rem;color:#607789;margin:10px 0 19px}
+.template-meta-row strong{color:#365267}
+.template-meta-row code{word-break:break-all;font-size:.72rem}
+.template-preview-frame{background:#fff;border:1px solid #e0eceb;border-radius:13px;padding:17px}
+.template-preview-frame .eyebrow{display:block;margin-bottom:12px}
+.template-preview-bubble{white-space:pre-line;overflow-wrap:anywhere;line-height:1.7;background:#daf5e8;color:#315248;border:1px solid #c1e6d2;border-radius:12px 12px 3px 12px;padding:17px;max-width:600px;font-size:.83rem;margin:0 auto 12px 0}
+.template-preview-frame .hint{color:#8393a2;font-size:.75rem}
+.template-actions{display:flex;gap:10px;flex-wrap:wrap;margin:17px 0 10px}
+.template-result{font-size:.82rem;color:#516c7b;background:#fff;padding:12px;border:1px solid #e3eeed;border-radius:10px}
+.template-workspace [hidden]{display:none!important}
+.api-test-send{margin-top:20px;border-radius:14px;background:#fff;padding:19px;border:1px solid #dcebe8}
+.api-test-send h4{font-size:.98rem;font-weight:800;color:#1b4861;margin:0 0 8px}
+.api-test-send>p{font-size:.8rem;color:#6d8290;line-height:1.55}
+.api-test-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.api-test-fields .field{margin:10px 0}
+.api-test-fields select{width:100%;min-width:0;font-size:.8rem}
+.api-test-confirm{display:flex;gap:10px;align-items:flex-start;margin:14px 0;font-size:.79rem;color:#486a78;line-height:1.55;cursor:pointer}
+.api-test-confirm input{width:18px;height:18px;flex-shrink:0;accent-color:#0caa94;margin-top:3px}
+.api-test-send #apiTemplateTestSend{margin-bottom:8px}
+@media(max-width:760px){.template-workspace{padding:14px}.template-workspace-head{flex-direction:column;gap:7px}.api-test-send{padding:13px}.api-test-fields{grid-template-columns:1fr}.template-actions{flex-direction:column}.template-actions>.btn,.api-test-send #apiTemplateTestSend{width:100%}.template-preview-frame{padding:12px}.template-preview-bubble{padding:12px}}
