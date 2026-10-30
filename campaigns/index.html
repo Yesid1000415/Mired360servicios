@@ -57,6 +57,7 @@
       <div class="sidebar-label">MENÚ PRINCIPAL</div>
       <nav aria-label="Navegación principal">
         <button data-page="resumen" class="nav-btn active"><span class="nav-ico">▦</span> Resumen</button>
+        <button data-page="envios" id="excelSendNav" hidden class="nav-btn"><span class="nav-ico">✉</span> Enviar WhatsApp</button>
         <button data-page="contactos" class="nav-btn"><span class="nav-ico">♧</span> Contactos</button>
         <button data-page="campanas" class="nav-btn"><span class="nav-ico">◈</span> Campañas</button>
         <button data-page="bandeja" id="inboxNav" hidden class="nav-btn"><span class="nav-ico">▤</span> Bandeja WhatsApp <span id="inboxNavCount" class="wa-inbox-nav-pill" hidden>0</span></button>
@@ -82,6 +83,15 @@
           <form id="orgForm" class="inline-form"><input id="orgName" required minlength="2" maxlength="100" placeholder="Nombre de tu empresa"><button class="btn btn-primary">Crear empresa</button></form>
         </section>
         <div id="workspaceContent" hidden>
+          <section data-section="envios" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">MENSAJERÍA OFICIAL · 3133938312</span><h1>Enviar mensajes desde Excel</h1><p class="muted">Carga tu Excel. Se envían como máximo 30 mensajes, <strong>uno cada 120 segundos</strong>. No necesitas registrar los contactos uno por uno.</p></div><button type="button" class="btn btn-secondary" data-go="bandeja">Ver conversaciones →</button></div>
+            <div class="card" style="padding:20px;margin-bottom:16px">
+              <h2 style="margin:0 0 8px">1. Tu Excel</h2>
+              <p class="muted">Solo necesita las columnas <strong>Nombre</strong> y <strong>Celular</strong>. Puedes cargar el que ya tienes o descargar el modelo.</p>
+              <button type="button" class="btn btn-secondary" id="apiDownloadTemplate">↓ Descargar Excel modelo</button>
+            </div>
+            <div id="apiBatchSimpleHost"></div>
+          </section>
           <section data-section="resumen" class="page-section">
             <div class="page-head"><div><span class="eyebrow">CENTRO DE CONTROL</span><h1>Bienvenido a tu espacio comercial</h1><p class="muted">Organiza tus contactos, prepara campañas y registra cada gestión.</p></div><button class="btn btn-primary" data-go="campanas">＋ Nueva campaña</button></div>
             <div class="stat-grid">
@@ -510,27 +520,24 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                 </section>
                 <section id="apiBatchPanel" class="card" style="margin-top:22px;padding:22px;border:1px solid #d5e2fa;background:#f8fbff">
                   <span class="eyebrow">CAMPAÑAS API · EXCEL</span>
-                  <h3 style="margin:8px 0">Envíos automáticos por tandas</h3>
-                  <p class="muted">Sube un archivo .xlsx o .csv con columnas <strong>nombre</strong> y <strong>celular</strong>. El sistema agrupa hasta <strong>30 contactos por tanda</strong> y espera <strong>120 segundos</strong> antes de la siguiente. No tienes que agregarlos uno por uno.</p>
+                  <h3 style="margin:8px 0">2. Cargar y enviar</h3>
+                  <p class="muted">El sistema tomará un máximo de <strong>30 contactos</strong> de tu Excel. Enviará <strong>un mensaje cada 120 segundos</strong>, nunca 30 juntos. Los demás contactos quedan fuera de esta ejecución.</p>
                   <div class="field">
                     <label for="apiBatchFile">Archivo Excel o CSV</label>
                     <input id="apiBatchFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                   </div>
                   <p id="apiBatchPreview" role="status" class="muted" style="margin:8px 0">Selecciona el archivo para revisar los contactos.</p>
-                  <div class="field">
-                    <label for="apiBatchSource">Fuente verificable del consentimiento</label>
-                    <input id="apiBatchSource" type="text" maxlength="240" placeholder="Ej. Formulario web de ofertas, 30/10/2026">
-                  </div>
+                  <p class="small-notice">La fecha, el archivo y tu declaración de autorización se registran automáticamente. Conserva los comprobantes reales de consentimiento de cada cliente.</p>
                   <label class="check-row" style="margin:12px 0"><input type="checkbox" id="apiBatchConsent"> Confirmo que los clientes de este Excel autorizaron recibir ofertas de MIRED360SERVICIOS por WhatsApp.</label>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0">
-                    <button id="apiBatchStart" type="button" class="btn btn-primary" disabled>Iniciar envíos por la API</button>
-                    <button id="apiBatchPause" type="button" class="btn btn-secondary" hidden>Pausar tandas</button>
-                    <button id="apiBatchResume" type="button" class="btn btn-secondary" hidden>Reanudar tandas</button>
+                    <button id="apiBatchStart" type="button" class="btn btn-primary" disabled>Enviar hasta 30 mensajes</button>
+                    <button id="apiBatchPause" type="button" class="btn btn-secondary" hidden>Pausar envíos</button>
+                    <button id="apiBatchResume" type="button" class="btn btn-secondary" hidden>Reanudar envíos</button>
                     <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button>
                   </div>
                   <progress id="apiBatchProgress" max="100" value="0" style="width:100%;height:14px"></progress>
                   <div id="apiBatchStatus" role="status" class="muted" style="margin-top:9px">Sin tandas iniciadas.</div>
-                  <p class="small-notice">Solo se utilizará la plantilla aprobada <code>mired360_claro_hogar_info_v1</code>. Meta puede cobrar los mensajes y limitar las entregas. Mantén esta página abierta hasta terminar; cada envío quedará registrado para evitar duplicados.</p>
+                  <p class="small-notice">Se utilizará la plantilla aprobada <code>mired360_claro_hogar_info_v1</code>. Meta puede cobrar por mensaje y decidir no entregarlo. Mantén la página abierta; puedes pausar el proceso.</p>
                 </section>
                 <p class="small-notice">Los envíos a clientes requieren autorización verificable. Respeta solicitudes SALIR y revisa los errores de entrega antes de iniciar otra campaña.</p>
               </section>
@@ -546,6 +553,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-api-batch-v16"></script>
+  <script type="module" src="./app.js?v=20261030-uno-cada-120-v18"></script>
 </body>
 </html>
