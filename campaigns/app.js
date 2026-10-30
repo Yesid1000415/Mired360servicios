@@ -91,6 +91,7 @@ async function boot() {
   state.isSuperAdmin=!!administrator;
   $('adminNav').hidden=!state.isSuperAdmin;
   $('inboxNav').hidden=!state.isSuperAdmin;
+  $('inboxIntegrationLink').hidden=!state.isSuperAdmin;
   $('inboxQuickLink').hidden=!state.isSuperAdmin;
   $('apiSummaryDescription').textContent=state.isSuperAdmin
     ?'Número corporativo 3133938312 operativo. Respuestas y conversaciones en la Bandeja WhatsApp.'
@@ -111,6 +112,12 @@ async function boot() {
     window.history.replaceState({},'',window.location.pathname);
   }
   await loadOrgs();
+  const targetView=new URLSearchParams(window.location.search).get('view');
+  if(targetView==='bandeja' && state.isSuperAdmin && state.org){
+    navigate('bandeja');
+  }else if(targetView==='bandeja' && !state.isSuperAdmin){
+    toast('Esta bandeja corporativa requiere ingresar como administrador de MIRED360.',true);
+  }
   if(state.isSuperAdmin)inboxStartBadge();else inboxStopBadge();
 }
 async function loadOrgs() {
@@ -209,6 +216,10 @@ function navigate(page) {
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active',el.dataset.page === page));
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
   $('sidebar').classList.remove('open');
+  if(page==='bandeja'&&!state.isSuperAdmin){
+    toast('La bandeja corporativa solo está disponible para el administrador.',true);
+    return;
+  }
   if(page==='bandeja'&&state.isSuperAdmin)inboxStart(); else inboxStop();
   if(page==='administracion'&&state.isSuperAdmin)loadAdmin();
   if(page==='integraciones'&&state.isSuperAdmin){
