@@ -1154,7 +1154,7 @@ const inboxState={
   conversations:[],current:null,messages:[],mode:'ia',canReply:false,
   filter:'todos',listBusy:false,threadBusy:false,sendBusy:false,
   modeBusy:false,searchTimer:null,pollTimer:null,requestSerial:0,
-  lastThreadId:null,lastMessageCount:0,moreMayExist:false
+  lastThreadId:null,lastMessageCount:0,lastThreadFingerprint:'',threadRequestId:0,moreMayExist:false
 };
 const inboxTime=(value)=>value?new Date(value).toLocaleTimeString('es-CO',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit'}):'';
 const inboxDate=(value)=>value?new Date(value).toLocaleDateString('es-CO',{timeZone:'America/Bogota',day:'numeric',month:'short',year:'numeric'}):'';
@@ -1249,12 +1249,8 @@ function inboxRenderThread(){
   const scroll=$('inboxThread');
   const oldNearBottom=scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight<100;
   const last=messages[messages.length-1];
-  if(last?.id===inboxState.lastThreadId &&
-     messages.length===inboxState.lastMessageCount){
-    // El texto no cambió; podría haber cambios de entrega. Repintar solo en
-    // actualizaciones manuales o si cambia el número de mensajes.
-    return;
-  }
+  const fingerprint=messages.map(m=>(m.id||'')+':'+(m.estado||'')).join('|');
+  if(fingerprint===inboxState.lastThreadFingerprint)return;
   let lastDay='';
   scroll.innerHTML=messages.length?messages.map(m=>{
     const msgDate=inboxDate(m.creado_en);
@@ -1273,6 +1269,7 @@ function inboxRenderThread(){
   }
   inboxState.lastThreadId=last?.id||null;
   inboxState.lastMessageCount=messages.length;
+  inboxState.lastThreadFingerprint=fingerprint;
 }
 function inboxUpdateComposer(){
   const human=inboxState.mode==='humano';
@@ -1296,11 +1293,12 @@ function inboxUpdateComposer(){
   $('inboxReplyCount').textContent=$('inboxReply').value.length.toLocaleString('es-CO')+' / 4.000';
 }
 async function inboxLoadThread(phone,{quiet=false}={}){
-  if(inboxState.threadBusy||!phone)return;
+  if((inboxState.threadBusy&&quiet)||!phone)return;
+  const requestId=++inboxState.threadRequestId;
   inboxState.threadBusy=true;
   try{
     const result=await inboxRequest('GET',{action:'thread',phone});
-    if(inboxState.current!==phone)return;
+    if(inboxState.current!==phone||requestId!==inboxState.threadRequestId)return;
     inboxState.messages=result.messages||[];
     inboxState.mode=result.mode||'ia';
     inboxState.canReply=Boolean(result.can_reply);
@@ -1319,12 +1317,13 @@ async function inboxLoadThread(phone,{quiet=false}={}){
     }
   }catch(error){
     if(!quiet)toast(error?.message||'No se pudo leer la conversación.',true);
-  }finally{inboxState.threadBusy=false;}
+  }finally{if(requestId===inboxState.threadRequestId)inboxState.threadBusy=false;}
 }
 async function inboxOpen(phone){
   if(!phone||inboxState.sendBusy)return;
   inboxState.current=phone;
   inboxState.lastThreadId=null;
+  inboxState.lastThreadFingerprint='';
   inboxState.lastMessageCount=0;
   inboxState.messages=[];
   $('inboxReply').value='';
@@ -1375,6 +1374,7 @@ async function inboxReplyToClient(event){
     if(result.submitted){
       $('inboxReply').value='';
       inboxState.lastThreadId=null;
+      inboxState.lastThreadFingerprint='';
       await inboxLoadThread(phone);
       await inboxLoadList({quiet:true});
       toast(result.history_recorded?'Respuesta aceptada por Meta.':'Meta aceptó la respuesta. Comprueba el historial antes de repetir.');
