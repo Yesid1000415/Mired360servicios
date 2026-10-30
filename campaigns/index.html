@@ -7,7 +7,7 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261030-composer-2">
+  <link rel="stylesheet" href="./styles.css?v=20261030-template-meta-4">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -307,7 +307,7 @@
           <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
             <div class="two-col">
               <div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div>
-              <div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Conexión oficial de Meta. Se necesitan token vigente, número registrado, webhook firmado y plantillas aprobadas. La conexión de MIRED360 aún no está verificada; no habilita envíos automáticos.</p><span class="status pending">Reactivación pendiente</span></div>
+              <div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Conexión oficial de Meta. Se necesitan token vigente, número registrado, webhook firmado y plantillas aprobadas. La conexión de MIRED360 aún no está verificada; no habilita envíos automáticos.</p><span class="status pending">Conexión verificada · plantillas pendientes</span></div>
             </div>
             <div id="apiOwnerPanel" class="card api-control-panel" hidden>
               <div class="card-header api-control-head">
@@ -336,7 +336,56 @@
                   <button id="apiCopyWebhook" type="button" class="btn btn-secondary">Copiar URL</button>
                 </div>
               </div>
-              <p class="small-notice">Diagnóstico exclusivo de la conexión MIRED360. Las empresas que se registren en el SaaS no heredan este número ni pueden usar el token corporativo. La API aún no está habilitada en las campañas de clientes.</p>
+              <p class="small-notice">Diagnóstico exclusivo de MIRED360. Las empresas clientes del SaaS no heredan el número ni el token corporativo.</p>
+              <section class="template-workspace" id="apiTemplateWorkspace" aria-labelledby="templateWorkspaceTitle">
+                <div class="template-workspace-head">
+                  <div>
+                    <span class="eyebrow">WHATSAPP CLOUD API · PRIMERA PLANTILLA</span>
+                    <h3 id="templateWorkspaceTitle">Internet Claro Hogar — plantilla oficial</h3>
+                    <p>Envía esta propuesta a revisión de Meta y consulta su estado. Una plantilla enviada a revisión no equivale a una plantilla aprobada.</p>
+                  </div>
+                  <span class="template-status-pill" id="apiTemplateStatus">Sin consultar</span>
+                </div>
+                <div class="template-meta-row">
+                  <span><strong>Identificador:</strong> <code>mired360_claro_hogar_info_v1</code></span>
+                  <span><strong>Categoría:</strong> Marketing</span>
+                  <span><strong>Idioma:</strong> Español (Colombia)</span>
+                </div>
+                <div class="template-preview-frame">
+                  <span class="eyebrow">CONTENIDO PROPUESTO PARA META</span>
+                  <div class="template-preview-bubble">Hola, <strong>[Nombre del cliente]</strong> 👋
+
+Te saluda MIRED360SERVICIOS.
+
+Tenemos opciones de Internet Claro Hogar para tu vivienda. Podemos consultar la cobertura, los planes y las condiciones disponibles en tu dirección.
+
+¿Te gustaría recibir información?
+
+Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
+                  <p class="hint">El nombre se personaliza con la variable oficial <code>{{1}}</code>. Meta revisa y aprueba el contenido antes de permitir iniciar conversaciones.</p>
+                </div>
+                <div class="template-actions">
+                  <button id="apiTemplateRefresh" class="btn btn-secondary" type="button">Actualizar estado en Meta</button>
+                  <button id="apiTemplateCreate" class="btn btn-primary" type="button">Solicitar aprobación a Meta</button>
+                </div>
+                <p id="apiTemplateResult" class="template-result" role="status">La consulta no ha comenzado. Ningún mensaje se enviará al crear esta plantilla.</p>
+                <div class="api-test-send">
+                  <h4>Prueba individual, solo después de la aprobación</h4>
+                  <p>Selecciona una campaña y un contacto de tu empresa que tenga autorización comercial registrada. Meta puede cobrar la entrega de mensajes de marketing.</p>
+                  <div class="api-test-fields">
+                    <div class="field"><label for="apiTestCampaign">Campaña</label>
+                      <select id="apiTestCampaign"><option value="">Selecciona una campaña</option></select>
+                    </div>
+                    <div class="field"><label for="apiTestContact">Contacto autorizado y asignado</label>
+                      <select id="apiTestContact"><option value="">Selecciona un contacto</option></select>
+                    </div>
+                  </div>
+                  <label class="api-test-confirm"><input id="apiTestConsentConfirm" type="checkbox"> <span>Confirmo que esta persona autorizó recibir mensajes comerciales de MIRED360SERVICIOS y que puedo demostrarlo.</span></label>
+                  <button id="apiTemplateTestSend" class="btn btn-primary" type="button" disabled>Enviar una prueba por API</button>
+                  <p class="small-notice" id="apiTemplateTestResult">La plataforma enviará únicamente un mensaje cuando pulses este botón y confirmes la operación. Evitará enviarlo dos veces al mismo contacto en la misma campaña.</p>
+                </div>
+                <p class="small-notice">Esta herramienta es exclusiva del administrador de MIRED360, no de las empresas suscritas. Las campañas API comerciales a gran escala aún no están habilitadas.</p>
+              </section>
             </div>
             <div id="apiTenantNotice" class="card" hidden><h2>Conexión independiente para cada empresa</h2><p class="muted">La integración oficial de WhatsApp Cloud API para clientes aún no está disponible. Mientras tanto, utiliza las campañas asistidas con contactos autorizados. Nunca compartimos el número o las credenciales de MIRED360 entre empresas.</p></div>
           </section>
@@ -349,6 +398,6 @@
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-webhook-real-3"></script>
+  <script type="module" src="./app.js?v=20261030-template-meta-4"></script>
 </body>
 </html>
