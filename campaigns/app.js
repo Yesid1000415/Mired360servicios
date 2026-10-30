@@ -1053,6 +1053,25 @@ function renderMetaTemplateState(info){
         :status==='NOT_CREATED'
           ?'Todavía no existe en Meta. Pulsa Solicitar aprobación para enviar esta propuesta a revisión.'
           :'El estado actual no permite enviar. Consulta nuevamente la aprobación de Meta.';
+  if(Object.prototype.hasOwnProperty.call(info||{},'last_test')){
+    const last=info.last_test;
+    let description='Todavía no hay envíos individuales registrados para esta plantilla.';
+    if(last){
+      const delivery=String(last.status||'');
+      const when=last.created_at?new Date(last.created_at).toLocaleString('es-CO',{timeZone:'America/Bogota',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+      const code=last.error_code?(' — Meta '+last.error_code):'';
+      if(delivery==='failed'||delivery==='error_meta'){
+        description='Última prueba: NO ENTREGADA'+code+'. Meta aceptó la solicitud, pero después rechazó la entrega. Comprueba que el cliente tenga WhatsApp activo y acepte recibir mensajes. No repitas el envío hasta verificar la causa.';
+      }else if(delivery==='delivered'||delivery==='read'){
+        description='Última prueba: '+(delivery==='read'?'LEÍDA':'ENTREGADA')+'. '+when;
+      }else if(delivery==='sent'||delivery==='aceptado_meta'){
+        description='Última prueba: aceptada por Meta, pero todavía sin entrega confirmada. '+when;
+      }else{
+        description='Última prueba: '+delivery+'. '+when;
+      }
+    }
+    $('apiTemplateTestResult').textContent=description;
+  }
   updateMetaTestButton();
 }
 async function refreshMetaTemplate(){
