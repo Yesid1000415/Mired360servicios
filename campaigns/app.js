@@ -1365,7 +1365,7 @@ async function sendMetaTemplateTest(){
    Solo superadministrador y propietario: mensajes de la línea 3133938312.
    Toda acción consulta el servidor; no se exponen credenciales de Meta. */
 
-const apiBatchState={contacts:[],fileName:"",busy:false,timer:null,currentId:null};
+const apiBatchState={contacts:[],fileName:"",busy:false,timer:null,currentId:null,pausePending:false};
 async function apiBatchRequest(method="GET",params={}){
   if(!state.isSuperAdmin||!state.org)throw Error("Inicia sesión como administrador de MIRED360.");
   const {data,error}=await db.auth.getSession();
@@ -1432,7 +1432,7 @@ async function apiBatchTick(){
   apiBatchState.busy=true;
   try{
     let output=await apiBatchRequest("GET",{action:"status",org_id:state.org.id});
-    if(output.batch?.estado==="activa"&&new Date(output.batch.siguiente_tanda_en).getTime()<=Date.now()){
+    if(!apiBatchState.pausePending&&output.batch?.estado==="activa"&&new Date(output.batch.siguiente_tanda_en).getTime()<=Date.now()){
       $("apiBatchStatus").textContent="Enviando un mensaje y registrando la respuesta de Meta…";
       output=await apiBatchRequest("POST",{action:"process",org_id:state.org.id,batch_id:output.batch.id});
     }
@@ -1440,7 +1440,13 @@ async function apiBatchTick(){
     if(output.processed_now)refreshMetaDeliveries();
   }catch(error){
     $("apiBatchStatus").textContent="No se pudo sincronizar la tanda: "+String(error.message||error);
-  }finally{apiBatchState.busy=false;}
+  }finally{
+    apiBatchState.busy=false;
+    if(apiBatchState.pausePending){
+      apiBatchState.pausePending=false;
+      apiBatchChange("pause");
+    }
+  }
 }
 function apiBatchStartPoll(){
   if(apiBatchState.timer)clearInterval(apiBatchState.timer);
@@ -1526,7 +1532,14 @@ async function apiBatchCreate(){
   }
 }
 async function apiBatchChange(action){
-  if(apiBatchState.busy||!apiBatchState.currentId||!state.org)return;
+  if(!apiBatchState.currentId||!state.org)return;
+  if(apiBatchState.busy){
+    if(action==="pause"){
+      apiBatchState.pausePending=true;
+      $("apiBatchStatus").textContent="Pausa solicitada. Se detendrá al terminar el envío que ya esté en curso.";
+    }
+    return;
+  }
   apiBatchState.busy=true;
   try{
     const result=await apiBatchRequest("POST",{action,org_id:state.org.id,batch_id:apiBatchState.currentId});
