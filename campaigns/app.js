@@ -1382,25 +1382,50 @@ async function apiBatchRequest(method="GET",params={}){
   if(!response.ok)throw Error((payload.error||"Error de la API")+(payload.meta?.message?" — "+payload.meta.message:""));
   return payload;
 }
+function apiBatchLocalDate(){
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone:"America/Bogota",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(new Date());
+  const date=Object.fromEntries(parts.map(part=>[part.type,part.value]));
+  return date.year+"-"+date.month+"-"+date.day;
+}
 function apiBatchShow(batch){
-  const pause=$("apiBatchPause"),resume=$("apiBatchResume"),progress=$("apiBatchProgress"),status=$("apiBatchStatus");
+  const pause=$("apiBatchPause"),resume=$("apiBatchResume"),progress=$("apiBatchProgress"),
+    status=$("apiBatchStatus"),todayStatus=$("apiBatchDaily");
+  pause.hidden=false;resume.hidden=false;
   if(!batch){
-    progress.value=0;pause.hidden=true;resume.hidden=true;
+    apiBatchState.currentId=null;
+    progress.value=0;
+    pause.disabled=true;resume.disabled=true;
+    resume.textContent="Continuar mañana / cuando quieras";
+    todayStatus.textContent="Sin campaña. Cupo: máximo 30 intentos diarios, uno cada 120 segundos.";
     status.textContent="Sin tandas registradas. Importa un Excel para iniciar.";
     return;
   }
   apiBatchState.currentId=batch.id;
+  const today=apiBatchLocalDate();
   const percent=batch.total?Math.round(100*batch.procesados/batch.total):0;
+  const todayAttempts=Number(batch.intentos_hoy||0);
+  const fullToday=todayAttempts>=30;
+  const sessionDone=batch.sesion_fecha===today&&batch.procesados>=Number(batch.sesion_limite||30);
+  const hasPending=batch.procesados<batch.total;
+  const canResume=batch.estado==="pausada"&&hasPending&&!fullToday&&!sessionDone;
   progress.value=percent;
-  pause.hidden=batch.estado!=="activa";
-  resume.hidden=batch.estado!=="pausada"||batch.procesados>=30;
+  pause.disabled=batch.estado!=="activa";
+  resume.disabled=!canResume;
+  resume.textContent=fullToday||sessionDone?"Continuar mañana":"Continuar envíos";
   const next=Math.max(0,Math.ceil((new Date(batch.siguiente_tanda_en).getTime()-Date.now())/1000));
   const clock=String(Math.floor(next/60)).padStart(2,"0")+":"+String(next%60).padStart(2,"0");
-  const label=batch.estado==="finalizada"?"Finalizado":batch.estado==="pausada"?"En pausa":"En proceso";
-  status.textContent=(batch.estado==="pausada"&&batch.procesados>=30?"Campaña antigua detenida. No reanudar. ":"")+label+" · "+batch.procesados+"/"+batch.total+
-    " procesados ("+percent+"%) · "+batch.aceptados_meta+" aceptados por Meta · "+
+  const label=batch.estado==="finalizada"?"Finalizada":batch.estado==="pausada"?"En pausa":"En proceso";
+  todayStatus.textContent="HOY: "+todayAttempts+" intentos de esta base · Límite: 30 al día · 120 segundos entre mensajes."+
+    (fullToday?" El límite ya fue superado antes de la corrección; no habrá nuevos envíos hoy.":"");
+  status.textContent=label+" · Base guardada: "+batch.procesados+" de "+batch.total+
+    " procesados · "+batch.pendientes+" pendientes (no se repetirán los anteriores). "+
+    "Histórico de la base: "+batch.aceptados_meta+" aceptados por Meta · "+
     batch.entregados+" entregados · "+batch.fallidos+" fallidos · "+batch.inciertos+
-    " por verificar"+(batch.estado==="activa"?" · Próximo mensaje: "+clock:"");
+    " por verificar."+(batch.estado==="activa"?" Próximo intento en "+clock+".":"")+
+    (batch.estado==="pausada"&&hasPending?
+      (fullToday||sessionDone?" Mañana pulsa Continuar para usar la misma base.":" Pulsa Continuar cuando quieras."):"");
 }
 async function apiBatchTick(){
   if(apiBatchState.busy||!state.isSuperAdmin||!state.org)return;
@@ -1468,9 +1493,9 @@ async function apiBatchReadExcel(event){
     if(unique.size>2000)throw Error("Máximo 2.000 contactos por Excel. Divide la base.");
     apiBatchState.contacts=[...unique.values()];
     apiBatchState.fileName=file.name;
-    $("apiBatchPreview").textContent=unique.size+" contactos únicos detectados. Se enviarán MÁXIMO "+
+    $("apiBatchPreview").textContent=unique.size+" contactos únicos detectados. Guardaremos la base completa; hoy se enviarán MÁXIMO "+
       Math.min(30,unique.size)+" (uno cada 120 segundos). "+
-      Math.max(0,unique.size-30)+" quedarán fuera de esta ejecución. "+
+      Math.max(0,unique.size-30)+" quedarán pendientes para continuarlos mañana con un botón. "+
       invalid+" inválidos y "+Math.max(0,rows.length-headers.row-1-invalid-unique.size)+" duplicados.";
     $("apiBatchStart").disabled=false;
   }catch(error){$("apiBatchPreview").textContent=error.message||"Error leyendo el Excel.";}
@@ -1480,7 +1505,7 @@ async function apiBatchCreate(){
   if(!$("apiBatchConsent").checked)return toast("Confirma que los destinatarios autorizaron recibir mensajes comerciales de MIRED360.",true);
   const source=("Declaración del responsable al subir "+apiBatchState.fileName+" el "+new Date().toISOString()+"; comprobantes bajo su custodia").slice(0,240);
   const total=Math.min(30,apiBatchState.contacts.length);
-  if(!confirm("¿Enviar MÁXIMO "+total+" mensajes desde el 3133938312, UNO cada 120 SEGUNDOS? El resto del Excel no se enviará en esta ejecución. Meta puede cobrar cada mensaje."))return;
+  if(!confirm("¿Guardar "+apiBatchState.contacts.length+" contactos y comenzar con MÁXIMO "+total+" intentos hoy, UNO cada 120 SEGUNDOS? Los pendientes quedarán guardados para que mañana pulses Continuar. Meta puede cobrar por mensaje."))return;
   apiBatchState.busy=true;$("apiBatchStart").disabled=true;
   $("apiBatchStatus").textContent="Creando campaña y comprobando autorizaciones…";
   try{
@@ -1488,9 +1513,9 @@ async function apiBatchCreate(){
       file_name:apiBatchState.fileName,contacts:apiBatchState.contacts,
       consent_confirmed:true,consent_source:source});
     apiBatchState.currentId=created.batch_id;
-    toast("Tanda creada: "+created.total+" contactos autorizados.");
-    $("apiBatchPreview").textContent=created.total+" contactos preparados; "+
-      (created.skipped_due_to_limit||0)+" del Excel fuera de esta ejecución; "+
+    toast("Base guardada: "+created.total+" contactos. Hoy máximo 30 envíos.");
+    $("apiBatchPreview").textContent=created.total+" contactos guardados; "+
+      (created.pending_for_later||0)+" pendientes para próximas jornadas; "+
       created.excluded+" excluidos y "+created.invalid_or_duplicate+" filas inválidas o duplicadas.";
   }catch(error){
     toast(error.message||"No se creó la tanda.",true);
