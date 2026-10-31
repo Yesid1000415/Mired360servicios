@@ -125,7 +125,7 @@ function consultasView(){
  const formatDate=dt=>new Date(dt).toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'});
  const ref=c=>c.tipo==='producto'?productName(c.producto_id):c.tipo==='carrito'?(c.productos_ids||[]).map(productName).join(', '):'Contacto general';
  const stats=[['☎','Clics a WhatsApp',consultasTotal],['◈','Consultas de producto',byType.producto],['▤','Consultas de carrito',byType.carrito],['◉','Contacto general',byType.general]];
- return `${panelTitle('Consultas por WhatsApp','Actividad comercial de los últimos 30 días',btn('＋ Registrar prospecto confirmado','newCrmFromClick','primary')+btn('↻ Actualizar','refresh'))}
+ return `${panelTitle('Consultas por WhatsApp','Actividad comercial de los últimos 30 días',(can('gestionar_prospectos')?btn('＋ Registrar prospecto confirmado','newCrmFromClick','primary'):'')+btn('↻ Actualizar','refresh'))}
  <div class="banner" style="margin:0 0 20px"><strong>Indicador de interés comercial:</strong> cada fila representa un clic de salida a WhatsApp desde la tienda. No significa que el cliente haya enviado el mensaje, comprado o facilitado sus datos personales. Los eventos comenzaron a registrarse al activar este módulo.</div>
  ${consultasError?'<p class="banner">'+esc(consultasError)+'</p>':''}
  <div class="grid statgrid">${stats.map(([ic,title,val])=>`<div class="surface stat"><em>${ic}</em><div class="muted small">${title}</div><div class="number">${val}</div></div>`).join('')}</div>
