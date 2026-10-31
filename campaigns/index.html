@@ -521,7 +521,18 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                 <section id="apiBatchPanel" class="card" style="margin-top:22px;padding:22px;border:1px solid #d5e2fa;background:#f8fbff">
                   <span class="eyebrow">CAMPAÑAS API · EXCEL</span>
                   <h3 style="margin:8px 0">2. Cargar y enviar</h3>
-                  <p class="muted">El sistema tomará un máximo de <strong>30 contactos</strong> de tu Excel. Enviará <strong>un mensaje cada 120 segundos</strong>, nunca 30 juntos. Los demás contactos quedan fuera de esta ejecución.</p>
+                  <p class="muted">Carga el Excel una sola vez. Se guarda toda la base; el sistema procesa <strong>máximo 30 contactos por día</strong>, <strong>uno cada 120 segundos</strong>. Los pendientes se conservan para continuar otro día con tu autorización.</p>
+                  <div style="padding:16px;border:2px solid #8eafe5;border-radius:12px;background:#eef5ff;margin:14px 0">
+                    <strong style="display:block;margin-bottom:10px">Control manual de la campaña</strong>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                      <button id="apiBatchPause" type="button" class="btn btn-danger" disabled style="font-weight:800;min-height:44px">Pausar envíos</button>
+                      <button id="apiBatchResume" type="button" class="btn btn-primary" disabled style="font-weight:800;min-height:44px">Continuar envíos</button>
+                      <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button>
+                    </div>
+                    <div id="apiBatchDaily" role="status" style="font-weight:700;margin-top:12px">Consultando los envíos de hoy...</div>
+                    <progress id="apiBatchProgress" max="100" value="0" style="width:100%;height:14px;margin-top:10px"></progress>
+                    <div id="apiBatchStatus" role="status" class="muted" style="margin-top:9px">Consultando la campaña...</div>
+                  </div>
                   <div class="field">
                     <label for="apiBatchFile">Archivo Excel o CSV</label>
                     <input id="apiBatchFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
@@ -530,13 +541,8 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                   <p class="small-notice">La fecha, el archivo y tu declaración de autorización se registran automáticamente. Conserva los comprobantes reales de consentimiento de cada cliente.</p>
                   <label class="check-row" style="margin:12px 0"><input type="checkbox" id="apiBatchConsent"> Confirmo que los clientes de este Excel autorizaron recibir ofertas de MIRED360SERVICIOS por WhatsApp.</label>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0">
-                    <button id="apiBatchStart" type="button" class="btn btn-primary" disabled>Enviar hasta 30 mensajes</button>
-                    <button id="apiBatchPause" type="button" class="btn btn-secondary" hidden>Pausar envíos</button>
-                    <button id="apiBatchResume" type="button" class="btn btn-secondary" hidden>Reanudar envíos</button>
-                    <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button>
+                    <button id="apiBatchStart" type="button" class="btn btn-primary" disabled>Guardar base y comenzar hasta 30 hoy</button>
                   </div>
-                  <progress id="apiBatchProgress" max="100" value="0" style="width:100%;height:14px"></progress>
-                  <div id="apiBatchStatus" role="status" class="muted" style="margin-top:9px">Sin tandas iniciadas.</div>
                   <p class="small-notice">Se utilizará la plantilla aprobada <code>mired360_claro_hogar_info_v1</code>. Meta puede cobrar por mensaje y decidir no entregarlo. Mantén la página abierta; puedes pausar el proceso.</p>
                 </section>
                 <p class="small-notice">Los envíos a clientes requieren autorización verificable. Respeta solicitudes SALIR y revisa los errores de entrega antes de iniciar otra campaña.</p>
@@ -553,6 +559,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-inbox-read-v19"></script>
+  <script type="module" src="./app.js?v=20261030-pausa-continuar-v20"></script>
 </body>
 </html>
