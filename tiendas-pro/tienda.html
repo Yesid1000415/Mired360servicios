@@ -590,7 +590,7 @@ function renderCatalogPremium(){
     ${highlights.length?`<div class="premiumHighlights">${highlights.map(h=>`<span>✓ ${esc(h)}</span>`).join("")}</div>`:""}<p class="premiumSummary">${esc(p.descripcion||"Consulta los detalles y condiciones de esta oferta.")}</p>
     ${contact?`<a class="premiumWhatsApp" data-product-contact="${esc(p.id)}" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">${isBold?'Solicitar información ↗':'Solicitar asesoría ↗'}</a>`:
      '<button class="premiumWhatsApp" type="button" disabled>Contacto no disponible</button>'}
-    ${isBold?'<button type="button" class="guidedSelect" data-bold-buy="'+esc(p.id)+'">✓ Comprar ahora</button>':'<button type="button" class="guidedSelect" data-guide-plan="'+esc(p.id)+'">✓ Elegir y validar cobertura</button>'}<button type="button" class="compareToggle" data-compare="${esc(p.id)}" aria-pressed="${compareIds.includes(p.id)}">${compareIds.includes(p.id)?"✓ Seleccionado para comparar":"⇄ Comparar plan"}</button><div class="premiumActions">
+    ${isBold?'<button type="button" class="guidedSelect" data-bold-buy="'+esc(p.id)+'">✓ Comprar ahora</button>':'<button type="button" class="guidedSelect" data-guide-plan="'+esc(p.id)+'">✓ Elegir y validar cobertura</button>'}${isBold?"":`<button type="button" class="compareToggle" data-compare="${esc(p.id)}" aria-pressed="${compareIds.includes(p.id)}">${compareIds.includes(p.id)?"✓ Seleccionado para comparar":"⇄ Comparar plan"}</button>`}<div class="premiumActions">
      <button type="button" class="btn premiumDetail" data-detail="${esc(p.id)}">Ver detalles</button>
      <button type="button" class="btn premiumAdd" data-add="${esc(p.id)}" ${available?'':'disabled'}>${available?'＋ Agregar':'Agotado'}</button>
     </div>
