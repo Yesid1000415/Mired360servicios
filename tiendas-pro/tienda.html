@@ -320,9 +320,60 @@ header{position:sticky;top:0;background:#fff;border-bottom:1px solid #e3e9f2;box
  #catalog .premiumActions .btn{min-width:0!important;font-size:10px!important;padding:7px 3px!important;white-space:normal!important}
  .floatingContact{bottom:76px!important}
 }
+
+/* MIRED360: nueva identidad visual multicolor de operadores */
+:root{--claro:#e50925;--etb:#00a5ec;--tigo:#073b9a;--midnight:#071639}
+body{background:linear-gradient(180deg,#e8f1ff 0,#f5f8ff 400px,#fff 100%);color:#0b1a3d}
+header{background:#071638!important;border-bottom:1px solid rgba(255,255,255,.12)!important;box-shadow:0 5px 24px #00154028}
+header .logo,header nav a{color:white!important}
+header .logo small{color:#cbdaf9!important}
+header .actions .btn{border-radius:13px}
+#hero{background:linear-gradient(110deg,#071638 0%,#102e75 54%,#045bc6 100%)!important;color:#fff!important;border-radius:26px;box-shadow:0 20px 55px #09205b2b;overflow:hidden}
+#hero .eyebrow{color:#9fd9ff!important;font-weight:800;letter-spacing:1.6px}
+#hero h1{color:white!important;letter-spacing:-1.6px}
+#hero p{color:#e2edff!important}
+#hero .heroCtas a:first-child{background:#ed102f!important;color:#fff!important;border-color:#ed102f!important}
+#hero .visual{filter:saturate(1.25)}
+.operatorShowcase{margin:22px 0 20px;text-align:center;padding:19px 18px 16px;background:linear-gradient(110deg,#071638,#0b2b70);border-radius:22px;box-shadow:0 13px 32px #061c5026}
+.operatorTitle{font-size:11px;font-weight:850;letter-spacing:2px;color:#c8e5ff;margin-bottom:12px}
+.operatorStrip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.operatorStrip span{color:#fff;font-size:clamp(22px,4vw,38px);font-weight:950;font-style:italic;letter-spacing:-1.5px;padding:14px 5px;border-radius:14px;box-shadow:inset 0 1px 0 #ffffff45}
+.operatorClaro{background:linear-gradient(135deg,#ff183a,#bd001b)}
+.operatorEtb{background:linear-gradient(135deg,#05c4fa,#006ac5)}
+.operatorTigo{background:linear-gradient(135deg,#1368e8,#072a83)}
+.operatorShowcase p{font-size:11px;color:#d5e4ff;margin-top:12px}
+#beneficios.trust{background:#fff;border:1px solid #e0e9f6;border-radius:18px;box-shadow:0 7px 24px #142d6310}
+#productos .sectionHeader h2{color:#081a45}
+#productos .search{border:2px solid #dce7fa;border-radius:18px;box-shadow:0 5px 16px #142c5c10}
+#filters .chip.active{background:linear-gradient(125deg,#ed102f,#b90020)!important;border-color:#d40022!important;box-shadow:0 5px 13px #df002b30}
+#catalog .catalogGroupHead h3{color:#091c49}
+#catalog .premiumProduct{background:#fff;border:1px solid #dce6f4;box-shadow:0 8px 25px #081b4917;border-radius:17px;transition:transform .2s,box-shadow .2s}
+@media(hover:hover){#catalog .premiumProduct:hover{transform:translateY(-4px);box-shadow:0 16px 35px #071b4930}}
+#catalog .premiumPrice{color:#df0929!important;font-weight:950}
+#catalog .premiumWhatsApp{background:linear-gradient(115deg,#05a93e,#008c32)!important;color:#fff!important;border-radius:12px;font-weight:850}
+#catalog .premiumDetail{border:1px solid #0b3a89!important;color:#0b3a89!important}
+#catalog .premiumAdd{background:#0b3a89!important;color:#fff!important}
+footer.footer{background:#08183d!important;color:#e8efff!important}
+@media(max-width:720px){
+ header .head{height:64px!important}
+ header .logo{font-size:13px!important;min-width:0}
+ header .logo .symbol{width:36px!important;height:36px!important;flex:none}
+ header nav{display:none!important}
+ #hero{border-radius:18px!important;margin-top:12px!important;padding:23px 18px!important;min-height:0!important}
+ #hero h1{font-size:clamp(26px,7vw,36px)!important;line-height:1.09!important}
+ #hero p{font-size:12px!important;line-height:1.5!important}
+ #hero .visual{display:none!important}
+ .operatorShowcase{margin:13px 0!important;border-radius:16px;padding:13px 9px}
+ .operatorTitle{font-size:9px;margin-bottom:9px}
+ .operatorStrip{gap:5px}
+ .operatorStrip span{font-size:clamp(17px,5vw,24px);padding:11px 2px;border-radius:9px}
+ #beneficios.trust{margin-top:13px!important}
+ #catalog .premiumProduct{border-radius:13px!important}
+ #catalog .premiumPrice{font-size:clamp(16px,4.7vw,21px)!important}
+}
 </style><script src="config.js"></script></head><body>
 <header><div class="container head"><a class="logo" href="#"><span class="symbol">M</span><span id="brand">MIRED360 <small>TIENDAS PRO</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><a class="btn contactMini hidden" id="headerContact" href="#" target="_blank" rel="noopener noreferrer">✆ WhatsApp</a><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
-<main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><img id="coverImage" class="coverImage hidden" alt="Portada de la tienda" loading="eager"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="trust" id="beneficios"><article><span>✦</span> Compra sencilla<small>Explora planes y servicios fácilmente</small></article><article><span>◈</span> Asesoría experta<small>Atención personalizada para cada solicitud</small></article><article><span>▣</span> Ofertas vigentes<small>Consulta nuestros planes publicados</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Encuentra tu plan ideal</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar por plan, velocidad o servicio..." aria-label="Buscar productos"></div><div class="filters" id="filters" role="group" aria-label="Filtrar por categoría"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
+<main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><img id="coverImage" class="coverImage hidden" alt="Portada de la tienda" loading="eager"><div><div class="eyebrow">MIRED360SERVICIOS · CONECTIVIDAD Y TECNOLOGÍA</div><h1><span id="heroTitle">Internet y televisión para conectar lo que más importa.</span></h1><p id="heroDescription">Compara planes y servicios para tu hogar o negocio. Consulta precios, beneficios y cobertura con atención personalizada.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><section class="operatorShowcase" aria-label="Operadores de telecomunicaciones"><div class="operatorTitle">SOLUCIONES DE CONECTIVIDAD</div><div class="operatorStrip"><span class="operatorClaro">Claro</span><span class="operatorEtb">ETB</span><span class="operatorTigo">Tigo</span></div><p>Consulta las ofertas disponibles según tu ubicación y cobertura.</p></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="trust" id="beneficios"><article><span>✦</span> Catálogo claro<small>Compara planes y precios publicados</small></article><article><span>◈</span> Asesoría experta<small>Atención personalizada para cada solicitud</small></article><article><span>▣</span> Cobertura por validar<small>Confirma disponibilidad en tu dirección</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Encuentra tu plan ideal</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar por plan, velocidad o servicio..." aria-label="Buscar productos"></div><div class="filters" id="filters" role="group" aria-label="Filtrar por categoría"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
 <footer class="footer" id="contacto"><div class="container" style="flex-wrap:wrap"><div><strong id="footerName">MIRED360 TIENDAS PRO</strong><div id="footerSocials" class="socialLinks"></div></div><span>Todos los derechos reservados · Ventas sujetas a confirmación</span></div></footer><a id="floatingContact" class="floatingContact hidden" target="_blank" rel="noopener noreferrer" href="#" aria-label="Contactar por WhatsApp"><span class="contactSymbol">✆</span><span id="floatingContactLabel">WhatsApp</span></a><div class="hidden" id="overlay"></div><div class="hidden" id="detailOverlay"></div>
 <script type="module">
 const cfg=window.MIRED360_CLOUD||{},q=new URLSearchParams(location.search),slug=q.get('tienda')||cfg.slugPrincipal||'mired360';let shop=null,products=[],cart={},category='Todos',filter='',dbClient=null;const $=s=>document.querySelector(s);
@@ -362,7 +413,7 @@ function renderCatalogPremium(){
      <div class="premiumCategory">${esc(p.categoria||'General')}</div>
      <h3 class="premiumTitle">${esc(p.nombre)}</h3>
      <div class="premiumOffer">
-      <span class="premiumOfferLabel">Precio publicado</span>
+      <span class="premiumOfferLabel">Precio del catálogo</span>
       <strong class="premiumPrice">${money(p.precio_cop)}</strong>
       <span class="premiumConditions">Confirma disponibilidad y condiciones con la tienda.</span>
      </div>
@@ -370,7 +421,7 @@ function renderCatalogPremium(){
    </div>
    <div class="premiumRest">
     <p class="premiumSummary">${esc(p.descripcion||'Consulta los detalles y condiciones de esta oferta.')}</p>
-    ${contact?`<a class="premiumWhatsApp" data-product-contact="${esc(p.id)}" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">✆ Consultar por ${esc(provider)}</a>`:
+    ${contact?`<a class="premiumWhatsApp" data-product-contact="${esc(p.id)}" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">Consultar por ${esc(provider)}</a>`:
      '<button class="premiumWhatsApp" type="button" disabled>Contacto no disponible</button>'}
     <div class="premiumActions">
      <button type="button" class="btn premiumDetail" data-detail="${esc(p.id)}">Ver detalles</button>
@@ -422,11 +473,11 @@ function applyBrandPro(){
  document.documentElement.style.setProperty('--store-color','#2856e8');
  $('#brand').textContent=shop.nombre;
  if(shop.logo_url&&/^https:\/\//.test(shop.logo_url)){$('.symbol').innerHTML=`<img src="${esc(shop.logo_url)}" alt="Logo de ${esc(shop.nombre)}" style="width:100%;height:100%;object-fit:contain">`;$('.logo').classList.add('hasBrandLogo');$('.symbol').style.background='transparent'}
- $('#heroTitle').textContent=shop.lema||'Tu negocio, conectado con mejores oportunidades.';
- $('#heroDescription').textContent=shop.descripcion||'Descubre nuestros productos y servicios, con atención comercial personalizada.';
+ $('#heroTitle').textContent='Internet, televisión y soluciones para tu hogar o negocio';
+ $('#heroDescription').textContent='Compara las ofertas de nuestro catálogo y consulta disponibilidad, condiciones y cobertura con un asesor.';
  if(shop.portada_url&&/^https:\/\//.test(shop.portada_url)){const image=$('#coverImage');image.src=shop.portada_url;image.alt='Portada de '+shop.nombre;image.classList.remove('hidden');$('#hero').classList.add('hasCover');$('#coverActionRow').classList.remove('hidden');}
  $('#footerName').textContent=shop.nombre;
- document.title=shop.nombre+' · Tienda virtual';
+ document.title=shop.nombre+' | Internet, televisión y soluciones digitales';
  updateContactLinksPro();
 }
 
