@@ -451,6 +451,30 @@ header .head .actions #openCart{padding:10px 12px!important;white-space:nowrap;f
 .faqList summary{cursor:pointer;font-weight:850;color:#102e68;font-size:13px}
 .faqList details p{font-size:12px;color:#455a7d;line-height:1.65;margin:11px 0 0}
 @media(max-width:720px){.faqSection{display:block;padding:19px 13px;margin:22px 0 35px;border-radius:16px}.faqIntro{margin-bottom:15px}.faqList details{padding:12px}.compareBar{bottom:9px;padding:10px;font-size:11px;gap:7px}.compareBar button{font-size:10px;padding:8px}.compareNames strong{padding:9px;font-size:11px}#catalog .compareToggle{font-size:10px;padding:7px 3px}}
+
+/* Fichas comerciales de telecomunicaciones */
+#catalog .premiumProduct{position:relative;border:1px solid #d6e2f2!important;box-shadow:0 10px 30px #061b4914!important;overflow:hidden}
+#catalog .premiumVisual{background:linear-gradient(145deg,#f6faff,#eaf2ff)!important}
+#catalog .premiumVisual img{transition:transform .3s ease}
+@media(hover:hover){#catalog .premiumProduct:hover .premiumVisual img{transform:scale(1.035)}}
+#catalog .premiumMicroTrust{font-size:9px;letter-spacing:1.1px;font-weight:900;color:#1a5baf;margin:5px 0}
+#catalog .premiumTitle{font-weight:900;letter-spacing:-.35px;color:#0a214e}
+#catalog .premiumOffer{border-top:1px solid #e4ecf7;padding-top:9px}
+#catalog .premiumOfferLabel{text-transform:uppercase;font-weight:800;letter-spacing:.7px;color:#6b7c97}
+#catalog .premiumPrice{display:block;letter-spacing:-.8px}
+#catalog .premiumHighlights{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0}
+#catalog .premiumHighlights span{font-size:10px;line-height:1.25;padding:6px 8px;border-radius:8px;background:#eef5ff;color:#114b93;font-weight:750}
+#catalog .premiumWhatsApp{background:#e50925!important;border:1px solid #d10723!important;box-shadow:0 5px 13px #e5092522;font-weight:900!important}
+#catalog .premiumWhatsApp:hover{background:#bd0923!important}
+#catalog .premiumSummary{color:#52617c}
+@media(max-width:720px){
+ #catalog .premiumMicroTrust{font-size:7px!important;letter-spacing:.3px!important;margin:3px 0}
+ #catalog .premiumHighlights{gap:4px;margin:5px 0}
+ #catalog .premiumHighlights span{font-size:8px!important;padding:4px 5px!important;border-radius:6px}
+ #catalog .premiumOffer{padding-top:6px}
+ #catalog .premiumOfferLabel{font-size:8px!important}
+ #catalog .premiumWhatsApp{font-size:10px!important;padding:9px 4px!important}
+}
 </style><script src="config.js"></script></head><body>
 <header><div class="container head"><a class="logo brandWordmark" href="#hero" aria-label="MIRED360SERVICIOS, inicio"><span class="brandMark" aria-hidden="true">M</span><span class="brandLetters">MIRED<span class="brand360">360</span><span class="brandServicios">SERVICIOS</span><small>Conectividad y soluciones digitales</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><a class="btn contactMini hidden" id="headerContact" href="#" target="_blank" rel="noopener noreferrer">✆ WhatsApp</a><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
 <main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><div><div class="eyebrow">MIRED360SERVICIOS · TU CONEXIÓN EMPIEZA AQUÍ</div><h1><span id="heroTitle">Internet y televisión para conectar lo que más importa.</span></h1><p id="heroDescription">Compara planes y servicios para tu hogar o negocio. Consulta precios, beneficios y cobertura con atención personalizada.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">◉</div><strong>Hogar y negocios conectados</strong><small>Internet · Televisión · Tecnología</small></div></div></section><section class="operatorShowcase" aria-label="Operadores de telecomunicaciones"><div class="operatorTitle">SOLUCIONES DE CONECTIVIDAD</div><div class="operatorStrip"><button type="button" class="operatorClaro" data-operator="Claro" aria-pressed="false">Claro</button><button type="button" class="operatorEtb" data-operator="ETB" aria-pressed="false">ETB</button><button type="button" class="operatorTigo" data-operator="Tigo" aria-pressed="false">Tigo</button><button type="button" class="operatorBold" data-operator="Datáfono Bold" aria-pressed="false">Bold</button></div><p>Elige una categoría para ver sus productos y servicios.</p></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="coverageBox" id="cobertura"><div class="coverageIntro"><span class="coverageEyebrow">ATENCIÓN PERSONALIZADA</span><h2>¿Hay cobertura en tu dirección?</h2><p>Solicita la validación de disponibilidad antes de contratar. Un asesor confirmará las opciones para tu ubicación.</p></div><form id="coverageForm" class="coverageForm"><label>Ciudad o municipio<input name="ciudad" required maxlength="80" placeholder="Ej. Madrid, Cundinamarca" autocomplete="address-level2"></label><label>Barrio<input name="barrio" required maxlength="100" placeholder="Nombre del barrio"></label><label>Dirección<input name="direccion" required maxlength="160" placeholder="Calle, carrera y número" autocomplete="street-address"></label><button type="submit">Consultar cobertura por WhatsApp ↗</button><small>La cobertura y las condiciones se confirman con un asesor. No se realiza contratación automática.</small></form></section><section class="trust" id="beneficios"><article><span>✦</span> Catálogo claro<small>Compara planes y precios publicados</small></article><article><span>◈</span> Asesoría experta<small>Atención personalizada para cada solicitud</small></article><article><span>▣</span> Cobertura por validar<small>Confirma disponibilidad en tu dirección</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Encuentra tu plan ideal</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar por plan, velocidad o servicio..." aria-label="Buscar productos"></div><div class="filters" id="filters" role="group" aria-label="Filtrar por categoría"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section><section class="faqSection" aria-label="Preguntas frecuentes"><div class="faqIntro"><span class="coverageEyebrow">INFORMACIÓN PARA COMPRAR CON CONFIANZA</span><h2>Preguntas frecuentes</h2><p>Resuelve las dudas más importantes antes de solicitar tu servicio.</p></div><div class="faqList"><details><summary>¿Cómo sé si hay cobertura en mi dirección?</summary><p>Completa el formulario de cobertura indicando ciudad, barrio y dirección. Un asesor verificará la disponibilidad para tu ubicación.</p></details><details><summary>¿Los precios incluyen instalación?</summary><p>Depende de cada oferta. Antes de contratar, confirma el costo de instalación, descuentos, vigencia y condiciones con el asesor.</p></details><details><summary>¿Puedo elegir entre Claro, ETB y Tigo?</summary><p>Puedes consultar las ofertas publicadas de cada operador. La disponibilidad final depende de la cobertura y las condiciones comerciales aplicables.</p></details><details><summary>¿Cómo solicito un plan?</summary><p>Selecciona el producto, revisa sus detalles y utiliza el botón de consulta para hablar con un asesor por WhatsApp.</p></details></div></section></main><div id="compareBar" class="compareBar hidden" aria-live="polite"></div>
@@ -480,6 +504,7 @@ function renderCatalogPremium(){
  $('#subtitle').textContent=operator+' · '+(filtered.length===1?'1 producto o servicio disponible':filtered.length+' productos y servicios disponibles');
  const names=filtered.length?[operator]:[];
  const cards=p=>{
+  const isBold=operator==='Datáfono Bold';const info=[p.descripcion,p.descripcion_larga].filter(Boolean).join(' ');const speed=info.match(/\b(?:250|300|350|400|500|600|700|800|900|1000)\s*(?:mega(?:s)?|mb(?:ps)?)\b/i)||String(p.nombre||'').match(/\b(?:250|300|350|400|500|600|700|800|900|1000)\s*(?:mega(?:s)?|mb(?:ps)?)\b/i);const highlights=[speed?'Velocidad '+speed[0]:'',/televisi[oó]n|\btv\b|deco/i.test(info+' '+p.nombre)?'Incluye televisión':'',/streaming|netflix|prime|disney|paramount|win\+/i.test(info+' '+p.nombre)?'Entretenimiento digital':''].filter(Boolean).slice(0,2);
   const available=p.tipo!=='producto'||Number(p.inventario)>0;
   const contact=contactLinkPro(productContactMessagePro(p));
   const provider=contactProviderPro();
@@ -493,18 +518,18 @@ function renderCatalogPremium(){
      ${p.tipo==='producto'&&!available?'<span class="premiumUnavailable">Agotado</span>':''}
     </div>
     <div class="premiumTopText">
-     <div class="premiumCategory">${esc(p.categoria||'General')}</div>
+     <div class="premiumCategory">${esc(p.categoria||'General')}</div><div class="premiumMicroTrust">${isBold?"SOLUCIÓN PARA NEGOCIOS":"PLAN DE CONECTIVIDAD"}</div>
      <h3 class="premiumTitle">${esc(p.nombre)}</h3>
      <div class="premiumOffer">
-      <span class="premiumOfferLabel">Precio del catálogo</span>
+      <span class="premiumOfferLabel">${isBold?"Precio publicado":"Precio del plan"}</span>
       <strong class="premiumPrice">${money(p.precio_cop)}</strong>
-      <span class="premiumConditions">Confirma disponibilidad y condiciones con la tienda.</span>
+      <span class="premiumConditions">${isBold?"Consulta disponibilidad y condiciones.":"Consulta cobertura, instalación y vigencia."}</span>
      </div>
     </div>
    </div>
    <div class="premiumRest">
-    <p class="premiumSummary">${esc(p.descripcion||'Consulta los detalles y condiciones de esta oferta.')}</p>
-    ${contact?`<a class="premiumWhatsApp" data-product-contact="${esc(p.id)}" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">Consultar por ${esc(provider)}</a>`:
+    ${highlights.length?`<div class="premiumHighlights">${highlights.map(h=>`<span>✓ ${esc(h)}</span>`).join("")}</div>`:""}<p class="premiumSummary">${esc(p.descripcion||"Consulta los detalles y condiciones de esta oferta.")}</p>
+    ${contact?`<a class="premiumWhatsApp" data-product-contact="${esc(p.id)}" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">Solicitar asesoría ↗</a>`:
      '<button class="premiumWhatsApp" type="button" disabled>Contacto no disponible</button>'}
     <button type="button" class="compareToggle" data-compare="${esc(p.id)}" aria-pressed="${compareIds.includes(p.id)}">${compareIds.includes(p.id)?"✓ Seleccionado para comparar":"⇄ Comparar plan"}</button><div class="premiumActions">
      <button type="button" class="btn premiumDetail" data-detail="${esc(p.id)}">Ver detalles</button>
