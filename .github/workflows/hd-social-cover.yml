@@ -1,0 +1,33 @@
+name: HD social cover
+on:
+  push:
+    paths: ['.github/workflows/hd-social-cover.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow
+      - run: |
+          python - <<'PY'
+          from PIL import Image, ImageDraw, ImageFont
+          im=Image.new('RGB',(1200,630),'#081c38')
+          d=ImageDraw.Draw(im)
+          def f(n): return ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',n)
+          d.rounded_rectangle((45,45,1155,585),radius=28,outline='#139ee8',width=4)
+          d.text((90,85),'MIRED360',font=f(94),fill='#ffffff')
+          d.text((96,205),'SERVICIOS',font=f(37),fill='#2ebeff')
+          d.line((95,273,1105,273),fill='#238fd0',width=3)
+          d.text((95,320),'INTERNET  |  TELEVISION',font=f(43),fill='#ffffff')
+          d.text((95,399),'SOLUCIONES PARA NEGOCIOS',font=f(32),fill='#e4efff')
+          d.text((95,509),'Conectividad para tu hogar y negocio',font=f(24),fill='#a9d6f2')
+          im.save('mired360-social-hd.png')
+          PY
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mired360-social-hd.png
+          git diff --cached --quiet || (git commit -m "Publish sharp social image" && git push)
