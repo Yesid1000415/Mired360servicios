@@ -170,9 +170,88 @@ header{box-shadow:0 5px 24px #112e5b0a;border-bottom:1px solid #e3eaf4}
 @media(min-width:1000px){.container{max-width:1320px}.hero{min-height:350px}.section{padding-top:55px}.catalogGroupItems{gap:22px}}
 @media(max-width:720px){.container{padding-left:15px;padding-right:15px}.head{height:66px}.hero{margin-top:14px;border-radius:19px}.hero>div:first-child{padding:30px 23px}.hero h1{font-size:clamp(27px,7.4vw,39px);letter-spacing:-1px}.hero p{font-size:13px}.trust{gap:9px}.trust article{border-radius:14px}.section{padding-top:31px}.sectionHeader h2{font-size:25px}.search{min-height:49px}.premiumProduct{border-radius:16px}.premiumPrice{font-size:clamp(19px,5vw,25px)}.premiumVisual img{object-fit:contain}.premiumActions .btn{min-height:43px}.floatingContact{bottom:15px;right:14px}}
 @media(prefers-reduced-motion:reduce){.btn,.premiumProduct,.product{transition:none}.btn:hover,.premiumProduct:hover,.product:hover{transform:none}}
+
+/* MIRED360 | Rediseño editorial de tienda corporativa */
+:root{--store-color:#2459dc}
+html{scroll-behavior:smooth;scroll-padding-top:85px}
+body{background:#f7f9fc}
+header{position:sticky;top:0;background:#fff;border-bottom:1px solid #e3e9f2;box-shadow:0 3px 18px #10244a0c}
+.head{height:82px;gap:20px}.logo{display:flex;align-items:center;gap:13px;min-width:0}.logo .symbol{height:55px;width:155px;border-radius:0;flex:none;background:transparent!important;overflow:visible}.logo .symbol img{width:100%;height:100%;object-fit:contain;object-position:left center}.logo.hasBrandLogo #brand{display:none}.logo:not(.hasBrandLogo) #brand{font-size:18px}
+.head nav a{color:#405574;font-weight:750}.head nav a:hover{color:#2459dc}
+.actions .btn{font-weight:750}.actions #openCart{background:#173c85;border-color:#173c85}
+.hero{border:0;border-radius:22px;margin-top:24px;min-height:310px;background:linear-gradient(120deg,#0b2046,#164aa5);box-shadow:0 16px 38px #0e2d601c}
+.hero.hasCover{min-height:320px}.hero.hasCover .coverImage{object-fit:cover}
+.coverActionRow{margin-top:16px;gap:12px}.coverActionRow .btn{border-radius:11px}
+.trust{margin-top:20px;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.trust article{border-radius:14px;padding:17px 18px;font-size:13px;box-shadow:none;background:#fff;border:1px solid #e3e9f2}
+.trust small{margin-top:5px;color:#64758d}
+.section{padding:52px 0 72px}.sectionHeader{align-items:center;margin-bottom:20px}
+.sectionHeader h2{font-size:clamp(27px,3vw,36px);letter-spacing:-1px}.sectionHeader p{font-size:14px}
+.search{min-width:300px;border-radius:11px;background:#fff}
+.filters{gap:10px;margin-bottom:26px}.chip{border-radius:10px;padding:11px 16px;font-weight:750}
+.chip.active{background:#1749aa;border-color:#1749aa;color:#fff}
+.catalogGroupHead{margin-bottom:20px}.catalogGroupHead h3{font-size:23px}
+#catalog .premiumProduct{background:#fff;border:1px solid #e0e7f1;box-shadow:0 7px 22px #1737640d;border-radius:17px;overflow:hidden}
+#catalog .premiumVisual{background:#fff;border:1px solid #edf1f6;border-radius:12px;overflow:hidden}
+#catalog .premiumVisual img{object-fit:contain}
+#catalog .premiumTitle{color:#172a4b}
+#catalog .premiumOfferLabel{color:#78879c}
+#catalog .premiumPrice{color:#12469e}
+#catalog .premiumWhatsApp{background:#12804d;border-color:#12804d}
+#catalog .premiumDetail{background:#f5f8fc;color:#214b8e}
+#catalog .premiumAdd{background:#2459dc;color:#fff;border-color:#2459dc}
+.floatingContact{width:56px;height:56px;min-width:56px;padding:0;border-radius:50%;justify-content:center;right:19px;bottom:20px;box-shadow:0 10px 27px #0b6a3d50}
+.floatingContact .contactSymbol{font-size:26px}.floatingContact #floatingContactLabel{display:none}
+@media(max-width:720px){
+ html{scroll-padding-top:75px}
+ .container{padding-left:17px;padding-right:17px}
+ .head{height:68px;gap:8px;flex-wrap:nowrap}
+ .logo{flex:1;min-width:0}
+ .logo .symbol{width:clamp(122px,39vw,180px);height:48px}
+ .actions{gap:7px;flex:none}
+ .actions #headerContact{display:none!important}
+ .actions #openCart{font-size:12px;padding:11px 12px;white-space:nowrap;border-radius:10px}
+ .hero{margin-top:13px;border-radius:15px;min-height:0}
+ .hero.hasCover{min-height:0}
+ .hero.hasCover .coverImage{position:relative;width:100%;height:auto;max-height:210px;object-fit:cover;display:block}
+ .hero.hasCover>div:first-of-type,.hero.hasCover .visual{display:none!important}
+ .hero:not(.hasCover)>div:first-child{padding:28px 23px}
+ .hero:not(.hasCover) h1{font-size:28px}
+ .coverActionRow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+ .coverActionRow .btn{padding:12px 9px;text-align:center;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1.35;min-height:45px}
+ .trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:14px}
+ .trust article{padding:12px 8px;text-align:center;font-size:10px;line-height:1.3;border-radius:11px}
+ .trust article span{display:block;margin:0 auto 6px;font-size:19px}
+ .trust article small{display:none}
+ .section{padding:32px 0 58px}
+ .sectionHeader{display:grid;gap:14px;margin-bottom:13px}
+ .sectionHeader h2{font-size:27px}
+ .sectionHeader p{font-size:12px}
+ .search{width:100%;min-width:0;height:47px;font-size:14px}
+ .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:7px;gap:8px;margin-bottom:17px}
+ .filters::-webkit-scrollbar{display:none}
+ .filters .chip{flex:none;padding:10px 13px;border-radius:9px;font-size:12px}
+ .catalogGroupHead{margin-bottom:13px}
+ .catalogGroupHead h3{font-size:19px}
+ #catalog .premiumProduct{border-radius:14px}
+ #catalog .premiumTop{grid-template-columns:120px minmax(0,1fr);gap:12px;padding:12px 12px 0}
+ #catalog .premiumVisual{width:120px;height:120px}
+ #catalog .premiumTitle{font-size:14px}
+ #catalog .premiumPrice{font-size:21px}
+ #catalog .premiumRest{padding:10px 12px 13px}
+ #catalog .premiumRest .premiumSummary{font-size:12px;line-height:1.5;max-height:37px}
+ #catalog .premiumRest .premiumWhatsApp{font-size:12px;min-height:41px}
+ .floatingContact{width:49px;height:49px;min-width:49px;right:12px;bottom:14px}
+ .floatingContact .contactSymbol{font-size:23px}
+}
+@media(max-width:370px){
+ .logo .symbol{width:120px}
+ #catalog .premiumTop{grid-template-columns:102px minmax(0,1fr)}
+ #catalog .premiumVisual{width:102px;height:102px}
+}
 </style><script src="config.js"></script></head><body>
 <header><div class="container head"><a class="logo" href="#"><span class="symbol">M</span><span id="brand">MIRED360 <small>TIENDAS PRO</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><a class="btn contactMini hidden" id="headerContact" href="#" target="_blank" rel="noopener noreferrer">✆ WhatsApp</a><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
-<main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><img id="coverImage" class="coverImage hidden" alt="Portada de la tienda" loading="eager"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="trust" id="beneficios"><article><span>✦</span> Experiencia fácil<small>Compra desde cualquier dispositivo</small></article><article><span>♧</span> Atención cercana<small>Conversa con un asesor comercial</small></article><article><span>▣</span> Catálogo actualizado<small>Consulta nuestras ofertas publicadas</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Nuestra selección</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar productos..." aria-label="Buscar productos"></div><div class="filters" id="filters"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
+<main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><img id="coverImage" class="coverImage hidden" alt="Portada de la tienda" loading="eager"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="trust" id="beneficios"><article><span>✦</span> Compra sencilla<small>Explora planes y servicios fácilmente</small></article><article><span>◈</span> Asesoría experta<small>Atención personalizada para cada solicitud</small></article><article><span>▣</span> Ofertas vigentes<small>Consulta nuestros planes publicados</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Explora nuestras soluciones</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar productos..." aria-label="Buscar productos"></div><div class="filters" id="filters"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
 <footer class="footer" id="contacto"><div class="container" style="flex-wrap:wrap"><div><strong id="footerName">MIRED360 TIENDAS PRO</strong><div id="footerSocials" class="socialLinks"></div></div><span>Todos los derechos reservados · Ventas sujetas a confirmación</span></div></footer><a id="floatingContact" class="floatingContact hidden" target="_blank" rel="noopener noreferrer" href="#" aria-label="Contactar por WhatsApp"><span class="contactSymbol">✆</span><span id="floatingContactLabel">WhatsApp</span></a><div class="hidden" id="overlay"></div><div class="hidden" id="detailOverlay"></div>
 <script type="module">
 const cfg=window.MIRED360_CLOUD||{},q=new URLSearchParams(location.search),slug=q.get('tienda')||cfg.slugPrincipal||'mired360';let shop=null,products=[],cart={},category='Todos',filter='',dbClient=null;const $=s=>document.querySelector(s);
