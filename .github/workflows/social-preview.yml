@@ -1,0 +1,42 @@
+name: Generate corporate social preview
+on:
+  push:
+    paths:
+      - '.github/workflows/social-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - run: python -m pip install Pillow
+      - name: Build image
+        run: |
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont
+          im=Image.new('RGB',(1200,630),'#091d3b')
+          d=ImageDraw.Draw(im)
+          d.rectangle((0,0,1200,15),fill='#e51b36')
+          d.rectangle((0,565,1200,630),fill='#e51b36')
+          reg='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+          bold='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+          def f(n,b=False):return ImageFont.truetype(bold if b else reg,n)
+          d.text((75,80),'MIRED360',font=f(89,True),fill='white')
+          d.text((75,180),'SERVICIOS',font=f(37,True),fill='#7fc6f8')
+          d.line((75,248,1125,248),fill='#e51b36',width=6)
+          d.text((75,285),'INTERNET  •  TELEVISIÓN',font=f(44,True),fill='white')
+          d.text((75,360),'SOLUCIONES PARA NEGOCIOS',font=f(34,True),fill='white')
+          d.text((75,445),'Asesoría comercial y validación de cobertura',font=f(27),fill='#d9e9fa')
+          d.text((75,580),'mired360servicios.com',font=f(24,True),fill='white')
+          im.save('mired360-social-2026.png',optimize=True)
+          PY
+      - name: Publish image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mired360-social-2026.png
+          git diff --cached --quiet || (git commit -m "Publish updated MIRED360 social preview image" && git push)
