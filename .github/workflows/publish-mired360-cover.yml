@@ -1,0 +1,35 @@
+name: Publish MIRED360 corporate preview
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/publish-mired360-cover.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install Pillow requests
+      - name: Download approved corporate cover and format social preview
+        env:
+          IMAGE_URL: 'https://media.canva.com/v2/image-resize/format:PNG/height:133/quality:100/uri:ifs%3A%2F%2FM%2F25d14f51-b32b-42ba-8da8-a27a2324d657/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAGWS74alI4v8l5bpv9MuhrEs5z7qgPLcxNmQDsLnjWJZ&exp=1793607506&osig=AAAAAAAAAAAAAAAAAAAAALq_iooR-GK_AFdXdMIUT7Cyr8IWZzZ39vvzbdQf7AT0&signer=media-rpc&token=AAIAAU0AJDI1ZDE0ZjUxLWIzMmItNDJiYS04ZGE4LWEyN2EyMzI0ZDY1NwAAAAABoZtWmFBQ3kQyJY8KQhoc58ovaUMs6KifLY1kwsTUsw2P0F1UQw&x-canva-quality=thumbnail'
+        run: |
+          python - <<'PY'
+          import os,requests
+          from io import BytesIO
+          from PIL import Image,ImageOps,ImageEnhance
+          response=requests.get(os.environ['IMAGE_URL'],timeout=30)
+          response.raise_for_status()
+          im=Image.open(BytesIO(response.content)).convert('RGB')
+          im=ImageOps.fit(im,(1200,630),method=Image.Resampling.LANCZOS,centering=(0.5,0.5))
+          im=ImageEnhance.Sharpness(im).enhance(1.25)
+          im.save('mired360-social-corporativo.png',optimize=True)
+          PY
+      - name: Commit published cover
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mired360-social-corporativo.png
+          git diff --cached --quiet || (git commit -m "Publish approved corporate MIRED360 social cover" && git push)
