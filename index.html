@@ -1445,10 +1445,9 @@
       .floatingContact { width: 52px; height: 52px; padding: 0; justify-content: center; right: 14px; bottom: 16px; }
     }
   
-    /* En móviles, evitar que el acceso flotante tape la portada.
-       WhatsApp sigue disponible en el encabezado y la portada. */
+    /* En celulares, liberar espacio del encabezado para la marca y el carrito. */
     @media (max-width: 767px) {
-      #floatingContact { display: none !important; }
+      header #headerContact { display: none !important; }
     }
 </style>
 
