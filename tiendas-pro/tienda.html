@@ -145,6 +145,31 @@ header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #
  #catalog .premiumPrice{font-size:16px}
 }
 
+
+/* MIRED360 | Renovación corporativa responsive - noviembre 2026 */
+:root{--store-color:#2856e8;--mired-navy:#102449;--mired-blue:#2856e8;--mired-silver:#e9eef6}
+body{background:#f3f6fb;color:#172844}
+header{box-shadow:0 5px 24px #112e5b0a;border-bottom:1px solid #e3eaf4}
+.head{height:78px}.logo{color:#14294b;letter-spacing:-.35px}.logo small{color:#7185a3}
+.btn{border-radius:12px;transition:background .2s,box-shadow .2s,transform .2s}.btn:hover{box-shadow:0 7px 20px #163b771c;transform:translateY(-1px)}
+.btn.primary,.premiumAdd{background:#2856e8;border-color:#2856e8;color:#fff}
+.hero{background:linear-gradient(118deg,#102449 0%,#183e79 62%,#2856e8 100%);box-shadow:0 18px 46px #112b5d1b;border:1px solid #ffffff20}
+.hero .eyebrow{color:#c7dcff}.hero p{color:#e2ebff}.heroCtas .btn.primary{background:#fff;color:#1945a4;border-color:#fff}
+.trust article{border:1px solid #e2eaf4;box-shadow:0 5px 17px #183b6a09;border-radius:17px}
+.trust span{color:#2856e8}.sectionHeader h2{color:#142b4d}.sectionHeader p{color:#70829c}
+.search{border:1px solid #dce5f1;box-shadow:0 4px 14px #16395b0b;outline-offset:3px}
+.search:focus{border-color:#2856e8;outline:2px solid #2856e822}
+.chip{border-color:#dce5f1}.chip.active{background:#e9f0ff;color:#204fc3;border-color:#b9cdfb}
+.premiumProduct,.product{border:1px solid #dfe7f2;box-shadow:0 9px 28px #18385e0d;border-radius:19px;transition:transform .2s,box-shadow .2s}
+.premiumProduct:hover,.product:hover{transform:translateY(-3px);box-shadow:0 17px 34px #163c781c}
+.premiumPrice,.price{color:#183d91}.premiumCategory{color:#426bb2}.premiumTag{background:#eaf1ff;color:#244b9c}
+.premiumVisual{background:#edf2fa}.premiumVisual img{object-fit:contain}
+.premiumWhatsApp{border-radius:12px}.premiumDetail{border-color:#cbd9ec}
+.catalogGroupHead{border-bottom-color:#dce5f0}.catalogGroupOrdinal{color:#2856e8}
+.footer{background:#0e1e38}.floatingContact{box-shadow:0 12px 28px #153e3560}
+@media(min-width:1000px){.container{max-width:1320px}.hero{min-height:350px}.section{padding-top:55px}.catalogGroupItems{gap:22px}}
+@media(max-width:720px){.container{padding-left:15px;padding-right:15px}.head{height:66px}.hero{margin-top:14px;border-radius:19px}.hero>div:first-child{padding:30px 23px}.hero h1{font-size:clamp(27px,7.4vw,39px);letter-spacing:-1px}.hero p{font-size:13px}.trust{gap:9px}.trust article{border-radius:14px}.section{padding-top:31px}.sectionHeader h2{font-size:25px}.search{min-height:49px}.premiumProduct{border-radius:16px}.premiumPrice{font-size:clamp(19px,5vw,25px)}.premiumVisual img{object-fit:contain}.premiumActions .btn{min-height:43px}.floatingContact{bottom:15px;right:14px}}
+@media(prefers-reduced-motion:reduce){.btn,.premiumProduct,.product{transition:none}.btn:hover,.premiumProduct:hover,.product:hover{transform:none}}
 </style><script src="config.js"></script></head><body>
 <header><div class="container head"><a class="logo" href="#"><span class="symbol">M</span><span id="brand">MIRED360 <small>TIENDAS PRO</small></span></a><nav><a href="#productos">Productos</a><a href="#beneficios">Beneficios</a><a href="#contacto">Contacto</a></nav><div class="actions"><a class="btn contactMini hidden" id="headerContact" href="#" target="_blank" rel="noopener noreferrer">✆ WhatsApp</a><button class="btn primary" id="openCart">🛒 Carrito <span id="count">0</span></button></div></div></header>
 <main class="container"><div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.</div><section class="hero" id="hero"><img id="coverImage" class="coverImage hidden" alt="Portada de la tienda" loading="eager"><div><div class="eyebrow">UNA NUEVA FORMA DE COMPRAR</div><h1><span id="heroTitle">Encuentra lo que buscas, con atención que marca la diferencia.</span></h1><p id="heroDescription">Explora nuestro catálogo de productos y servicios. Compara opciones y recibe asesoría personalizada desde tu celular.</p><div class="heroCtas"><a class="btn" href="#productos" style="display:inline-block;background:#fff;color:#5141b8">Explorar catálogo ›</a><a id="heroContact" class="btn hidden" href="#" target="_blank" rel="noopener noreferrer" style="border-color:#ffffff70;background:#ffffff1a;color:white">✆ Consultar con un asesor</a></div></div><div class="visual"><div class="orb"></div><div class="floatcard"><div class="pic">✦</div><strong>Conectamos oportunidades</strong><small>Confianza, tecnología y servicio.</small></div></div></section><div id="coverActionRow" class="coverActionRow hidden"><a class="btn primary" href="#productos">Explorar productos</a><a id="coverWhatsApp" href="#" class="btn" target="_blank" rel="noopener noreferrer">✆ Consultar por WhatsApp</a></div><section class="trust" id="beneficios"><article><span>✦</span> Experiencia fácil<small>Compra desde cualquier dispositivo</small></article><article><span>♧</span> Atención cercana<small>Conversa con un asesor comercial</small></article><article><span>▣</span> Catálogo actualizado<small>Consulta nuestras ofertas publicadas</small></article></section><section class="section" id="productos"><div class="sectionHeader"><div><h2>Nuestra selección</h2><p id="subtitle">Productos y servicios disponibles</p></div><input class="search" type="search" id="search" placeholder="Buscar productos..." aria-label="Buscar productos"></div><div class="filters" id="filters"></div><div class="grid" id="catalog"><div class="notice">Consultando el catálogo...</div></div></section></main>
@@ -244,7 +269,7 @@ function showProductDetailPro(p){
 
 function applyBrandPro(){
  if(!shop)return;
- if(/^#[0-9a-fA-F]{6}$/.test(shop.color_marca||''))document.documentElement.style.setProperty('--store-color',shop.color_marca);
+ document.documentElement.style.setProperty('--store-color','#2856e8');
  $('#brand').textContent=shop.nombre;
  if(shop.logo_url&&/^https:\/\//.test(shop.logo_url)){$('.symbol').innerHTML=`<img src="${esc(shop.logo_url)}" alt="Logo de ${esc(shop.nombre)}" style="width:100%;height:100%;object-fit:contain">`;$('.logo').classList.add('hasBrandLogo');$('.symbol').style.background='transparent'}
  $('#heroTitle').textContent=shop.lema||'Tu negocio, conectado con mejores oportunidades.';
