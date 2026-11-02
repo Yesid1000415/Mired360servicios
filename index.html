@@ -1444,7 +1444,13 @@
       .floatingContact #floatingContactLabel { display: none; }
       .floatingContact { width: 52px; height: 52px; padding: 0; justify-content: center; right: 14px; bottom: 16px; }
     }
-  </style>
+  
+    /* En móviles, evitar que el acceso flotante tape la portada.
+       WhatsApp sigue disponible en el encabezado y la portada. */
+    @media (max-width: 767px) {
+      #floatingContact { display: none !important; }
+    }
+</style>
 
   <script>
     if (new URLSearchParams(location.search).get('integrado') === '1') {
