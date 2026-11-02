@@ -612,11 +612,11 @@ function verifiedPlanFactsPro(p){
  const facts=[];
  const speed=t.match(/\b(\d{2,4})\s*(?:\/\s*(\d{2,4})\s*)?(?:megas?|mbps|mb)\b/i);
  if(speed)facts.push(['Internet',speed[2]?speed[1]+' / '+speed[2]+' megas':speed[1]+' megas']);
- if(/(?:televisi[oó]n|\btv\b|decodificador|\bdeco\b)/i.test(t))facts.push(['Televisión','Incluida según descripción']);
- if(/(?:telefon[ií]a fija|l[ií]nea fija)/i.test(t))facts.push(['Telefonía fija','Mencionada en la oferta']);
+ if(/(?:televisi[oó]n|\btv\b|decodificador|\bdeco\b)/i.test(t))facts.push(['Televisión','Consultar equipos y condiciones']);
+ if(/(?:telefon[ií]a fija|l[ií]nea fija)/i.test(t))facts.push(['Telefonía fija','Consultar alcance y condiciones']);
  if(/(?:streaming|netflix|prime video|disney\+|paramount\+|win\+)/i.test(t))facts.push(['Entretenimiento','Consultar aplicaciones incluidas']);
  const discount=t.match(/50\s*%\s*(?:de\s*)?descuento[^.!\n]{0,85}/i);
- if(discount)facts.push(['Promoción',discount[0].trim()]);
+ if(discount)facts.push(['Promoción','Descuento mencionado; confirmar vigencia y facturas aplicables']);
  return facts.slice(0,5);
 }
 function showProductDetailPro(p){
@@ -678,7 +678,7 @@ function contactLinkPro(message){
  return 'https://wa.me/'+phone+'?text='+encodeURIComponent(message);
 }
 function productContactMessagePro(product){
- return 'Hola, quiero información sobre '+product.nombre+' de '+shop.nombre+'.\nPrecio de referencia: '+money(product.precio_cop)+'\n'+attributionPro()+'¿Está disponible? Quisiera conocer las condiciones.';
+ return 'Hola, quiero información sobre '+product.nombre+' de '+shop.nombre+'.\nPrecio de referencia: '+money(product.precio_cop)+'\n'+attributionPro()+'Quiero validar cobertura, precio final, instalación y vigencia de la oferta. ¿Qué datos necesitas para continuar?';
 }
 function updateContactLinksPro(){
  if(!shop)return;
