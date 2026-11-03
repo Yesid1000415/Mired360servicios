@@ -1750,7 +1750,13 @@
     }
 
     function operatorOfProduct(p) {
-      return String(p.categoria || "").trim();
+      const raw = String(p.categoria || '').trim();
+      const normalized = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      if (normalized === 'tigo' || normalized === 'une') return 'Tigo';
+      if (normalized === 'claro') return 'Claro';
+      if (normalized === 'etb') return 'ETB';
+      if (normalized.includes('bold') || normalized.includes('datafono')) return 'Datáfono Bold';
+      return raw;
     }
 
     function renderCompareBar() {
