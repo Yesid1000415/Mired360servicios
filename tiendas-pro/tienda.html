@@ -1472,7 +1472,17 @@
       .floatingContact #floatingContactLabel { display: none; }
       .floatingContact { width: 52px; height: 52px; padding: 0; justify-content: center; right: 14px; bottom: 16px; }
     }
-  </style>
+  
+    /* Corrección móvil: evitar que WhatsApp se superponga al logotipo y a la portada. */
+    @media (max-width: 720px) {
+      #headerContact { display: none !important; }
+      #floatingContact { display: none !important; }
+      .head .brandWordmark { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+      .head .brandLetters { overflow: hidden; text-overflow: ellipsis; }
+      .head .actions { flex: 0 0 auto; }
+      #openCart { white-space: nowrap; }
+    }
+</style>
 
   <script>
     if (new URLSearchParams(location.search).get('integrado') === '1') {
