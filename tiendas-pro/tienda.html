@@ -30,8 +30,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Carga de configuración compatible tanto en /tiendas-pro/tienda.html como en raíz -->
-  <script src="./config.js" onerror="var s=document.createElement('script');s.src='./tiendas-pro/config.js';document.head.appendChild(s);"></script>
+  <!-- Configuración con respaldo incluido para que nunca falle por ruta -->
+  <script src="./config.js"></script>
+  <script src="./tiendas-pro/config.js"></script>
+  <script>
+    if (!window.MIRED360_CLOUD) {
+      window.MIRED360_CLOUD = {
+        url: "https://wpsrqlgpzcdwzlelhgbl.supabase.co",
+        publishableKey: "sb_publishable_p3Cwu7FgzcIQ5gBgj22fFQ_yKbNhMVg",
+        slugPrincipal: "mired360",
+        functionCheckout: "crear-pedido",
+        turnstileSiteKey: "SITE_KEY_PUBLICA"
+      };
+    }
+  </script>
 
   <style>
     :root {
@@ -341,6 +353,22 @@
       font-size: 13px;
       color: var(--ink-secondary);
       font-weight: 500;
+    }
+    .operatorAllBtn {
+      border: 1px solid var(--border-soft);
+      background: #fff;
+      color: var(--ink-primary);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 12.5px;
+      font-weight: 800;
+      transition: all 0.18s;
+    }
+    .operatorAllBtn.selected,
+    .operatorAllBtn:hover {
+      background: var(--ink-primary);
+      color: #fff;
+      border-color: var(--ink-primary);
     }
     .operatorStrip {
       display: grid;
@@ -1519,8 +1547,9 @@
       <div class="operatorHeader">
         <div>
           <div class="operatorTitle">OPERADORES Y SOLUCIONES OFICIALES</div>
-          <p>Selecciona la marca de tu interés para explorar sus planes, equipos y promociones.</p>
+          <p>Selecciona un operador para filtrar sus planes, o explora el catálogo completo.</p>
         </div>
+        <button type="button" class="operatorAllBtn" id="showAllOperators" data-operator="">Ver todos los operadores</button>
       </div>
       <div class="operatorStrip">
         <button type="button" class="opCard operatorClaro" data-operator="Claro" aria-pressed="false">
@@ -1706,7 +1735,7 @@
   <div class="hidden" id="overlay"></div>
   <div class="hidden" id="detailOverlay"></div>
 
-  <!-- MOTOR DE TIENDA Y CONEXIÓN A SUPABASE -->
+  <!-- MOTOR DE TIENDA Y CONEXIÓN A SUPABASE CON FILTRADO FLEXIBLE POR OPERADOR -->
   <script type="module">
     const cfg = window.MIRED360_CLOUD || {};
     const q = new URLSearchParams(location.search);
@@ -1716,7 +1745,7 @@
     let products = [];
     let cart = {};
     let category = 'Todos';
-    let operator = q.get('operador') || 'Claro';
+    let operator = q.get('operador') || '';
     let filter = '';
     let compareIds = [];
     let dbClient = null;
@@ -1731,6 +1760,40 @@
       maximumFractionDigits: 0
     }).format(Number(n || 0));
 
+    // Normaliza texto quitando tildes y pasando a minúsculas para comparaciones seguras
+    function norm(str) {
+      return String(str || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    }
+
+    // Detecta automáticamente a qué operador pertenece un producto
+    function operatorOfProduct(p) {
+      const catRaw = String(p?.categoria || '').trim();
+      const cat = norm(catRaw);
+      const name = norm(p?.nombre || '');
+      const combined = cat + ' ' + name;
+
+      if (combined.includes('bold') || combined.includes('datafono')) return 'Datáfono Bold';
+      if (combined.includes('claro')) return 'Claro';
+      if (combined.includes('etb')) return 'ETB';
+      if (combined.includes('tigo') || combined.includes('une')) return 'Tigo';
+      return catRaw || 'General';
+    }
+
+    // Verifica si un producto coincide con el botón de operador presionado
+    function matchesOperator(p, selectedOp) {
+      if (!selectedOp) return true;
+      const detected = operatorOfProduct(p);
+      if (detected === selectedOp) return true;
+      const target = norm(selectedOp);
+      const fullText = norm([p?.categoria, p?.nombre, p?.descripcion].join(' '));
+      if (target.includes('bold')) return fullText.includes('bold') || fullText.includes('datafono');
+      return fullText.includes(target);
+    }
+
     function render() {
       return renderCatalogPremium();
     }
@@ -1739,16 +1802,12 @@
       if (p.imagen_url && /^https:\/\//i.test(p.imagen_url)) {
         return `<img src="${esc(p.imagen_url)}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" class="premiumPhoto">`;
       }
-      const cat = String(p.categoria || '').toLowerCase();
+      const cat = norm(p.categoria || p.nombre);
       const symbol = cat.includes('internet') || cat.includes('fibra') ? '◉'
-        : cat.includes('televisión') ? '▣'
+        : cat.includes('television') || cat.includes('tv') ? '▣'
         : cat.includes('tecnol') ? '◆'
-        : cat.includes('datáfono') || cat.includes('bold') ? '💳' : '✦';
-      return `<div class="noPhoto"><span>${symbol}</span><small>MIRED360 · ${esc(p.categoria || 'Servicio')}</small></div>`;
-    }
-
-    function operatorOfProduct(p) {
-      return String(p.categoria || "").trim();
+        : cat.includes('datafono') || cat.includes('bold') ? '💳' : '✦';
+      return `<div class="noPhoto"><span>${symbol}</span><small>MIRED360 · ${esc(operatorOfProduct(p))}</small></div>`;
     }
 
     function renderCompareBar() {
@@ -1771,7 +1830,7 @@
       const selected = compareIds.map(id => products.find(p => String(p.id) === String(id))).filter(Boolean);
       if (selected.length !== 2) return;
       const rows = [
-        ["Operador / Categoría", p => p.categoria || "Sin categoría"],
+        ["Operador / Categoría", p => operatorOfProduct(p)],
         ["Precio publicado", p => money(p.precio_cop)],
         ["Características y beneficios", p => [p.descripcion, p.descripcion_larga].filter(Boolean).join(" · ") || "Consultar detalles"]
       ];
@@ -1808,32 +1867,29 @@
 
     function renderCatalogPremium() {
       if (!shop) return;
-      const scoped = operator ? products.filter(p => operatorOfProduct(p) === operator) : products;
-      category = 'Todos';
 
+      // Resaltar tarjeta del operador activo
       document.querySelectorAll('[data-operator]').forEach(b => {
         const selected = b.dataset.operator === operator;
         b.setAttribute('aria-pressed', String(selected));
         b.classList.toggle('selected', selected);
       });
 
-      $('#filters').innerHTML = '';
+      const scoped = operator ? products.filter(p => matchesOperator(p, operator)) : products;
       const query = filter.trim().toLowerCase();
       const filtered = scoped
-        .filter(p => (category === 'Todos' || (p.categoria || 'General') === category) &&
-          [p.nombre, p.categoria, p.descripcion, p.descripcion_larga].join(' ').toLowerCase().includes(query))
+        .filter(p => [p.nombre, p.categoria, p.descripcion, p.descripcion_larga].join(' ').toLowerCase().includes(query))
         .sort((a, b) => Number(Boolean(b.destacado)) - Number(Boolean(a.destacado)) || Number(a.precio_cop) - Number(b.precio_cop));
 
       $('#subtitle').textContent = operator
         ? `${operator} · ${filtered.length === 1 ? '1 producto o servicio disponible' : filtered.length + ' productos y servicios disponibles'}`
-        : 'Selecciona Claro, ETB, Tigo o Bold para filtrar el catálogo.';
+        : `Todos los operadores · ${filtered.length} productos y servicios disponibles`;
 
-      const names = filtered.length ? [operator || 'Catálogo completo'] : [];
-
+      // Actualizar selector de planes en el formulario de cobertura
       const planSelect = $('#coveragePlan');
       if (planSelect) {
         const previous = planSelect.value;
-        const internetPlans = products.filter(p => operatorOfProduct(p) !== 'Datáfono Bold' && (!operator || operator === 'Datáfono Bold' || operatorOfProduct(p) === operator));
+        const internetPlans = products.filter(p => operatorOfProduct(p) !== 'Datáfono Bold' && (!operator || operator === 'Datáfono Bold' || matchesOperator(p, operator)));
         planSelect.innerHTML = '<option value="">Asesoría general (comparar cobertura de operadores)</option>' +
           internetPlans.map(p => `<option value="${esc(p.id)}">[${esc(operatorOfProduct(p))}] ${esc(p.nombre)} · ${money(p.precio_cop)}</option>`).join('');
         if ([...planSelect.options].some(o => o.value === previous)) planSelect.value = previous;
@@ -1866,7 +1922,7 @@
             </div>
             <div class="premiumTopText">
               <div class="premiumMetaRow">
-                <span class="premiumCategory" data-op="${esc(opName)}">${esc(opName || 'General')}</span>
+                <span class="premiumCategory" data-op="${esc(opName)}">${esc(opName)}</span>
                 <span class="premiumMicroTrust">${isBold ? 'PAGO PARA COMERCIOS' : 'HOGAR / NEGOCIOS'}</span>
               </div>
               <h3 class="premiumTitle">${esc(p.nombre)}</h3>
@@ -1895,5 +1951,576 @@
         </article>`;
       };
 
-      $('#catalog').innerHTML = !operator
-        ? '<div class="notice" role="
+      // Si hay un operador seleccionado muestra ese grupo; si está en "Todos", agrupa por operador
+      if (!filtered.length) {
+        $('#catalog').innerHTML = `<div class="notice">${products.length ? 'No encontramos planes o productos publicados bajo el filtro "' + esc(operator || filter) + '". Haz clic en "Ver todos los operadores" para explorar todo el catálogo.' : 'Consultando productos del catálogo...'}</div>`;
+      } else if (operator) {
+        $('#catalog').innerHTML = `
+          <section class="catalogCategoryGroup" aria-label="${esc(operator)}">
+            <div class="catalogGroupHead">
+              <div>
+                <span class="catalogGroupOrdinal">01</span>
+                <h3>${esc(operator)}</h3>
+              </div>
+              <span class="catalogGroupCount">${filtered.length === 1 ? '1 opción disponible' : filtered.length + ' opciones disponibles'}</span>
+            </div>
+            <div class="catalogGroupItems">${filtered.map(cards).join('')}</div>
+          </section>`;
+      } else {
+        const groupsOrder = ['Claro', 'ETB', 'Tigo', 'Datáfono Bold'];
+        const grouped = {};
+        filtered.forEach(p => {
+          const g = operatorOfProduct(p);
+          if (!grouped[g]) grouped[g] = [];
+          grouped[g].push(p);
+        });
+        const orderedKeys = [
+          ...groupsOrder.filter(k => grouped[k]?.length),
+          ...Object.keys(grouped).filter(k => !groupsOrder.includes(k))
+        ];
+        $('#catalog').innerHTML = orderedKeys.map((gName, idx) => {
+          const items = grouped[gName];
+          return `<section class="catalogCategoryGroup" aria-label="${esc(gName)}">
+            <div class="catalogGroupHead">
+              <div>
+                <span class="catalogGroupOrdinal">${String(idx + 1).padStart(2, '0')}</span>
+                <h3>${esc(gName)}</h3>
+              </div>
+              <span class="catalogGroupCount">${items.length === 1 ? '1 opción disponible' : items.length + ' opciones disponibles'}</span>
+            </div>
+            <div class="catalogGroupItems">${items.map(cards).join('')}</div>
+          </section>`;
+        }).join('');
+      }
+
+      $('#count').textContent = Object.values(cart).reduce((a, b) => a + b, 0);
+      renderCompareBar();
+    }
+
+    function safeVideoPro(value) {
+      if (!value) return '';
+      try {
+        const u = new URL(value);
+        if (u.protocol !== 'https:') return '';
+        const domain = u.hostname.toLowerCase();
+        let iframe = '';
+        if (['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(domain)) {
+          const id = u.searchParams.get('v') || u.pathname.match(/^\/(?:shorts|embed)\/([a-zA-Z0-9_-]{11})/)?.[1] || '';
+          if (/^[A-Za-z0-9_-]{11}$/.test(id)) iframe = 'https://www.youtube-nocookie.com/embed/' + id;
+        } else if (['youtu.be', 'www.youtu.be'].includes(domain)) {
+          const id = u.pathname.slice(1);
+          if (/^[A-Za-z0-9_-]{11}$/.test(id)) iframe = 'https://www.youtube-nocookie.com/embed/' + id;
+        } else if (['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'].includes(domain)) {
+          const match = u.pathname.match(/(\d+)/);
+          if (match) iframe = 'https://player.vimeo.com/video/' + match[1];
+        }
+        if (iframe) {
+          return `<iframe src="${esc(iframe)}" loading="lazy" title="Video del producto" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+        }
+        if (domain.endsWith('.supabase.co') && u.pathname.includes('/storage/v1/object/public/mired360-media/') && u.pathname.toLowerCase().endsWith('.mp4')) {
+          return `<video src="${esc(u.href)}" controls preload="metadata" playsinline></video>`;
+        }
+        return '';
+      } catch {
+        return '';
+      }
+    }
+
+    function verifiedPlanFactsPro(p) {
+      const t = [p.nombre, p.descripcion, p.descripcion_larga].filter(Boolean).join(' ');
+      const facts = [];
+      const speed = t.match(/\b(\d{2,4})\s*(?:\/\s*(\d{2,4})\s*)?(?:megas?|mbps|mb)\b/i);
+      if (speed) facts.push(['Velocidad Internet', speed[2] ? speed[1] + ' / ' + speed[2] + ' Mbps' : speed[1] + ' Mbps']);
+      if (/(?:televisi[oó]n|\btv\b|decodificador|\bdeco\b)/i.test(t)) facts.push(['Televisión', 'Incluida según plan']);
+      if (/(?:telefon[ií]a fija|l[ií]nea fija)/i.test(t)) facts.push(['Línea fija', 'Incluida en el plan']);
+      if (/(?:streaming|netflix|prime video|disney\+|paramount\+|win\+)/i.test(t)) facts.push(['Entretenimiento', 'Apps / contenido digital']);
+      const discount = t.match(/50\s*%\s*(?:de\s*)?descuento[^.!\n]{0,85}/i);
+      if (discount) facts.push(['Promoción', 'Descuento sujeto a vigencia']);
+      return facts.slice(0, 5);
+    }
+
+    function showProductDetailPro(p) {
+      if (!p) return;
+      const isBold = operatorOfProduct(p) === 'Datáfono Bold';
+      const images = [p.imagen_url, ...(Array.isArray(p.galeria_urls) ? p.galeria_urls : [])].filter(x => x && /^https:\/\//.test(x));
+      const img = images[0]
+        ? `<img src="${esc(images[0])}" alt="${esc(p.nombre)}" id="productBigImage" class="premiumDetailPhoto">`
+        : photoMarkupPro(p);
+      const thumbs = images.length > 1
+        ? `<div class="thumbs">${images.map((src, i) => `<button type="button" data-detail-photo="${esc(src)}" aria-label="Ver imagen ${i + 1}"><img src="${esc(src)}" alt="Vista ${i + 1}"></button>`).join('')}</div>`
+        : '';
+      const video = safeVideoPro(p.video_url);
+      const facts = verifiedPlanFactsPro(p);
+      const factHtml = facts.length
+        ? '<div class="verifiedFacts">' + facts.map(([label, value]) => `<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join('') + '</div>'
+        : '';
+
+      $('#detailOverlay').className = '';
+      $('#detailOverlay').innerHTML = `
+        <div class="shade" data-detail-close></div>
+        <div class="detailDialog" role="dialog" aria-modal="true">
+          <button type="button" class="btn" data-detail-close style="float:right">✕ Cerrar</button>
+          <div class="detailColumns">
+            <div>
+              <div class="detailPhoto">${img}</div>
+              ${thumbs}
+              ${video ? `<div class="productVideo">${video}</div>` : ''}
+            </div>
+            <div>
+              <span class="chip active">${esc(operatorOfProduct(p))}</span>
+              <h2 style="font-size:26px;line-height:1.2;letter-spacing:-0.8px;margin:14px 0">${esc(p.nombre)}</h2>
+              <div style="font-size:28px;font-weight:800;color:#0f172a;margin-bottom:10px">${money(p.precio_cop)}</div>
+              ${factHtml}
+              <p style="font-size:14px;color:#475569;line-height:1.6;margin:12px 0">${esc(p.descripcion || '')}</p>
+              <div class="descriptionPro">${esc(p.descripcion_larga || 'Contáctanos para confirmar disponibilidad, características y condiciones comerciales.')}</div>
+              <button type="button" class="btn primary" style="width:100%;margin-top:18px;padding:13px" data-detail-add="${esc(p.id)}" ${p.tipo === 'producto' && p.inventario < 1 ? 'disabled' : ''}>
+                ${p.tipo === 'producto' && p.inventario < 1 ? 'Agotado' : '＋ Añadir al carrito'}
+              </button>
+              <a class="btn contactDetailButton" data-product-contact="${esc(p.id)}" href="${esc(contactLinkPro(productContactMessagePro(p)))}" target="_blank" rel="noopener noreferrer">
+                ✆ ${isBold ? 'Comprar / Solicitar este datáfono por ' : 'Consultar este plan por '}${esc(contactProviderPro())}
+              </a>
+              <p style="font-size:11px;color:#64748b;margin-top:10px">
+                ${isBold ? 'Compra directa con despacho a nivel nacional.' : 'Oferta sujeta a validación de cobertura técnica en tu dirección.'}
+              </p>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function applyBrandPro() {
+      if (!shop) return;
+      $('#heroTitle').textContent = 'Internet, televisión y soluciones para tu hogar o negocio';
+      $('#heroDescription').textContent = 'Compara planes de Claro, ETB, Tigo y datáfonos Bold. Consulta precios, beneficios y cobertura con asesoría personalizada.';
+      $('#footerName').textContent = shop.nombre || 'MIRED360SERVICIOS';
+      $('#footerLegalName').textContent = shop.nombre || 'MIRED360SERVICIOS';
+      $('#footerYear').textContent = new Date().getFullYear();
+      document.title = (shop.nombre || 'MIRED360SERVICIOS') + ' | Internet, televisión y soluciones para negocios';
+      updateContactLinksPro();
+    }
+
+    function normalizeContactUrlPro(raw) {
+      try {
+        const u = new URL(raw);
+        if (u.protocol !== 'https:' || u.username || u.password) return '';
+        return u.href;
+      } catch {
+        return '';
+      }
+    }
+
+    function contactProviderPro() {
+      const external = normalizeContactUrlPro(shop?.contacto_url || '');
+      if (!external) return 'WhatsApp';
+      try {
+        const h = new URL(external).hostname.toLowerCase();
+        return ['wa.me', 'www.wa.me', 'api.whatsapp.com', 'www.api.whatsapp.com', 'web.whatsapp.com'].includes(h)
+          ? 'WhatsApp'
+          : 'enlace oficial';
+      } catch {
+        return 'WhatsApp';
+      }
+    }
+
+    function attributionPro() {
+      const sucursal = (q.get('sucursal') || '').slice(0, 80);
+      const asesor = (q.get('asesor') || '').slice(0, 80);
+      return (sucursal ? 'Referencia sucursal: ' + sucursal + '\n' : '') +
+             (asesor ? 'Referencia asesor: ' + asesor + '\n' : '');
+    }
+
+    function contactLinkPro(message) {
+      if (!shop) return 'https://wa.me/573229432085?text=' + encodeURIComponent(message);
+      const external = normalizeContactUrlPro(shop.contacto_url || '');
+      if (external) {
+        try {
+          const u = new URL(external), h = u.hostname.toLowerCase();
+          if (['wa.me', 'www.wa.me'].includes(h)) {
+            const phone = u.pathname.replace(/\D/g, '');
+            if (phone.length >= 10 && phone.length <= 15) return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+          }
+          if (['api.whatsapp.com', 'www.api.whatsapp.com', 'web.whatsapp.com'].includes(h)) {
+            const phone = (u.searchParams.get('phone') || '').replace(/\D/g, '');
+            if (phone.length >= 10 && phone.length <= 15) return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+          }
+          return external;
+        } catch {}
+      }
+      let phone = String(shop.whatsapp || '3229432085').replace(/\D/g, '');
+      if (phone.length === 10 && phone.startsWith('3')) phone = '57' + phone;
+      if (phone.length < 10 || phone.length > 15) phone = '573229432085';
+      return 'https://wa.me/' + phone + '?text=' + encodeURIComponent(message);
+    }
+
+    function productContactMessagePro(product) {
+      if (operatorOfProduct(product) === 'Datáfono Bold') {
+        return 'Hola, quiero comprar o solicitar información sobre ' + product.nombre + ' de ' + (shop?.nombre || 'MIRED360SERVICIOS') + '.\n' +
+          'Precio publicado: ' + money(product.precio_cop) + '\n' +
+          attributionPro() +
+          'Por favor indícame disponibilidad, medios de pago y envío.';
+      }
+      return 'Hola, quiero información sobre ' + product.nombre + ' de ' + (shop?.nombre || 'MIRED360SERVICIOS') + '.\n' +
+        'Precio de referencia: ' + money(product.precio_cop) + '\n' +
+        attributionPro() +
+        'Quiero validar cobertura, precio final, instalación y vigencia de la oferta.';
+    }
+
+    function updateContactLinksPro() {
+      if (!shop) return;
+      const general = contactLinkPro('Hola, visité la plataforma ' + (shop.nombre || 'MIRED360SERVICIOS') + ' y deseo recibir asesoría comercial.\n' + attributionPro());
+      const provider = contactProviderPro();
+      const isWhatsApp = provider === 'WhatsApp';
+
+      for (const id of ['#headerContact', '#heroContact', '#floatingContact', '#coverWhatsApp', '#footerContact']) {
+        const el = $(id);
+        if (!el) continue;
+        if (general) {
+          el.classList.remove('hidden');
+          el.href = general;
+        }
+      }
+      $('#headerContact').textContent = isWhatsApp ? '✆ WhatsApp' : '✆ Contactar';
+      $('#heroContact').textContent = isWhatsApp ? '✆ Consultar por WhatsApp' : '✆ Hablar con asesor';
+
+      const networks = [
+        ['facebook_url', 'Facebook'],
+        ['instagram_url', 'Instagram'],
+        ['tiktok_url', 'TikTok'],
+        ['youtube_url', 'YouTube'],
+        ['x_url', 'X'],
+        ['web_url', 'Sitio web']
+      ];
+      $('#footerSocials').innerHTML = networks.map(([field, label]) => {
+        const href = normalizeContactUrlPro(shop[field] || '');
+        return href ? `<a href="${esc(href)}" rel="noopener noreferrer" target="_blank">${esc(label)}</a>` : '';
+      }).join('');
+    }
+
+    function closeCart() {
+      $('#overlay').className = 'hidden';
+      $('#overlay').innerHTML = '';
+    }
+
+    function showCart() {
+      const selected = Object.keys(cart).map(id => {
+        const p = products.find(p => String(p.id) === String(id));
+        return p ? { ...p, qty: cart[id] } : null;
+      }).filter(Boolean);
+
+      const total = selected.reduce((n, p) => n + p.qty * Number(p.precio_cop), 0);
+      const message = 'Hola, deseo consultar o adquirir estos productos en ' + (shop?.nombre || 'MIRED360SERVICIOS') + ':\n' +
+        selected.map(p => '- ' + p.nombre + ' × ' + p.qty + ' — ' + money(p.qty * p.precio_cop)).join('\n') +
+        '\nTotal estimado: ' + money(total) + '\n' +
+        attributionPro() +
+        'Por favor, confirmen disponibilidad y pasos para continuar.';
+      const contactUrl = contactLinkPro(message);
+
+      $('#overlay').className = '';
+      $('#overlay').innerHTML = `
+        <div class="shade" data-close></div>
+        <section class="drawer" role="dialog" aria-modal="true" aria-label="Carrito de compras">
+          <div class="drawerHeader">
+            <h2>Tu selección (${selected.reduce((n, p) => n + p.qty, 0)})</h2>
+            <button type="button" class="btn" data-close>✕</button>
+          </div>
+          <div class="items">
+            ${selected.length
+              ? selected.map(p => `
+                  <div class="line">
+                    <div>
+                      <strong>${esc(p.nombre)}</strong>
+                      <small>${esc(operatorOfProduct(p))} · ${money(p.precio_cop)}</small>
+                      <div class="quantity">
+                        <button type="button" data-minus="${esc(p.id)}">−</button>
+                        <span>${p.qty}</span>
+                        <button type="button" data-plus="${esc(p.id)}">+</button>
+                      </div>
+                    </div>
+                    <b>${money(p.precio_cop * p.qty)}</b>
+                  </div>`).join('')
+              : '<div class="notice" style="margin-top:20px">Tu carrito está vacío. Explora los planes o datáfonos y agrégalos aquí.</div>'}
+          </div>
+          <div class="cartFoot">
+            <div class="total">
+              <strong>Subtotal estimado</strong>
+              <strong>${money(total)}</strong>
+            </div>
+            ${selected.length && contactUrl
+              ? `<a class="btn primary" data-track-cart="1" rel="noopener noreferrer" target="_blank" href="${esc(contactUrl)}">✆ Solicitar carrito por ${esc(contactProviderPro())}</a>`
+              : '<button type="button" class="btn" disabled>Agrega un producto para continuar</button>'}
+            <div class="warning">Un asesor confirmará cobertura (si aplica), promociones vigentes y proceso de activación o entrega.</div>
+          </div>
+        </section>`;
+    }
+
+    async function load() {
+      const activeCfg = window.MIRED360_CLOUD || {};
+      if (!activeCfg.url || !activeCfg.publishableKey) {
+        $('#catalog').innerHTML = '<div class="notice">Configurando conexión con el catálogo...</div>';
+        return;
+      }
+      try {
+        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm');
+        const db = createClient(activeCfg.url, activeCfg.publishableKey);
+        dbClient = db;
+
+        const { data, error } = await db.rpc('catalogo_publico', { p_slug: slug });
+        if (error) throw error;
+
+        if (!data?.encontrada) {
+          if (q.get('preview') === '1') {
+            const { data: auth } = await db.auth.getSession();
+            if (auth?.session?.user) {
+              const { data: privateShop } = await db.from('tiendas').select('*').eq('slug', slug).eq('propietario_id', auth.session.user.id).maybeSingle();
+              if (privateShop) {
+                const { data: privateProducts } = await db.from('productos').select('*').eq('tienda_id', privateShop.id).eq('activa', true);
+                shop = privateShop;
+                products = privateProducts || [];
+                $('#previewBanner').className = '';
+                applyBrandPro();
+                render();
+                return;
+              }
+            }
+          }
+          $('#catalog').innerHTML = '<div class="notice">Próximamente estará disponible nuestro catálogo.</div>';
+          return;
+        }
+        shop = data.tienda;
+        products = data.productos || [];
+
+        // Si el operador inicial no tiene coincidencias, mostrar todos automáticamente
+        if (operator && !products.some(p => matchesOperator(p, operator))) {
+          operator = '';
+        }
+
+        applyBrandPro();
+        render();
+      } catch (err) {
+        console.error(err);
+        $('#catalog').innerHTML = '<div class="notice">No fue posible cargar el catálogo en este momento. Por favor recarga la página o contáctanos por WhatsApp.</div>';
+      }
+    }
+
+    $('#coveragePlan').addEventListener('change', e => {
+      const p = products.find(p => String(p.id) === e.target.value);
+      const status = $('#guidedStatus');
+      if (status) {
+        status.textContent = p
+          ? 'Plan seleccionado: ' + p.nombre + ' (' + money(p.precio_cop) + '). Ingresa tu dirección para verificar disponibilidad.'
+          : 'Puedes elegir un plan del catálogo o solicitar una validación general en tu dirección.';
+      }
+    });
+
+    $('#coverageForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const data = new FormData(form);
+      const city = String(data.get('ciudad') || '').trim();
+      const barrio = String(data.get('barrio') || '').trim();
+      const direccion = String(data.get('direccion') || '').trim();
+      if (!city || !barrio || !direccion) return;
+
+      const selected = products.find(p => String(p.id) === String(data.get('plan') || ''));
+      const msg = 'Hola, quiero validar cobertura y condiciones de contratación en MIRED360SERVICIOS.\n' +
+        (selected ? 'Plan seleccionado: ' + selected.nombre + '\nPrecio de referencia: ' + money(selected.precio_cop) + '\n' : '') +
+        'Ciudad: ' + city + '\n' +
+        'Barrio: ' + barrio + '\n' +
+        'Dirección: ' + direccion + '\n' +
+        'Operador de interés: ' + (selected ? operatorOfProduct(selected) : (operator || 'Multimarca')) + '\n' +
+        attributionPro() +
+        'Por favor confirmar cobertura, precio final, instalación y vigencia.';
+
+      const url = contactLinkPro(msg);
+      if (url) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        if (selected) link.dataset.productContact = String(selected.id);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        const detail = $('#detailOverlay');
+        if (detail && !detail.classList.contains('hidden')) {
+          detail.className = 'hidden';
+          detail.innerHTML = '';
+        } else {
+          closeCart();
+        }
+      }
+    });
+
+    document.addEventListener('click', e => {
+      const boldBuy = e.target.closest('[data-bold-buy]');
+      if (boldBuy) {
+        const p = products.find(p => String(p.id) === boldBuy.dataset.boldBuy);
+        if (p) {
+          const url = contactLinkPro(
+            'Hola, quiero iniciar la compra directa de ' + p.nombre + '.\n' +
+            'Precio publicado: ' + money(p.precio_cop) + '\n' +
+            attributionPro() +
+            'Por favor indícame el enlace o medio de pago y los datos para el envío.'
+          );
+          if (url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.dataset.productContact = String(p.id);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }
+        }
+        return;
+      }
+
+      const guided = e.target.closest('[data-guide-plan]');
+      if (guided) {
+        const p = products.find(p => String(p.id) === guided.dataset.guidePlan);
+        if (p) {
+          const select = $('#coveragePlan');
+          if (select) {
+            select.value = String(p.id);
+            select.dispatchEvent(new Event('change'));
+          }
+          $('#cobertura')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      const compare = e.target.closest('[data-compare]');
+      if (compare) {
+        const id = compare.dataset.compare;
+        const selectedProduct = products.find(p => String(p.id) === id);
+        if (!selectedProduct) return;
+        if (compareIds.includes(id)) compareIds = compareIds.filter(x => x !== id);
+        else compareIds = [...compareIds.slice(-1), id];
+        render();
+        return;
+      }
+      if (e.target.closest('[data-compare-clear]')) { compareIds = []; render(); return; }
+      if (e.target.closest('[data-compare-show]')) { showComparison(); return; }
+
+      const detail = e.target.closest('[data-detail]');
+      if (detail) {
+        showProductDetailPro(products.find(p => String(p.id) === String(detail.dataset.detail)));
+        return;
+      }
+      if (e.target.closest('[data-detail-close]')) {
+        $('#detailOverlay').className = 'hidden';
+        $('#detailOverlay').innerHTML = '';
+        return;
+      }
+      const choosePhoto = e.target.closest('[data-detail-photo]');
+      if (choosePhoto) {
+        const img = $('#productBigImage');
+        if (img) img.src = choosePhoto.dataset.detailPhoto;
+        return;
+      }
+      const addDetail = e.target.closest('[data-detail-add]');
+      if (addDetail) {
+        const p = products.find(x => String(x.id) === String(addDetail.dataset.detailAdd));
+        if (!p || (p.tipo === 'producto' && (cart[p.id] || 0) >= p.inventario)) return;
+        cart[p.id] = (cart[p.id] || 0) + 1;
+        $('#detailOverlay').className = 'hidden';
+        $('#detailOverlay').innerHTML = '';
+        render();
+        showCart();
+        return;
+      }
+
+      // Clic en cualquiera de las tarjetas de Operador (Claro, ETB, Tigo, Bold o Ver Todos)
+      const op = e.target.closest('[data-operator]');
+      if (op) {
+        const clickedOp = op.dataset.operator;
+        operator = (operator === clickedOp && clickedOp !== '') ? '' : clickedOp;
+        category = 'Todos';
+        compareIds = [];
+        filter = '';
+        $('#search').value = '';
+        render();
+        $('#productos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      const add = e.target.closest('[data-add]');
+      if (add) {
+        const p = products.find(x => String(x.id) === String(add.dataset.add));
+        if (!p || (p.tipo === 'producto' && (cart[p.id] || 0) >= p.inventario)) return;
+        cart[p.id] = (cart[p.id] || 0) + 1;
+        render();
+        return;
+      }
+      const plus = e.target.closest('[data-plus],[data-minus]');
+      if (plus) {
+        const id = plus.dataset.plus || plus.dataset.minus;
+        const p = products.find(x => String(x.id) === String(id));
+        if (plus.dataset.plus && p?.tipo === 'producto' && cart[id] >= p.inventario) return;
+        cart[id] = Math.max(0, (cart[id] || 0) + (plus.dataset.plus ? 1 : -1));
+        if (!cart[id]) delete cart[id];
+        render();
+        showCart();
+        return;
+      }
+      if (e.target.closest('[data-close]')) closeCart();
+    });
+
+    function isWhatsAppDestination(url) {
+      try {
+        const host = new URL(url, location.origin).hostname.toLowerCase();
+        return ['wa.me', 'www.wa.me', 'api.whatsapp.com', 'www.api.whatsapp.com', 'web.whatsapp.com'].includes(host);
+      } catch {
+        return false;
+      }
+    }
+
+    function trackWhatsAppClick(anchor) {
+      if (!dbClient || !shop || q.get('preview') === '1' || !isWhatsAppDestination(anchor.href)) return;
+      let tipo = 'general', productId = null, productIds = [];
+      const productLink = anchor.closest('[data-product-contact]');
+      if (productLink) {
+        tipo = 'producto';
+        productId = productLink.dataset.productContact;
+        if (!products.some(p => String(p.id) === String(productId))) return;
+      } else if (anchor.matches('[data-track-cart]')) {
+        tipo = 'carrito';
+        productIds = Object.keys(cart).filter(id => cart[id] > 0 && products.some(p => String(p.id) === String(id)));
+        if (!productIds.length || productIds.length > 20) return;
+      } else if (!anchor.matches('#headerContact,#heroContact,#floatingContact,#coverWhatsApp,#footerContact')) {
+        return;
+      }
+
+      const params = {
+        p_slug: slug,
+        p_tipo: tipo,
+        p_evento_id: crypto.randomUUID(),
+        p_producto_id: productId,
+        p_sucursal_id: q.get('sucursal') || null,
+        p_asesor_id: q.get('asesor') || null,
+        p_productos_ids: productIds
+      };
+
+      void dbClient.rpc('registrar_consulta_whatsapp', params).catch(() => {});
+    }
+
+    document.addEventListener('click', e => {
+      const a = e.target.closest('a[href]');
+      if (a) trackWhatsAppClick(a);
+    }, true);
+
+    $('#openCart').onclick = showCart;
+    $('#search').oninput = e => {
+      filter = e.target.value;
+      render();
+    };
+
+    load();
+  </script>
+</body>
+</html>
