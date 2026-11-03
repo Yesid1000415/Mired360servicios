@@ -30,11 +30,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Configuración con respaldo incluido para que nunca falle por ruta -->
+  <!-- Configuración garantizada en cualquier ruta -->
   <script src="./config.js"></script>
   <script src="./tiendas-pro/config.js"></script>
   <script>
-    if (!window.MIRED360_CLOUD) {
+    if (!window.MIRED360_CLOUD || !window.MIRED360_CLOUD.url) {
       window.MIRED360_CLOUD = {
         url: "https://wpsrqlgpzcdwzlelhgbl.supabase.co",
         publishableKey: "sb_publishable_p3Cwu7FgzcIQ5gBgj22fFQ_yKbNhMVg",
@@ -1508,7 +1508,6 @@
   </header>
 
   <main class="container">
-    <!-- Banner de vista previa privada -->
     <div class="hidden" id="previewBanner" style="margin-top:16px;background:#fff7db;border:1px solid #e9ce8a;color:#755400;padding:12px;border-radius:12px;font-weight:800;font-size:12px">
       👁 VISTA PREVIA PRIVADA · Los compradores todavía no pueden ver esta tienda.
     </div>
@@ -1735,9 +1734,15 @@
   <div class="hidden" id="overlay"></div>
   <div class="hidden" id="detailOverlay"></div>
 
-  <!-- MOTOR DE TIENDA Y CONEXIÓN A SUPABASE CON FILTRADO FLEXIBLE POR OPERADOR -->
-  <script type="module">
-    const cfg = window.MIRED360_CLOUD || {};
+  <!-- MOTOR DE TIENDA CON CONEXIÓN REST NATIVA DIRECTA A SUPABASE (SIN DEPENDENCIAS EXTERNAS QUE SE BLOQUEEN) -->
+  <script>
+  (() => {
+    const cfg = window.MIRED360_CLOUD || {
+      url: "https://wpsrqlgpzcdwzlelhgbl.supabase.co",
+      publishableKey: "sb_publishable_p3Cwu7FgzcIQ5gBgj22fFQ_yKbNhMVg",
+      slugPrincipal: "mired360"
+    };
+
     const q = new URLSearchParams(location.search);
     const slug = q.get('tienda') || cfg.slugPrincipal || 'mired360';
 
@@ -1748,7 +1753,6 @@
     let operator = q.get('operador') || '';
     let filter = '';
     let compareIds = [];
-    let dbClient = null;
 
     const $ = s => document.querySelector(s);
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
@@ -1760,7 +1764,6 @@
       maximumFractionDigits: 0
     }).format(Number(n || 0));
 
-    // Normaliza texto quitando tildes y pasando a minúsculas para comparaciones seguras
     function norm(str) {
       return String(str || '')
         .normalize('NFD')
@@ -1769,13 +1772,9 @@
         .trim();
     }
 
-    // Detecta automáticamente a qué operador pertenece un producto
     function operatorOfProduct(p) {
       const catRaw = String(p?.categoria || '').trim();
-      const cat = norm(catRaw);
-      const name = norm(p?.nombre || '');
-      const combined = cat + ' ' + name;
-
+      const combined = norm(catRaw + ' ' + (p?.nombre || ''));
       if (combined.includes('bold') || combined.includes('datafono')) return 'Datáfono Bold';
       if (combined.includes('claro')) return 'Claro';
       if (combined.includes('etb')) return 'ETB';
@@ -1783,15 +1782,33 @@
       return catRaw || 'General';
     }
 
-    // Verifica si un producto coincide con el botón de operador presionado
     function matchesOperator(p, selectedOp) {
       if (!selectedOp) return true;
       const detected = operatorOfProduct(p);
-      if (detected === selectedOp) return true;
+      if (norm(detected) === norm(selectedOp)) return true;
       const target = norm(selectedOp);
       const fullText = norm([p?.categoria, p?.nombre, p?.descripcion].join(' '));
       if (target.includes('bold')) return fullText.includes('bold') || fullText.includes('datafono');
       return fullText.includes(target);
+    }
+
+    // Llamada RPC directa por HTTP hacia Supabase (100% libre de bloqueos de CDN)
+    async function supabaseRpc(fnName, params) {
+      const res = await fetch(`${cfg.url}/rest/v1/rpc/${fnName}`, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.publishableKey,
+          'Authorization': `Bearer ${cfg.publishableKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Error HTTP ${res.status}`);
+      }
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
     }
 
     function render() {
@@ -1868,9 +1885,8 @@
     function renderCatalogPremium() {
       if (!shop) return;
 
-      // Resaltar tarjeta del operador activo
       document.querySelectorAll('[data-operator]').forEach(b => {
-        const selected = b.dataset.operator === operator;
+        const selected = norm(b.dataset.operator) === norm(operator);
         b.setAttribute('aria-pressed', String(selected));
         b.classList.toggle('selected', selected);
       });
@@ -1885,7 +1901,6 @@
         ? `${operator} · ${filtered.length === 1 ? '1 producto o servicio disponible' : filtered.length + ' productos y servicios disponibles'}`
         : `Todos los operadores · ${filtered.length} productos y servicios disponibles`;
 
-      // Actualizar selector de planes en el formulario de cobertura
       const planSelect = $('#coveragePlan');
       if (planSelect) {
         const previous = planSelect.value;
@@ -1951,9 +1966,8 @@
         </article>`;
       };
 
-      // Si hay un operador seleccionado muestra ese grupo; si está en "Todos", agrupa por operador
       if (!filtered.length) {
-        $('#catalog').innerHTML = `<div class="notice">${products.length ? 'No encontramos planes o productos publicados bajo el filtro "' + esc(operator || filter) + '". Haz clic en "Ver todos los operadores" para explorar todo el catálogo.' : 'Consultando productos del catálogo...'}</div>`;
+        $('#catalog').innerHTML = `<div class="notice">${products.length ? 'No encontramos planes o productos bajo el filtro "' + esc(operator || filter) + '". Haz clic en "Ver todos los operadores" para mostrar todo.' : 'No hay productos publicados actualmente.'}</div>`;
       } else if (operator) {
         $('#catalog').innerHTML = `
           <section class="catalogCategoryGroup" aria-label="${esc(operator)}">
@@ -2253,42 +2267,15 @@
     }
 
     async function load() {
-      const activeCfg = window.MIRED360_CLOUD || {};
-      if (!activeCfg.url || !activeCfg.publishableKey) {
-        $('#catalog').innerHTML = '<div class="notice">Configurando conexión con el catálogo...</div>';
-        return;
-      }
       try {
-        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm');
-        const db = createClient(activeCfg.url, activeCfg.publishableKey);
-        dbClient = db;
-
-        const { data, error } = await db.rpc('catalogo_publico', { p_slug: slug });
-        if (error) throw error;
-
-        if (!data?.encontrada) {
-          if (q.get('preview') === '1') {
-            const { data: auth } = await db.auth.getSession();
-            if (auth?.session?.user) {
-              const { data: privateShop } = await db.from('tiendas').select('*').eq('slug', slug).eq('propietario_id', auth.session.user.id).maybeSingle();
-              if (privateShop) {
-                const { data: privateProducts } = await db.from('productos').select('*').eq('tienda_id', privateShop.id).eq('activa', true);
-                shop = privateShop;
-                products = privateProducts || [];
-                $('#previewBanner').className = '';
-                applyBrandPro();
-                render();
-                return;
-              }
-            }
-          }
+        const data = await supabaseRpc('catalogo_publico', { p_slug: slug });
+        if (!data || !data.encontrada) {
           $('#catalog').innerHTML = '<div class="notice">Próximamente estará disponible nuestro catálogo.</div>';
           return;
         }
         shop = data.tienda;
         products = data.productos || [];
 
-        // Si el operador inicial no tiene coincidencias, mostrar todos automáticamente
         if (operator && !products.some(p => matchesOperator(p, operator))) {
           operator = '';
         }
@@ -2296,8 +2283,8 @@
         applyBrandPro();
         render();
       } catch (err) {
-        console.error(err);
-        $('#catalog').innerHTML = '<div class="notice">No fue posible cargar el catálogo en este momento. Por favor recarga la página o contáctanos por WhatsApp.</div>';
+        console.error('Error al consultar catalogo_publico:', err);
+        $('#catalog').innerHTML = '<div class="notice">No fue posible cargar el catálogo en este momento. Por favor recarga la página o escríbenos por WhatsApp al 322 943 2085.</div>';
       }
     }
 
@@ -2435,11 +2422,10 @@
         return;
       }
 
-      // Clic en cualquiera de las tarjetas de Operador (Claro, ETB, Tigo, Bold o Ver Todos)
       const op = e.target.closest('[data-operator]');
       if (op) {
         const clickedOp = op.dataset.operator;
-        operator = (operator === clickedOp && clickedOp !== '') ? '' : clickedOp;
+        operator = (norm(operator) === norm(clickedOp) && clickedOp !== '') ? '' : clickedOp;
         category = 'Todos';
         compareIds = [];
         filter = '';
@@ -2481,7 +2467,7 @@
     }
 
     function trackWhatsAppClick(anchor) {
-      if (!dbClient || !shop || q.get('preview') === '1' || !isWhatsAppDestination(anchor.href)) return;
+      if (!shop || q.get('preview') === '1' || !isWhatsAppDestination(anchor.href)) return;
       let tipo = 'general', productId = null, productIds = [];
       const productLink = anchor.closest('[data-product-contact]');
       if (productLink) {
@@ -2499,14 +2485,14 @@
       const params = {
         p_slug: slug,
         p_tipo: tipo,
-        p_evento_id: crypto.randomUUID(),
+        p_evento_id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
         p_producto_id: productId,
         p_sucursal_id: q.get('sucursal') || null,
         p_asesor_id: q.get('asesor') || null,
         p_productos_ids: productIds
       };
 
-      void dbClient.rpc('registrar_consulta_whatsapp', params).catch(() => {});
+      void supabaseRpc('registrar_consulta_whatsapp', params).catch(() => {});
     }
 
     document.addEventListener('click', e => {
@@ -2521,6 +2507,7 @@
     };
 
     load();
+  })();
   </script>
 </body>
 </html>
