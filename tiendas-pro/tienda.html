@@ -1804,12 +1804,15 @@
 
     // Llamada RPC directa por HTTP hacia Supabase (100% libre de bloqueos de CDN)
     async function supabaseRpc(fnName, params) {
-      const res = await fetch(`${cfg.url}/rest/v1/rpc/${fnName}`, {
+      const rpcUrl = `${cfg.url}/rest/v1/rpc/${fnName}${fnName === 'catalogo_publico' ? '?actualizacion=' + Date.now() : ''}`;
+      const res = await fetch(rpcUrl, {
+        cache: 'no-store',
         method: 'POST',
         headers: {
           'apikey': cfg.publishableKey,
           'Authorization': `Bearer ${cfg.publishableKey}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
         },
         body: JSON.stringify(params)
       });
