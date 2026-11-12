@@ -1,4 +1,4 @@
-import {bindVoice} from './voice.js';
+import {bindVoice} from './voice.js?v=tono2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.3/+esm';
 import { createManualQueueController } from './queue.js?v=20261029-tandas-9';
 
