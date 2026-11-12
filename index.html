@@ -2243,7 +2243,8 @@
       if (!p) return;
       const url = new URL(location.pathname, location.origin);
       url.searchParams.set('tienda', slug);
-      url.searchParams.set('plan', String(p.id));
+      url.pathname = '/planes/' + encodeURIComponent(String(p.id)) + '.html';
+      url.search = '';
       const message = p.nombre + ' · ' + money(p.precio_cop);
       try {
         if (navigator.share) await navigator.share({title:p.nombre,text:message,url:url.href});
