@@ -1,5 +1,6 @@
 export function bindVoice(request, currentPhone, report) {
   const dial = document.getElementById('voiceDial');
+  if (!dial) return;
   const panel = document.getElementById('voicePanel');
   const label = document.getElementById('voiceState');
   const audio = document.getElementById('voiceAudio');
