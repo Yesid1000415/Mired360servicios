@@ -1,3 +1,4 @@
+import {bindVoice} from './voice.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.3/+esm';
 import { createManualQueueController } from './queue.js?v=20261029-tandas-9';
 
@@ -1870,6 +1871,7 @@ function inboxStopBadge(){
   if(inboxState.badgePoll){clearInterval(inboxState.badgePoll);inboxState.badgePoll=null;}
 }
 function inboxBindEvents(){
+  bindVoice(inboxRequest,()=>inboxState.current,message=>toast(message));
   $('inboxRefresh').addEventListener('click',async()=>{
     await inboxLoadList();
     if(inboxState.current)await inboxLoadThread(inboxState.current);
