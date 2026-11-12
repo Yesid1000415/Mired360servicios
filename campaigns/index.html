@@ -369,6 +369,7 @@
                       <strong id="inboxAttentionLabel">Atención automática</strong>
                       <small id="inboxAttentionHint">MIRED360 IA puede responder a este cliente.</small>
                     </div>
+                    <button id="voiceDial" type="button" class="btn btn-primary">Llamar por WhatsApp</button>
                     <button id="inboxToggleHuman" type="button" class="btn btn-secondary wa-inbox-agent-btn">Atender personalmente</button>
                   </div>
                   <div class="wa-inbox-thread" id="inboxThread" role="log" aria-live="polite" aria-label="Historial de mensajes de WhatsApp"></div>
@@ -559,6 +560,11 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
       </main>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-pausa-continuar-v20"></script>
+  <aside id="voicePanel" hidden aria-label="Llamada de WhatsApp" style="position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;color:#152b38;padding:12px;border-radius:12px;box-shadow:0 3px 24px #0003;width:max-content;max-width:95vw">
+    <span id="voiceState" role="status"></span>
+    <button id="voiceEnd" type="button" class="btn btn-secondary">Colgar</button>
+    <audio id="voiceAudio" autoplay playsinline></audio>
+  </aside>
+  <script type="module" src="./app.js?v=20261112-voz"></script>
 </body>
 </html>
