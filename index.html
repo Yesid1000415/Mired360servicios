@@ -1456,6 +1456,42 @@
       document.addEventListener('DOMContentLoaded', () => document.body.classList.add('m360-embedded'));
     }
   </script>
+  <style>
+    /* Landing individual: no altera el catálogo general. */
+    body.m360-single-plan #productos .sectionHeader,
+    body.m360-single-plan #productos #filters,
+    body.m360-single-plan header .actions,
+    body.m360-single-plan header nav,
+    body.m360-single-plan .floatingWhatsApp { display:none !important; }
+    body.m360-single-plan #catalog.grid { display:block; }
+    body.m360-single-plan .m360-plan-landing {
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      max-width:1050px; width:100%; margin:12px auto 30px;
+      background:#fff; border:1px solid #e2e8f0; border-radius:22px;
+      overflow:hidden; box-shadow:0 12px 35px rgba(15,23,42,.07);
+    }
+    .m360-plan-photo { background:#f8fafc; padding:24px; display:flex; align-items:center; justify-content:center; min-width:0; }
+    .m360-plan-photo img { display:block; width:100%; height:auto; max-height:580px; object-fit:contain; border-radius:14px; }
+    .m360-plan-info { padding:30px; min-width:0; display:flex; flex-direction:column; align-items:stretch; gap:15px; }
+    .m360-plan-info h1 { font-size:clamp(24px,3vw,34px); line-height:1.18; }
+    .m360-plan-price-label { font-size:12px; text-transform:uppercase; font-weight:700; color:#64748b; }
+    .m360-plan-price { font-size:clamp(32px,5vw,46px); color:#0f172a; line-height:1; }
+    .m360-plan-description { font-size:15px; line-height:1.7; color:#334155; white-space:pre-line; overflow-wrap:anywhere; }
+    .m360-plan-terms { font-size:12px; color:#64748b; }
+    .m360-plan-whatsapp,.m360-plan-back { display:flex; justify-content:center; align-items:center; text-align:center; border-radius:12px; padding:16px; font-size:15px; font-weight:800; min-height:52px; }
+    .m360-plan-whatsapp { background:#16a34a; color:white; }
+    .m360-plan-back { background:#0f172a; color:white; }
+    @media(max-width:767px) {
+      body.m360-single-plan #productos { padding-top:8px; }
+      body.m360-single-plan #productos .container { padding-left:14px; padding-right:14px; }
+      body.m360-single-plan .m360-plan-landing { grid-template-columns:minmax(0,1fr); margin:0 auto 24px; border-radius:18px; }
+      .m360-plan-photo { padding:14px; }
+      .m360-plan-photo img { max-height:none; }
+      .m360-plan-info { padding:20px; gap:14px; }
+      .m360-plan-info h1 { font-size:25px; }
+      .m360-plan-price { font-size:38px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -1912,7 +1948,24 @@
       };
 
       if (selectedProduct) {
-        $('#catalog').innerHTML = '<section class="catalogCategoryGroup"><div class="catalogGroupItems">' + cards(selectedProduct) + '</div><div style="text-align:center;margin:24px"><a class="btn primary" href="' + location.pathname + '?tienda=' + encodeURIComponent(slug) + '">Ver todos los planes y productos</a></div></section>';
+        document.body.classList.add('m360-single-plan');
+        const isBold = operatorOfProduct(selectedProduct) === 'Datáfono Bold';
+        const contact = contactLinkPro(productContactMessagePro(selectedProduct));
+        const summary = [selectedProduct.descripcion, selectedProduct.descripcion_larga].filter(Boolean).join(' ').replace(/\\n/g, ' ').replace(/\\*\\*/g, '').trim();
+        $('#catalog').innerHTML = `
+          <section class="m360-plan-landing" aria-label="Oferta seleccionada">
+            <div class="m360-plan-photo">${photoMarkupPro(selectedProduct)}</div>
+            <div class="m360-plan-info">
+              <span class="premiumCategory">${esc(operatorOfProduct(selectedProduct))}</span>
+              <h1>${esc(selectedProduct.nombre)}</h1>
+              <span class="m360-plan-price-label">${isBold ? 'Precio de compra' : 'Tarifa mensual de referencia'}</span>
+              <strong class="m360-plan-price">${money(selectedProduct.precio_cop)}</strong>
+              <p class="m360-plan-description">${esc(summary || 'Consulta los beneficios y condiciones comerciales de esta oferta.')}</p>
+              <p class="m360-plan-terms">${isBold ? 'Consulta disponibilidad y condiciones de compra.' : 'Oferta sujeta a validación de cobertura, disponibilidad y condiciones comerciales.'}</p>
+              ${contact ? `<a class="m360-plan-whatsapp" href="${esc(contact)}" target="_blank" rel="noopener noreferrer">Solicitar este ${isBold ? 'producto' : 'plan'} por WhatsApp ↗</a>` : ''}
+              <a class="m360-plan-back" href="/?tienda=${encodeURIComponent(slug)}">Ver todos los planes y productos</a>
+            </div>
+          </section>`;
         $('#subtitle').textContent = 'Oferta seleccionada · ' + selectedProduct.nombre;
         document.querySelectorAll('.hero,.operatorShowcase').forEach(el => el.style.display = 'none');
         document.title = selectedProduct.nombre + ' | MIRED360SERVICIOS';
