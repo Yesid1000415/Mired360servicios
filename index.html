@@ -1951,7 +1951,7 @@
         document.body.classList.add('m360-single-plan');
         const isBold = operatorOfProduct(selectedProduct) === 'Datáfono Bold';
         const contact = contactLinkPro(productContactMessagePro(selectedProduct));
-        const summary = [selectedProduct.descripcion, selectedProduct.descripcion_larga].filter(Boolean).join(' ').replace(/\\n/g, ' ').replace(/\\*\\*/g, '').trim();
+        const summary = String(selectedProduct.descripcion || '').replace(/\\n/g, ' ').replace(/\\*\\*/g, '').trim();
         $('#catalog').innerHTML = `
           <section class="m360-plan-landing" aria-label="Oferta seleccionada">
             <div class="m360-plan-photo">${photoMarkupPro(selectedProduct)}</div>
