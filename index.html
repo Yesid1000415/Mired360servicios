@@ -1848,6 +1848,12 @@
         if ([...planSelect.options].some(o => o.value === previous)) planSelect.value = previous;
       }
 
+      // Vista individual de producto, alimentada por el catálogo existente.
+      const selectedId = q.get('plan');
+      const selectedProduct = selectedId ? products.find(p => String(p.id) === selectedId) : null;
+      if (selectedId && selectedProduct) {
+        operator = operatorOfProduct(selectedProduct);
+      }
       const cards = p => {
         const opName = operatorOfProduct(p);
         const isBold = opName === 'Datáfono Bold';
@@ -1896,6 +1902,7 @@
               ? `<button type="button" class="guidedSelect" data-bold-buy="${esc(p.id)}">🛒 Compra directa sin cobertura</button>`
               : `<button type="button" class="guidedSelect" data-guide-plan="${esc(p.id)}">📍 Elegir y validar cobertura</button>`}
             ${isBold ? "" : `<button type="button" class="compareToggle" data-compare="${esc(p.id)}" aria-pressed="${compareIds.includes(p.id)}">${compareIds.includes(p.id) ? "✓ Seleccionado para comparar" : "⇄ Comparar este plan"}</button>`}
+            <button type="button" class="btn" data-share-plan="${esc(p.id)}" style="width:100%;margin-top:10px">↗ Compartir este plan</button>
             <div class="premiumActions">
               <button type="button" class="btn premiumDetail" data-detail="${esc(p.id)}">Ver detalles</button>
               <button type="button" class="btn premiumAdd" data-add="${esc(p.id)}" ${available ? '' : 'disabled'}>${available ? '＋ Al carrito' : 'Agotado'}</button>
@@ -1904,6 +1911,13 @@
         </article>`;
       };
 
+      if (selectedProduct) {
+        $('#catalog').innerHTML = '<section class="catalogCategoryGroup"><div class="catalogGroupItems">' + cards(selectedProduct) + '</div><div style="text-align:center;margin:24px"><a class="btn primary" href="' + location.pathname + '?tienda=' + encodeURIComponent(slug) + '">Ver todos los planes y productos</a></div></section>';
+        $('#subtitle').textContent = 'Oferta seleccionada · ' + selectedProduct.nombre;
+        document.querySelectorAll('.hero,.operatorShowcase').forEach(el => el.style.display = 'none');
+        document.title = selectedProduct.nombre + ' | MIRED360SERVICIOS';
+        return;
+      }
       $('#catalog').innerHTML = !operator
         ? '<div class="notice" role="status">Selecciona Claro, ETB, Tigo o Bold arriba para ver sus planes y productos.</div>'
         : filtered.length
@@ -2220,6 +2234,27 @@
         $('#catalog').innerHTML = '<div class="notice">No fue posible cargar el catálogo en este momento. Por favor recarga la página o contáctanos por WhatsApp.</div>';
       }
     }
+
+    // Compartir con Web Share API o copiar enlace (compatible con WhatsApp).
+    document.addEventListener('click', async event => {
+      const btn = event.target.closest('[data-share-plan]');
+      if (!btn) return;
+      const p = products.find(item => String(item.id) === btn.dataset.sharePlan);
+      if (!p) return;
+      const url = new URL(location.pathname, location.origin);
+      url.searchParams.set('tienda', slug);
+      url.searchParams.set('plan', String(p.id));
+      const message = p.nombre + ' · ' + money(p.precio_cop);
+      try {
+        if (navigator.share) await navigator.share({title:p.nombre,text:message,url:url.href});
+        else {
+          await navigator.clipboard.writeText(url.href);
+          btn.textContent = '✓ Enlace copiado';
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') window.prompt('Copia el enlace del plan:', url.href);
+      }
+    });
 
     // Eventos del validador de cobertura
     $('#coveragePlan').addEventListener('change', e => {
