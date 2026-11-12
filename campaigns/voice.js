@@ -11,7 +11,7 @@ export function bindVoice(request, currentPhone, report) {
     if (call.tone) { call.tone.stop(); call.tone = null; }
   }
   function ring(call) {
-    if (!call.sound || call.tone || call.sound.state !== 'running') return;
+    if (call.closed || call.audioReady || !call.sound || call.tone || call.sound.state !== 'running') return;
     const tone = call.sound.createOscillator();
     const gain = call.sound.createGain();
     gain.gain.value = 0;
@@ -20,8 +20,8 @@ export function bindVoice(request, currentPhone, report) {
     const start = call.sound.currentTime;
     for (let t=start; t<start+90; t+=4) {
       gain.gain.setValueAtTime(0,t);
-      gain.gain.linearRampToValueAtTime(0.055,t+0.02);
-      gain.gain.setValueAtTime(0.055,t+0.95);
+      gain.gain.linearRampToValueAtTime(0.15,t+0.02);
+      gain.gain.setValueAtTime(0.15,t+0.95);
       gain.gain.linearRampToValueAtTime(0,t+1);
     }
     tone.start();
@@ -76,7 +76,11 @@ export function bindVoice(request, currentPhone, report) {
       label.textContent = 'Llamando a +' + phone;
       const result = await request('POST',{action:'voice_start',phone,sdp:peer.localDescription.sdp});
       call.id = result.id;
-      if (!call.closed) label.textContent = 'Esperando confirmación de timbre · +' + phone;
+      if (!call.closed) {
+        label.textContent = 'Marcando · esperando confirmación de WhatsApp · +' + phone;
+        ring(call);
+        call.sound?.resume().then(()=>ring(call)).catch(()=>{});
+      }
       if (call.closed) { await request('POST',{action:'voice_end',phone,id:call.id}); return; }
       const deadline = Date.now()+90000;
       while (!call.closed) {
@@ -89,8 +93,14 @@ export function bindVoice(request, currentPhone, report) {
           label.textContent = 'Timbrando · +' + phone;
           ring(call);
         } else if (state.estado_remoto === 'ACCEPTED') {
+          call.audioReady = true;
           stopTone(call);
           label.textContent = (peer.connectionState === 'connected' ? 'En llamada' : 'Contestaron. Conectando audio') + ' · +' + phone;
+        }
+        if (!state.estado_remoto && peer.connectionState === 'connected') {
+          call.audioReady = true;
+          stopTone(call);
+          label.textContent = 'Audio conectado · +' + phone;
         }
         if (peer.connectionState === 'failed' || (Date.now()>deadline && peer.connectionState !== 'connected')) throw new Error('No se pudo establecer el audio con el contacto.');
         await pause(state.estado_remoto === 'ACCEPTED' ? 2500 : 900);
