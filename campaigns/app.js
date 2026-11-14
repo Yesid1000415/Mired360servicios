@@ -402,24 +402,34 @@ function excelCellText(value) {
   }
   return String(value);
 }
+// Lector independiente para importación: evita errores internos de ExcelJS al leer XLSX.
+let contactXlsxPromise;
+function loadContactXLSX() {
+  if(window.XLSX?.read && window.XLSX?.utils?.sheet_to_json)return Promise.resolve(window.XLSX);
+  if(!contactXlsxPromise)contactXlsxPromise=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    script.onload=()=>window.XLSX?.read?resolve(window.XLSX):reject(new Error('No se pudo inicializar el lector XLSX.'));
+    script.onerror=()=>reject(new Error('No se pudo descargar el lector XLSX. Revisa la conexión.'));
+    document.head.appendChild(script);
+  }).catch(error=>{contactXlsxPromise=null;throw error;});
+  return contactXlsxPromise;
+}
 async function readContactRows(file) {
-  if(/\.xlsx$/i.test(file.name)) {
-    const ExcelJS=await loadExcelJS();
-    const book=new ExcelJS.Workbook();
-    await book.xlsx.load(await file.arrayBuffer());
-    if(!book.worksheets.length)throw new Error('El archivo Excel está vacío.');
-    for(const sheet of book.worksheets) {
-      const rows=[];
-      sheet.eachRow({includeEmpty:false},row=>{
-        const vals=[];
-        for(let col=1;col<=Math.min(row.cellCount+4,100);col++) vals.push(excelCellText(row.getCell(col).value).trim());
-        if(vals.some(Boolean)) rows.push(vals);
-      });
+  if(/\\.xlsx$/i.test(file.name)) {
+    const XLSX=await loadContactXLSX();
+    const workbook=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});
+    if(!workbook.SheetNames?.length)throw new Error('El archivo Excel está vacío.');
+    for(const sheetName of workbook.SheetNames) {
+      const sheet=workbook.Sheets[sheetName];
+      if(!sheet)continue;
+      const rows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:'',blankrows:false})
+        .map(row=>row.map(value=>String(value??'').trim()));
       if(detectCSVHeaders(rows))return rows;
     }
     throw new Error('No encuentro columnas con nombre y teléfono en las primeras 20 filas de ninguna hoja.');
   }
-  return parseCSV((await file.text()).replace(/^\uFEFF/,''));
+  return parseCSV((await file.text()).replace(/^\\uFEFF/,''));
 }
 async function importCSV(event) {
   const file=event.target.files?.[0]; if(!file || !state.org)return;
