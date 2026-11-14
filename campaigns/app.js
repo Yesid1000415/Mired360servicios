@@ -380,6 +380,41 @@ function detectCSVHeaders(rows) {
   return null;
 }
 
+function resolveContactColumns(rows) {
+  const header=detectCSVHeaders(rows);
+  if(header)return header;
+  const sample=rows.slice(0,Math.min(rows.length,80));
+  const width=Math.min(40,Math.max(0,...sample.map(r=>r.length)));
+  const scores=Array.from({length:width},(_,col)=>{
+    let names=0,phones=0;
+    for(const row of sample){
+      const v=String(row[col]??'').trim();
+      if(!v)continue;
+      const digits=v.replace(/\\D/g,'');
+      if(/^(?:57)?3\\d{9}$/.test(digits))phones++;
+      if(/[a-záéíóúñ]/i.test(v)&&v.length>=3&&digits.length<7)names++;
+    }
+    return {col,names,phones};
+  });
+  const phone=scores.slice().sort((a,b)=>b.phones-a.phones)[0];
+  const name=scores.filter(x=>x.col!==phone?.col).sort((a,b)=>b.names-a.names)[0];
+  if(phone?.phones>=1&&name?.names>=1)return {row:-1,name:name.col,phone:phone.col};
+  if(width===2){
+    const first=sample.find(row=>row.some(v=>String(v??'').trim()));
+    if(first){
+      const firstPhone=/^(?:57)?3\\d{9}$/.test(String(first[0]??'').replace(/\\D/g,''));
+      return {row:-1,name:firstPhone?1:0,phone:firstPhone?0:1};
+    }
+  }
+  if(width>=2){
+    const answer=prompt('No se pudieron identificar las columnas. Escribe el número de columna del NOMBRE y del TELÉFONO separados por coma (ejemplo: 1,2).', '1,2');
+    if(answer===null)throw new Error('Importación cancelada.');
+    const parts=answer.split(',').map(v=>Number(v.trim())-1);
+    if(parts.length===2&&parts.every(n=>Number.isInteger(n)&&n>=0&&n<width)&&parts[0]!==parts[1])return {row:-1,name:parts[0],phone:parts[1]};
+  }
+  throw new Error('El archivo no contiene dos columnas utilizables de nombre y teléfono.');
+}
+
 let excelPromise;
 function loadExcelJS() {
   if(window.ExcelJS)return Promise.resolve(window.ExcelJS);
@@ -425,9 +460,9 @@ async function readContactRows(file) {
       if(!sheet)continue;
       const rows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:'',blankrows:false})
         .map(row=>row.map(value=>String(value??'').trim()));
-      if(detectCSVHeaders(rows))return rows;
+      if(rows.length)return rows;
     }
-    throw new Error('No encuentro columnas con nombre y teléfono en las primeras 20 filas de ninguna hoja.');
+    throw new Error('No hay filas con datos en las hojas del Excel.');
   }
   return parseCSV((await file.text()).replace(/^\uFEFF/,''));
 }
@@ -437,11 +472,10 @@ async function importCSV(event) {
   const consent=$('importConsent').checked,source=$('importSource').value.trim();
   event.target.value='';
   if(consent && !source) return toast('Indica primero la fuente de autorización de los contactos.',true);
-  if(file.size>5*1024*1024)return toast('El CSV debe pesar menos de 5 MB. Divide el archivo.',true);
+  if(file.size>25*1024*1024)return toast('El archivo supera 25 MB. Divídelo para evitar que el navegador se bloquee.',true);
   try {
     const rows=await readContactRows(file);
-    const header=detectCSVHeaders(rows);
-    if(!header)throw new Error('No se encontraron encabezados de nombre y celular en las primeras 20 filas.');
+    const header=resolveContactColumns(rows);
     const prepared=[],seen=new Set();let invalid=0;
     for(const row of rows.slice(header.row+1)) {
       const nombre=String(row[header.name]||'').trim().slice(0,160);
