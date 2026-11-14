@@ -416,7 +416,7 @@ function loadContactXLSX() {
   return contactXlsxPromise;
 }
 async function readContactRows(file) {
-  if(/\\.xlsx$/i.test(file.name)) {
+  if(/\.xlsx$/i.test(file.name)) {
     const XLSX=await loadContactXLSX();
     const workbook=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});
     if(!workbook.SheetNames?.length)throw new Error('El archivo Excel está vacío.');
@@ -429,7 +429,7 @@ async function readContactRows(file) {
     }
     throw new Error('No encuentro columnas con nombre y teléfono en las primeras 20 filas de ninguna hoja.');
   }
-  return parseCSV((await file.text()).replace(/^\\uFEFF/,''));
+  return parseCSV((await file.text()).replace(/^\uFEFF/,''));
 }
 async function importCSV(event) {
   const file=event.target.files?.[0]; if(!file || !state.org)return;
