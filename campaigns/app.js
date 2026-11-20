@@ -1472,7 +1472,7 @@ function apiBatchShow(batch){
     (batch.estado==="pausada"&&hasPending?
       (fullToday||sessionDone?" Mañana pulsa Continuar para usar la misma base.":" Pulsa Continuar cuando quieras."):"");
 }
-async async function apiBatchExport(format){
+async function apiBatchExport(format){
   if(!apiBatchState.currentId)return toast('Primero selecciona o inicia una tanda.',true);
   const btn=$('apiBatchExport'+(format==='pdf'?'PDF':'Excel'));
   btn.disabled=true;
