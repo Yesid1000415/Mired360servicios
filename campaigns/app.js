@@ -1472,6 +1472,48 @@ function apiBatchShow(batch){
     (batch.estado==="pausada"&&hasPending?
       (fullToday||sessionDone?" Mañana pulsa Continuar para usar la misma base.":" Pulsa Continuar cuando quieras."):"");
 }
+async function apiBatchExport(format){
+  if(!apiBatchState.currentId)return toast('Primero selecciona o inicia una tanda.',true);
+  const btn=$('apiBatchExport'+(format==='pdf'?'PDF':'Excel'));
+  btn.disabled=true;
+  try{
+    const report=await apiBatchRequest('GET',{action:'report',org_id:state.org.id,batch_id:apiBatchState.currentId});
+    const rows=report.rows||[];
+    if(!rows.length)throw Error('Esta tanda todavía no tiene contactos registrados.');
+    const headers=['Nombre','Teléfono','Resultado','Estado Meta','Fecha intento','Fecha entrega','Fecha lectura','Código error','Detalle error'];
+    const data=rows.map(r=>[r.nombre,r.telefono,r.resultado,r.estado_meta,r.fecha_intento,r.fecha_entrega,r.fecha_lectura,r.codigo_error,r.detalle_error]);
+    const safeName=String(report.archivo||'tanda').replace(/[^a-z0-9_-]/gi,'_').slice(0,50);
+    const date=new Date().toISOString().slice(0,10);
+    let blob,filename;
+    if(format==='excel'){
+      const XLSX=await loadContactXLSX();
+      const workbook=XLSX.utils.book_new();
+      const sheet=XLSX.utils.aoa_to_sheet([headers,...data.map(row=>row.map(v=>String(v??'')))]);
+      sheet['!cols']=[{wch:34},{wch:20},{wch:25},{wch:20},{wch:23},{wch:23},{wch:23},{wch:16},{wch:52}];
+      XLSX.utils.book_append_sheet(workbook,sheet,'Resultados');
+      const bytes=XLSX.write(workbook,{bookType:'xlsx',type:'array'});
+      blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      filename='MIRED360_Resultados_'+safeName+'_'+date+'.xlsx';
+    }else{
+      const jsPDF=window.jspdf?.jsPDF;
+      if(!jsPDF)throw Error('No se pudo cargar el generador de PDF.');
+      const doc=new jsPDF({orientation:'landscape'});
+      doc.setFontSize(16);doc.text('MIRED360 CAMPAIGNS - Resultados de mensajes masivos',14,16);
+      doc.setFontSize(9);doc.text('Archivo: '+String(report.archivo||'Tanda').slice(0,95),14,23);
+      doc.text('Fecha de reporte: '+date+' | Contactos: '+rows.length,14,29);
+      const counts={};for(const row of rows)counts[row.resultado]=(counts[row.resultado]||0)+1;
+      doc.text(Object.entries(counts).map(([k,v])=>k+': '+v).join('  |  ').slice(0,145),14,35);
+      if(typeof doc.autoTable!=='function')throw Error('No se pudo cargar la tabla PDF.');
+      doc.autoTable({startY:40,head:[['Nombre','Teléfono','Resultado','Intento','Entrega','Lectura','Error']],body:rows.map(r=>[r.nombre,r.telefono,r.resultado,r.fecha_intento,r.fecha_entrega,r.fecha_lectura,r.detalle_error]),styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[16,68,109]},columnStyles:{0:{cellWidth:45},1:{cellWidth:30},2:{cellWidth:35},6:{cellWidth:54}}});
+      blob=doc.output('blob');filename='MIRED360_Resultados_'+safeName+'_'+date+'.pdf';
+    }
+    const url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),15000);
+    toast('Informe descargado: '+rows.length+' contactos.');
+  }catch(error){reportError(error);}
+  finally{btn.disabled=false;}
+}
 async function apiBatchTick(){
   if(apiBatchState.busy||!state.isSuperAdmin||!state.org)return;
   apiBatchState.busy=true;
@@ -1958,6 +2000,8 @@ function bindEvents() {
   $('apiBatchPause').addEventListener('click',()=>apiBatchChange('pause'));
   $('apiBatchResume').addEventListener('click',()=>apiBatchChange('resume'));
   $('apiBatchRefresh').addEventListener('click',apiBatchTick);
+  $('apiBatchExportExcel').addEventListener('click',()=>apiBatchExport('excel'));
+  $('apiBatchExportPDF').addEventListener('click',()=>apiBatchExport('pdf'));
   $('apiTemplateRefresh').addEventListener('click',refreshMetaTemplate);
   $('apiDeliveryRefresh').addEventListener('click',refreshMetaDeliveries);
   $('apiCopyCustomerLink').addEventListener('click',copyCustomerInitiationLink);
