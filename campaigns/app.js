@@ -1472,7 +1472,7 @@ function apiBatchShow(batch){
     (batch.estado==="pausada"&&hasPending?
       (fullToday||sessionDone?" Mañana pulsa Continuar para usar la misma base.":" Pulsa Continuar cuando quieras."):"");
 }
-async function apiBatchExport(format){
+async async function apiBatchExport(format){
   if(!apiBatchState.currentId)return toast('Primero selecciona o inicia una tanda.',true);
   const btn=$('apiBatchExport'+(format==='pdf'?'PDF':'Excel'));
   btn.disabled=true;
@@ -1916,6 +1916,11 @@ async function inboxReplyToClient(event){
 function inboxStart(){
   if(inboxState.pollTimer)clearInterval(inboxState.pollTimer);
   inboxLoadList();
+  apiBatchRequest('GET',{action:'status',org_id:state.org.id}).then(result=>{
+    if(result.batch)apiBatchState.currentId=result.batch.id;
+    const label=$('inboxBatchReportLabel');
+    if(label)label.textContent=result.batch?'Última base: '+(result.batch.archivo||'Sin nombre')+' · '+result.batch.total+' contactos':'No hay una base de envíos masivos registrada.';
+  }).catch(error=>{const label=$('inboxBatchReportLabel');if(label)label.textContent='No se pudo consultar la última base: '+error.message;});
   inboxState.pollTimer=setInterval(async()=>{
     if(document.visibilityState!=='visible'||state.page!=='bandeja')return;
     const currentPhone=inboxState.current;
