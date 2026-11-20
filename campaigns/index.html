@@ -332,6 +332,7 @@
                 <button type="button" class="btn btn-secondary" id="inboxRefresh">↻ Actualizar</button>
               </div>
             </div>
+            <div style="padding:14px 18px;margin:12px 0;border:1px solid #d6e2ee;border-radius:12px"><strong>Informes de mensajes masivos</strong><p id="inboxBatchReportLabel" class="muted" style="margin:7px 0">Consultando la última base...</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button id="apiBatchExportExcel" type="button" class="btn btn-secondary">⬇ Descargar resultados Excel</button><button id="apiBatchExportPDF" type="button" class="btn btn-secondary">⬇ Descargar resultados PDF</button></div></div>
             <div class="wa-inbox-stats">
               <div class="wa-inbox-stat"><div class="wa-stat-icon">◉</div><div><span>Conversaciones</span><strong id="inboxConversationCount">—</strong></div></div>
               <div class="wa-inbox-stat"><div class="wa-stat-icon green">●</div><div><span>Sin leer</span><strong id="inboxUnreadCount">—</strong></div></div>
@@ -534,7 +535,7 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
                     <div style="display:flex;gap:10px;flex-wrap:wrap">
                       <button id="apiBatchPause" type="button" class="btn btn-danger" disabled style="font-weight:800;min-height:44px">Pausar envíos</button>
                       <button id="apiBatchResume" type="button" class="btn btn-primary" disabled style="font-weight:800;min-height:44px">Continuar envíos</button>
-                      <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button><button id="apiBatchExportExcel" type="button" class="btn btn-secondary">⬇ Descargar resultados Excel</button><button id="apiBatchExportPDF" type="button" class="btn btn-secondary">⬇ Descargar resultados PDF</button>
+                      <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button>
                     </div>
                     <div id="apiBatchDaily" role="status" style="font-weight:700;margin-top:12px">Consultando los envíos de hoy...</div>
                     <progress id="apiBatchProgress" max="100" value="0" style="width:100%;height:14px;margin-top:10px"></progress>
@@ -573,6 +574,6 @@ Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
   </aside>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
-  <script type="module" src="./app.js?v=20261120-report1"></script>
+  <script type="module" src="./app.js?v=20261120-inboxreport2"></script>
 </body>
 </html>
