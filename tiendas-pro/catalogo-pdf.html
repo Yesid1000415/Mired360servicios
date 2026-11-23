@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catálogo PDF | MIRED360SERVICIOS</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#14233e;background:#edf2f9}*{box-sizing:border-box}body{margin:0}.toolbar{position:sticky;top:0;z-index:5;background:#101e39;color:white;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.toolbar button{background:#12b8e9;color:#061c32;border:0;padding:12px 18px;border-radius:10px;font-weight:800;cursor:pointer}.toolbar button:disabled{opacity:.5;cursor:wait}.toolbar a{color:white}.sheet{width:min(210mm,100%);margin:22px auto;background:white;min-height:297mm;box-shadow:0 8px 36px #14233e22}.cover{min-height:240mm;background:linear-gradient(145deg,#0a1632,#123d7d 70%,#0879c5);color:white;padding:40mm 17mm;display:flex;flex-direction:column;justify-content:center}.cover h1{font-size:36pt;margin:0 0 15px;letter-spacing:-1px}.cover h2{font-size:19pt;font-weight:400}.cover .tag{letter-spacing:3px;color:#6ee6ff;font-size:12pt;font-weight:bold}.cover p{font-size:13pt;line-height:1.6}.section{padding:15mm 13mm}.section h2{font-size:20pt;color:#123d7d;border-bottom:3px solid #15b9e9;padding-bottom:9px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.item{border:1px solid #dce5ef;border-radius:12px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}.item img{width:100%;height:135px;object-fit:contain;background:#f5f8fc}.itemBody{padding:13px}.item h3{font-size:12pt;margin:0 0 8px}.item .category{font-size:9pt;color:#506684}.item .description{font-size:9pt;line-height:1.45;white-space:pre-line;overflow-wrap:anywhere}.price{font-size:16pt;font-weight:800;color:#0878b6;margin:10px 0}.item a{color:#0b6698;font-size:9pt;overflow-wrap:anywhere}.footer{padding:18mm 13mm;text-align:center;background:#101e39;color:white}.footer a{color:#8fe9ff}.note{font-size:9pt;color:#52627c}.status{padding:10px 18px;text-align:center}.empty{padding:35px;text-align:center}@page{size:A4;margin:0}@media print{html,body{background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}.toolbar,.status{display:none!important}.sheet{width:100%;margin:0;box-shadow:none;min-height:0}.cover{height:297mm;min-height:297mm;break-after:page}.section{padding:15mm 12mm}.item{border-radius:8px}.grid{gap:9px}.footer{break-before:page;min-height:297mm;display:flex;flex-direction:column;justify-content:center}a{text-decoration:none}}@media(max-width:600px){.grid{grid-template-columns:1fr}.cover{min-height:65vh;padding:50px 25px}.cover h1{font-size:29pt}.section{padding:25px}.sheet{margin:0}}
+</style></head><body>
+<div class="toolbar"><strong>MIRED360SERVICIOS · Catálogo PDF</strong><div><a href="./tienda.html?tienda=mired360">Volver a la tienda</a> &nbsp; <button id="print" disabled>Descargar / guardar PDF</button></div></div>
+<div class="status" id="status">Cargando los planes publicados…</div>
+<main class="sheet" id="document"><div class="cover"><div class="tag">CATÁLOGO DIGITAL</div><h1>MIRED360<br>SERVICIOS</h1><h2>Internet, televisión y soluciones para tu negocio</h2><p>Descubre nuestros planes y productos. Cotiza y valida cobertura con atención personalizada.</p><p>WhatsApp: 322 943 2085<br>mired360servicios.com</p></div><div id="sections"></div><div class="footer"><h2>¿Encontraste tu plan ideal?</h2><p>Escríbenos para validar cobertura, promociones y disponibilidad.</p><h2>322 943 2085</h2><a href="https://wa.me/573229432085">WhatsApp MIRED360SERVICIOS</a><p>mired360servicios.com</p></div></main>
+<script>
+(function(){
+const config={url:'https://wpsrqlgpzcdwzlelhgbl.supabase.co',key:'sb_publishable_p3Cwu7FgzcIQ5gBgj22fFQ_yKbNhMVg'};
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(n||0));
+function operator(p){const v=(p.categoria+' '+p.nombre).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(v.includes('bold')||v.includes('datafono'))return 'Datáfono Bold';for(const k of ['claro','etb','tigo','movistar'])if(v.includes(k))return k==='etb'?'ETB':k[0].toUpperCase()+k.slice(1);return 'Otros productos y servicios'}
+async function load(){
+try{
+const slug=new URLSearchParams(location.search).get('tienda')||'mired360';
+const res=await fetch(config.url+'/rest/v1/rpc/catalogo_publico?actualizacion='+Date.now(),{method:'POST',cache:'no-store',headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},body:JSON.stringify({p_slug:slug})});
+if(!res.ok)throw Error('No se pudo consultar el catálogo ('+res.status+')');
+const data=await res.json();if(!data?.encontrada)throw Error('No se encontró la tienda');
+const products=data.productos||[];if(!products.length)throw Error('No hay productos publicados');
+const groups={};for(const p of products){const k=operator(p);(groups[k]??=[]).push(p)}
+const order=['Claro','ETB','Tigo','Movistar','Datáfono Bold','Otros productos y servicios'];
+$('#sections').innerHTML=Object.keys(groups).sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b))).map(k=>'<section class="section"><h2>'+esc(k)+'</h2><div class="grid">'+groups[k].map(p=>{const photo=/^https:\/\//i.test(p.imagen_url||'')?'<img src="'+esc(p.imagen_url)+'" alt="'+esc(p.nombre)+'" crossorigin="anonymous">':'';const desc=p.descripcion||p.descripcion_larga||'';const link='https://wa.me/573229432085?text='+encodeURIComponent('Hola, quiero información del plan '+p.nombre);return '<article class="item">'+photo+'<div class="itemBody"><div class="category">'+esc(p.categoria||k)+'</div><h3>'+esc(p.nombre)+'</h3><div class="description">'+esc(desc)+'</div><div class="price">'+(Number(p.precio_cop)>0?money(p.precio_cop):'Consultar precio')+'</div><a href="'+esc(link)+'">Consultar por WhatsApp</a></div></article>'}).join('')+'</div></section>').join('');
+$('#status').textContent=products.length+' productos cargados. Pulsa el botón y selecciona “Guardar como PDF” en el diálogo de impresión.';
+$('#print').disabled=false;
+}catch(e){$('#status').textContent='No se pudo cargar el catálogo: '+e.message;console.error(e)}
+}
+$('#print').addEventListener('click',()=>window.print());load();
+})();
+</script></body></html>
