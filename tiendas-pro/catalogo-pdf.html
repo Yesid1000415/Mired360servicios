@@ -17,15 +17,15 @@ async function load(){
 try{
 const slug=new URLSearchParams(location.search).get('tienda')||'mired360';
 const res=await fetch(config.url+'/rest/v1/rpc/catalogo_publico?actualizacion='+Date.now(),{method:'POST',cache:'no-store',headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},body:JSON.stringify({p_slug:slug})});
-if(!res.ok)throw Error('No se pudo consultar el catálogo ('+res.status+')');
-const data=await res.json();if(!data?.encontrada)throw Error('No se encontró la tienda');
+if(!res.ok){const detail=await res.text();throw Error('Consulta de productos: HTTP '+res.status+' · '+detail.slice(0,220))}
+const data=await res.json();if(!data?.encontrada)throw Error('La consulta respondió, pero no encontró la tienda con identificador '+slug);
 const products=data.productos||[];if(!products.length)throw Error('No hay productos publicados');
 const groups={};for(const p of products){const k=operator(p);(groups[k]??=[]).push(p)}
 const order=['Claro','ETB','Tigo','Movistar','Datáfono Bold','Otros productos y servicios'];
 $('#sections').innerHTML=Object.keys(groups).sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b))).map(k=>'<section class="section"><h2>'+esc(k)+'</h2><div class="grid">'+groups[k].map(p=>{const photo=/^https:\/\//i.test(p.imagen_url||'')?'<img src="'+esc(p.imagen_url)+'" alt="'+esc(p.nombre)+'" crossorigin="anonymous">':'';const desc=p.descripcion||p.descripcion_larga||'';const link='https://wa.me/573229432085?text='+encodeURIComponent('Hola, quiero información del plan '+p.nombre);return '<article class="item">'+photo+'<div class="itemBody"><div class="category">'+esc(p.categoria||k)+'</div><h3>'+esc(p.nombre)+'</h3><div class="description">'+esc(desc)+'</div><div class="price">'+(Number(p.precio_cop)>0?money(p.precio_cop):'Consultar precio')+'</div><a href="'+esc(link)+'">Consultar por WhatsApp</a></div></article>'}).join('')+'</div></section>').join('');
 $('#status').textContent=products.length+' productos cargados. Pulsa el botón y selecciona “Guardar como PDF” en el diálogo de impresión.';
 $('#print').disabled=false;
-}catch(e){$('#status').textContent='No se pudo cargar el catálogo: '+e.message;console.error(e)}
+}catch(e){$('#status').innerHTML='<strong>No se pudo cargar el catálogo.</strong> '+esc(e.message||'Error desconocido')+' <button id="retry" type="button">Reintentar</button><p>Si continúa el problema, comparte una captura de este mensaje para identificar la causa exacta.</p>';document.querySelector('#retry').onclick=load;console.error(e)}
 }
 $('#print').addEventListener('click',()=>window.print());load();
 })();
