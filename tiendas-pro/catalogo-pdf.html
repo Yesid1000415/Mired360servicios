@@ -16,7 +16,7 @@ function operator(p){const v=(p.categoria+' '+p.nombre).normalize('NFD').replace
 async function load(){
 try{
 const slug=new URLSearchParams(location.search).get('tienda')||'mired360';
-const res=await fetch(config.url+'/rest/v1/rpc/catalogo_publico?actualizacion='+Date.now(),{method:'POST',cache:'no-store',headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},body:JSON.stringify({p_slug:slug})});
+const res=await fetch(config.url+'/rest/v1/rpc/catalogo_publico',{method:'POST',cache:'no-store',headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},body:JSON.stringify({p_slug:slug})});
 if(!res.ok){const detail=await res.text();throw Error('Consulta de productos: HTTP '+res.status+' · '+detail.slice(0,220))}
 const data=await res.json();if(!data?.encontrada)throw Error('La consulta respondió, pero no encontró la tienda con identificador '+slug);
 const products=data.productos||[];if(!products.length)throw Error('No hay productos publicados');
