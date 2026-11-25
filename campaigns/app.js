@@ -6,7 +6,8 @@ const API_URL = 'https://lpiusomsuswdcraoozdn.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_ZFjdUsgyfSxOqm4L1SrJJg_Z2f0lL0r';
 const db = createClient(API_URL, PUBLIC_KEY);
 const $ = (id) => document.getElementById(id);
-const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, manualQueues: [], selectedCampaign: null, editingCampaignId: null, page: 'resumen', authMode: 'login' };
+const canAccessInbox = () => state.isSuperAdmin || state.canAccessInbox;
+const state = { user: null, orgs: [], org: null, contacts: [], campaigns: [], actions: [], invites: [], teamMembers: [], member: null, isSuperAdmin: false, canAccessInbox: false, recovering: false, contactLimit: 250, recipientAssignments: [], campaignPick: new Set(), campaignPickLimit: 150, campaignTargetLimit: 150, returnToCampaign: false, manualQueues: [], selectedCampaign: null, editingCampaignId: null, page: 'resumen', authMode: 'login' };
 const html = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatDate = (v) => v ? new Date(v).toLocaleDateString('es-CO', {day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
 let toastTimer;
@@ -90,18 +91,34 @@ async function boot() {
   $('userAvatar').textContent = (state.user.email || 'M').slice(0,1).toUpperCase();
   const {data:administrator}=await db.from('wa_superadministradores').select('usuario_id').eq('usuario_id',state.user.id).maybeSingle();
   state.isSuperAdmin=!!administrator;
+  state.canAccessInbox=state.isSuperAdmin;
+  if(!state.canAccessInbox){
+    try{
+      const {data:sessionData,error:sessionError}=await db.auth.getSession();
+      const token=sessionData?.session?.access_token;
+      if(!sessionError&&token){
+        const response=await fetch(API_URL+'/functions/v1/wa-inbox?action=access',{
+          headers:{Authorization:'Bearer '+token,apikey:PUBLIC_KEY},cache:'no-store'
+        });
+        const payload=await response.json().catch(()=>({}));
+        state.canAccessInbox=response.ok&&payload?.can_access===true;
+      }
+    }catch(error){console.warn('No fue posible comprobar acceso a Bandeja WhatsApp.',error);}
+  }
   $('adminNav').hidden=!state.isSuperAdmin;
-  $('inboxNav').hidden=!state.isSuperAdmin;
+  $('inboxNav').hidden=!canAccessInbox();
   $('excelSendNav').hidden=!state.isSuperAdmin;
-  $('inboxIntegrationLink').hidden=!state.isSuperAdmin;
-  $('inboxQuickLink').hidden=!state.isSuperAdmin;
+  $('inboxIntegrationLink').hidden=!canAccessInbox();
+  $('inboxQuickLink').hidden=!canAccessInbox();
   $('apiSummaryDescription').textContent=state.isSuperAdmin
     ?'Número corporativo 3133938312 operativo. Respuestas y conversaciones en la Bandeja WhatsApp.'
-    :'La integración oficial para tu empresa se encuentra en preparación. Puedes utilizar campañas asistidas.';
-  $('apiSummaryState').textContent=state.isSuperAdmin?'Operativa':'Pendiente';
-  $('apiSummaryState').className=state.isSuperAdmin?'status available':'status pending';
+    :state.canAccessInbox
+      ?'Consulta en la Bandeja WhatsApp las conversaciones recibidas por la línea corporativa MIRED360.'
+      :'La integración oficial para tu empresa se encuentra en preparación. Puedes utilizar campañas asistidas.';
+  $('apiSummaryState').textContent=state.isSuperAdmin?'Operativa':state.canAccessInbox?'Bandeja disponible':'Pendiente';
+  $('apiSummaryState').className=(state.isSuperAdmin||state.canAccessInbox)?'status available':'status pending';
   $('apiOwnerPanel').hidden=!state.isSuperAdmin;
-  $('apiTenantNotice').hidden=state.isSuperAdmin;
+  $('apiTenantNotice').hidden=canAccessInbox();
   const invite = pendingInvite();
   if(invite){
     const {data:accepted,error} = await db.rpc('wa_aceptar_invitacion',{p_id:invite});
@@ -118,7 +135,7 @@ async function boot() {
   const targetView=inboxParams.get('view');
   let initialChat=String(inboxParams.get('phone')||'').replace(/\D/g,'');
   if(/^3\d{9}$/.test(initialChat))initialChat='57'+initialChat;
-  if(targetView==='bandeja' && state.isSuperAdmin && state.org){
+  if(targetView==='bandeja' && canAccessInbox() && state.org){
     if(/^57\d{10}$/.test(initialChat)){
       $('inboxSearch').value=initialChat;
       inboxState.filter='todos';
@@ -126,10 +143,10 @@ async function boot() {
     }
     navigate('bandeja');
     if(/^57\d{10}$/.test(initialChat))await inboxOpen(initialChat);
-  }else if(targetView==='bandeja' && !state.isSuperAdmin){
-    toast('Esta bandeja corporativa requiere ingresar como administrador de MIRED360.',true);
+  }else if(targetView==='bandeja' && !canAccessInbox()){
+    toast('Esta bandeja requiere acceso del propietario de MIRED360.',true);
   }
-  if(state.isSuperAdmin)inboxStartBadge();else inboxStopBadge();
+  if(canAccessInbox())inboxStartBadge();else inboxStopBadge();
   if(state.isSuperAdmin&&state.org)apiBatchStartPoll();
 }
 async function loadOrgs() {
@@ -229,11 +246,11 @@ function navigate(page) {
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active',el.dataset.page === page));
   $('breadcrumbPage').textContent = names[page] || 'Resumen';
   $('sidebar').classList.remove('open');
-  if(page==='bandeja'&&!state.isSuperAdmin){
-    toast('La bandeja corporativa solo está disponible para el administrador.',true);
+  if(page==='bandeja'&&!canAccessInbox()){
+    toast('La bandeja corporativa solo está disponible para el propietario de MIRED360.',true);
     return;
   }
-  if(page==='bandeja'&&state.isSuperAdmin)inboxStart(); else inboxStop();
+  if(page==='bandeja'&&canAccessInbox())inboxStart(); else inboxStop();
   if(page==='administracion'&&state.isSuperAdmin)loadAdmin();
   if(page==='envios'&&state.isSuperAdmin)apiBatchTick();
   if(page==='integraciones'&&state.isSuperAdmin){
@@ -1674,7 +1691,7 @@ const inboxSummaryTime=(value)=>{
 };
 const inboxAvatar=(name)=>String(name||'?').trim().slice(0,1).toLocaleUpperCase('es-CO');
 async function inboxRequest(method='GET',params={}){
-  if(!state.isSuperAdmin)throw new Error('La bandeja es exclusiva de MIRED360.');
+  if(!canAccessInbox())throw new Error('La bandeja es exclusiva del propietario de MIRED360.');
   const {data,error}=await db.auth.getSession();
   if(error)throw error;
   const token=data?.session?.access_token;
@@ -1744,7 +1761,7 @@ function inboxRenderList(){
   inboxUpdateCounters();
 }
 async function inboxLoadList({quiet=false}={}){
-  if(!state.isSuperAdmin||state.page!=='bandeja')return;
+  if(!canAccessInbox()||state.page!=='bandeja')return;
   if(inboxState.listBusy){inboxState.searchPending=true;return;}
   inboxState.listBusy=true;
   const serial=++inboxState.requestSerial;
@@ -1942,7 +1959,7 @@ function inboxStop(){
   if(inboxState.pollTimer){clearInterval(inboxState.pollTimer);inboxState.pollTimer=null;}
 }
 async function inboxRefreshBadge(){
-  if(!state.isSuperAdmin||state.page==='bandeja'||document.visibilityState!=='visible')return;
+  if(!canAccessInbox()||state.page==='bandeja'||document.visibilityState!=='visible')return;
   try{
     const response=await inboxRequest('GET',{action:'list'});
     if(state.page==='bandeja')return; // evitar que un refresco del menú sobrescriba la búsqueda del chat
