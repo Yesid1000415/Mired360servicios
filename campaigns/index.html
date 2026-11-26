@@ -7,12 +7,17 @@
   <meta name="description" content="MIRED360 CAMPAIGNS: campañas asistidas, contactos con autorización y gestión comercial en WhatsApp.">
   <meta name="robots" content="noindex,nofollow">
   <title>MIRED360 CAMPAIGNS | Plataforma comercial</title>
-  <link rel="stylesheet" href="./styles.css?v=20261125-clean">
+  <link rel="stylesheet" href="./styles.css?v=20261030-inbox-v13">
+<style>
+@media (max-width: 720px) {
+  #inboxConversation .wa-inbox-agent-bar {display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+  #inboxConversation .wa-inbox-agent-bar > * {width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+}
+</style>
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <!-- PANTALLA DE AUTENTICACIÓN -->
   <section id="authScreen" class="auth-layout">
     <div class="auth-feature">
       <div class="brand-mark"><span class="logo-symbol">M<span>↗</span></span><span>MIRED360 <strong>CAMPAIGNS</strong></span></div>
@@ -27,7 +32,7 @@
     <div class="auth-form-wrap">
       <div class="auth-form-card">
         <div class="mobile-brand brand-mark"><span class="logo-symbol">M<span>↗</span></span><span>MIRED360 <strong>CAMPAIGNS</strong></span></div>
-        <div class="pill-icon" aria-hidden="true">✦</div>
+        <div class="pill-icon">✦</div>
         <h2 id="authTitle">Bienvenido de nuevo</h2>
         <p class="muted" id="authSubtitle">Ingresa para continuar con tus campañas.</p>
         <div class="auth-switch" role="group" aria-label="Modo de acceso">
@@ -35,30 +40,15 @@
           <button id="registerTab" class="switch-btn" type="button">Crear cuenta</button>
         </div>
         <form id="authForm" autocomplete="on">
-          <div class="field" id="signupOrgField" hidden>
-            <label for="authOrg">Nombre de la empresa</label>
-            <input id="authOrg" maxlength="100" placeholder="Ej. Distribuidora ABC">
-          </div>
-          <div class="field">
-            <label for="authEmail">Correo electrónico</label>
-            <input id="authEmail" type="email" autocomplete="email" required placeholder="correo@empresa.com">
-          </div>
-          <div class="field">
-            <label for="authPassword">Contraseña</label>
-            <input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo 8 caracteres">
-          </div>
-          <button class="btn btn-primary btn-wide" id="authSubmit" type="submit">Ingresar a la plataforma <span aria-hidden="true">→</span></button>
+          <div class="field" id="signupOrgField" hidden><label for="authOrg">Nombre de la empresa</label><input id="authOrg" maxlength="100" placeholder="Ej. Distribuidora ABC"></div>
+          <div class="field"><label for="authEmail">Correo electrónico</label><input id="authEmail" type="email" autocomplete="email" required placeholder="correo@empresa.com"></div>
+          <div class="field"><label for="authPassword">Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo 8 caracteres"></div>
+          <button class="btn btn-primary btn-wide" id="authSubmit" type="submit">Ingresar a la plataforma <span>→</span></button>
         </form>
-        <button id="resetPassword" type="button" class="text-btn auth-reset-link">¿Olvidaste tu contraseña?</button>
+        <button id="resetPassword" type="button" class="text-btn" style="display:block;margin:15px auto 0">¿Olvidaste tu contraseña?</button>
         <form id="recoveryForm" hidden>
-          <div class="field">
-            <label for="newPassword">Nueva contraseña</label>
-            <input type="password" id="newPassword" minlength="8" required placeholder="Mínimo 8 caracteres" autocomplete="new-password">
-          </div>
-          <div class="field">
-            <label for="confirmPassword">Confirma la contraseña</label>
-            <input type="password" id="confirmPassword" minlength="8" required placeholder="Repite la contraseña" autocomplete="new-password">
-          </div>
+          <div class="field"><label for="newPassword">Nueva contraseña</label><input type="password" id="newPassword" minlength="10" placeholder="Mínimo 10 caracteres" autocomplete="new-password"></div>
+          <div class="field"><label for="confirmPassword">Confirma la contraseña</label><input type="password" id="confirmPassword" minlength="10" placeholder="Repite la contraseña" autocomplete="new-password"></div>
           <button type="submit" class="btn btn-primary btn-wide">Actualizar contraseña</button>
         </form>
         <p class="fine-print">La plataforma requiere cuentas autorizadas. Las campañas se realizan únicamente con contactos que dieron su consentimiento.</p>
@@ -67,89 +57,49 @@
     </div>
   </section>
 
-  <!-- APLICACIÓN PRINCIPAL -->
   <div id="appScreen" class="app-layout" hidden>
-    <div id="sidebarBackdrop" class="sidebar-backdrop" hidden></div>
-    <aside id="sidebar" class="sidebar" aria-label="Barra lateral">
+    <aside id="sidebar" class="sidebar">
       <div class="sidebar-brand brand-mark"><span class="logo-symbol">M<span>↗</span></span><span>MIRED360 <strong>CAMPAIGNS</strong></span></div>
       <div class="sidebar-label">MENÚ PRINCIPAL</div>
       <nav aria-label="Navegación principal">
-        <button type="button" data-page="resumen" class="nav-btn active"><span class="nav-ico" aria-hidden="true">▦</span> Resumen</button>
-        <button type="button" data-page="envios" id="excelSendNav" hidden class="nav-btn"><span class="nav-ico" aria-hidden="true">✉</span> Enviar WhatsApp</button>
-        <button type="button" data-page="contactos" class="nav-btn"><span class="nav-ico" aria-hidden="true">♧</span> Contactos</button>
-        <button type="button" data-page="campanas" class="nav-btn"><span class="nav-ico" aria-hidden="true">◈</span> Campañas</button>
-        <button type="button" data-page="bandeja" id="inboxNav" hidden class="nav-btn"><span class="nav-ico" aria-hidden="true">▤</span> Bandeja WhatsApp <span id="inboxNavCount" class="wa-inbox-nav-pill" hidden>0</span></button>
+        <button data-page="resumen" class="nav-btn active"><span class="nav-ico">▦</span> Resumen</button>
+        <button data-page="envios" id="excelSendNav" hidden class="nav-btn"><span class="nav-ico">✉</span> Enviar WhatsApp</button>
+        <button data-page="contactos" class="nav-btn"><span class="nav-ico">♧</span> Contactos</button>
+        <button data-page="campanas" class="nav-btn"><span class="nav-ico">◈</span> Campañas</button>
+        <button data-page="bandeja" id="inboxNav" hidden class="nav-btn"><span class="nav-ico">▤</span> Bandeja WhatsApp <span id="inboxNavCount" class="wa-inbox-nav-pill" hidden>0</span></button>
         <div class="sidebar-sep"></div>
         <div class="sidebar-label">ADMINISTRACIÓN</div>
-        <button type="button" data-page="equipo" class="nav-btn"><span class="nav-ico" aria-hidden="true">♙</span> Equipo</button>
-        <button type="button" data-page="integraciones" class="nav-btn"><span class="nav-ico" aria-hidden="true">⚙</span> Integraciones</button>
-        <button type="button" data-page="planes" class="nav-btn"><span class="nav-ico" aria-hidden="true">◇</span> Suscripción</button>
-        <button type="button" data-page="administracion" id="adminNav" hidden class="nav-btn"><span class="nav-ico" aria-hidden="true">♜</span> Administración</button>
+        <button data-page="equipo" class="nav-btn"><span class="nav-ico">♙</span> Equipo</button>
+        <button data-page="integraciones" class="nav-btn"><span class="nav-ico">⚙</span> Integraciones</button>
+        <button data-page="planes" class="nav-btn"><span class="nav-ico">◇</span> Suscripción</button>
+        <button data-page="administracion" id="adminNav" hidden class="nav-btn"><span class="nav-ico">♜</span> Administración</button>
       </nav>
-      <div class="sidebar-bottom">
-        <div class="sidebar-help">✧ <strong>Mensajería responsable</strong><small>Solo envíos a contactos con consentimiento verificable.</small></div>
-        <button type="button" id="signOut" class="signout-btn">↪ Cerrar sesión</button>
-      </div>
+      <div class="sidebar-bottom"><div class="sidebar-help">✧ <strong>Mensajería responsable</strong><small>Solo envíos a contactos con consentimiento verificable.</small></div><button id="signOut" class="signout-btn">↪ Cerrar sesión</button></div>
     </aside>
 
     <div class="main-shell">
       <header class="topbar">
-        <div class="topbar-start">
-          <button type="button" id="menuToggle" class="menu-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">☰</button>
-          <div class="breadcrumb">Plataforma <span>/</span> <strong id="breadcrumbPage">Resumen</strong></div>
-        </div>
-        <div class="topbar-end">
-          <label class="sr-only" for="orgSelect">Empresa activa</label>
-          <select id="orgSelect" title="Seleccionar empresa"></select>
-          <button type="button" id="newOrgButton" class="subtle-btn" title="Crear empresa" aria-label="Crear nueva empresa">＋</button>
-          <div class="user-avatar" id="userAvatar" aria-hidden="true">M</div>
-        </div>
+        <div class="topbar-start"><button id="menuToggle" class="menu-toggle" aria-label="Abrir menú">☰</button><div class="breadcrumb">Plataforma <span>/</span> <strong id="breadcrumbPage">Resumen</strong></div></div>
+        <div class="topbar-end"><label class="sr-only" for="orgSelect">Empresa activa</label><select id="orgSelect" title="Seleccionar empresa"></select><button id="newOrgButton" class="subtle-btn" title="Crear empresa">＋</button><div class="user-avatar" id="userAvatar">M</div></div>
       </header>
-
       <main class="workspace">
-        <div id="licenseBanner" hidden class="license-banner" role="alert"></div>
-
-        <!-- ONBOARDING -->
+        <div id="licenseBanner" hidden class="license-banner"></div>
         <section id="onboarding" hidden class="onboarding card">
-          <div class="eyebrow">PRIMER PASO</div>
-          <h1>Configura tu espacio empresarial</h1>
-          <p>Los contactos y campañas quedarán aislados de los de otras empresas.</p>
-          <form id="orgForm" class="inline-form">
-            <label for="orgName" class="sr-only">Nombre de tu empresa</label>
-            <input id="orgName" required minlength="2" maxlength="100" placeholder="Nombre de tu empresa">
-            <button type="submit" class="btn btn-primary">Crear empresa</button>
-          </form>
+          <div class="eyebrow">PRIMER PASO</div><h1>Configura tu espacio empresarial</h1><p>Los contactos y campañas quedarán aislados de los de otras empresas.</p>
+          <form id="orgForm" class="inline-form"><input id="orgName" required minlength="2" maxlength="100" placeholder="Nombre de tu empresa"><button class="btn btn-primary">Crear empresa</button></form>
         </section>
-
         <div id="workspaceContent" hidden>
-          <!-- SECCIÓN: ENVÍO MASIVO API (SOLO OWNER) -->
           <section data-section="envios" class="page-section" hidden>
-            <div class="page-head">
-              <div>
-                <span class="eyebrow" id="officialLineEyebrow">MENSAJERÍA OFICIAL</span>
-                <h1>Enviar mensajes desde Excel</h1>
-                <p class="muted">Carga tu Excel. Se envían como máximo 30 mensajes por día, <strong>uno cada 120 segundos</strong>. No necesitas registrar los contactos uno por uno.</p>
-              </div>
-              <button type="button" class="btn btn-secondary" data-go="bandeja">Ver conversaciones →</button>
-            </div>
-            <div class="card section-spacer">
-              <h2>1. Tu Excel</h2>
+            <div class="page-head"><div><span class="eyebrow">MENSAJERÍA OFICIAL · 3133938312</span><h1>Enviar mensajes desde Excel</h1><p class="muted">Carga tu Excel. Se envían como máximo 30 mensajes, <strong>uno cada 120 segundos</strong>. No necesitas registrar los contactos uno por uno.</p></div><button type="button" class="btn btn-secondary" data-go="bandeja">Ver conversaciones →</button></div>
+            <div class="card" style="padding:20px;margin-bottom:16px">
+              <h2 style="margin:0 0 8px">1. Tu Excel</h2>
               <p class="muted">Solo necesita las columnas <strong>Nombre</strong> y <strong>Celular</strong>. Puedes cargar el que ya tienes o descargar el modelo.</p>
               <button type="button" class="btn btn-secondary" id="apiDownloadTemplate">↓ Descargar Excel modelo</button>
             </div>
             <div id="apiBatchSimpleHost"></div>
           </section>
-
-          <!-- SECCIÓN: RESUMEN -->
           <section data-section="resumen" class="page-section">
-            <div class="page-head">
-              <div>
-                <span class="eyebrow">CENTRO DE CONTROL</span>
-                <h1>Bienvenido a tu espacio comercial</h1>
-                <p class="muted">Organiza tus contactos, prepara campañas y registra cada gestión.</p>
-              </div>
-              <button type="button" class="btn btn-primary" data-go="campanas">＋ Nueva campaña</button>
-            </div>
+            <div class="page-head"><div><span class="eyebrow">CENTRO DE CONTROL</span><h1>Bienvenido a tu espacio comercial</h1><p class="muted">Organiza tus contactos, prepara campañas y registra cada gestión.</p></div><button class="btn btn-primary" data-go="campanas">＋ Nueva campaña</button></div>
             <div class="stat-grid">
               <article class="stat-card"><span class="stat-label">Contactos registrados <span>♧</span></span><strong id="statContacts">0</strong><small>En tu empresa</small></article>
               <article class="stat-card"><span class="stat-label">Contactos autorizados <span>✓</span></span><strong id="statOptin">0</strong><small>Sin exclusión</small></article>
@@ -157,187 +107,473 @@
               <article class="stat-card"><span class="stat-label">Gestiones registradas <span>↗</span></span><strong id="statActions">0</strong><small>Seguimiento manual</small></article>
             </div>
             <div class="two-col">
-              <div class="card feature-card">
-                <span class="eyebrow">EMPIEZA AQUÍ</span>
-                <h2>Tu próxima campaña comienza con una buena base.</h2>
-                <p>Importa contactos desde Excel o CSV, o agrégalos individualmente. Solo los autorizados estarán disponibles para campañas.</p>
-                <button type="button" class="btn btn-secondary" data-go="contactos">Administrar contactos →</button>
-                <div class="feature-orb" aria-hidden="true"></div>
-              </div>
-              <div class="card">
-                <div class="card-header"><h2>Canales disponibles</h2><span class="mini-badge">Estado real</span></div>
-                <div class="channel-status">
-                  <div class="channel-icon" aria-hidden="true">◎</div>
-                  <div><strong>WhatsApp asistido</strong><small>Abre conversaciones desde tu propio WhatsApp</small></div>
-                  <span class="status available">Listo</span>
-                </div>
-                <div class="channel-status">
-                  <div class="channel-icon" aria-hidden="true">☁</div>
-                  <div><strong>API oficial de WhatsApp</strong><small id="apiSummaryDescription">Conexión independiente para cada empresa próximamente.</small></div>
-                  <span id="apiSummaryState" class="status pending">Pendiente</span>
-                </div>
-                <button type="button" data-go="bandeja" id="inboxQuickLink" hidden class="btn btn-secondary full-width-btn">▤ Abrir Bandeja WhatsApp →</button>
-              </div>
+              <div class="card feature-card"><span class="eyebrow">EMPIEZA AQUÍ</span><h2>Tu próxima campaña comienza con una buena base.</h2><p>Importa contactos desde Excel exportado a CSV o agrégalos individualmente. Solo los autorizados estarán disponibles para campañas.</p><button class="btn btn-secondary" data-go="contactos">Administrar contactos →</button><div class="feature-orb"></div></div>
+              <div class="card"><div class="card-header"><h2>Canales disponibles</h2><span class="mini-badge">Estado real</span></div><div class="channel-status"><div class="channel-icon">◎</div><div><strong>WhatsApp asistido</strong><small>Abre conversaciones desde tu propio WhatsApp</small></div><span class="status available">Listo</span></div><div class="channel-status"><div class="channel-icon">☁</div><div><strong>API oficial de WhatsApp</strong><small id="apiSummaryDescription">Conexión independiente para cada empresa próximamente.</small></div><span id="apiSummaryState" class="status pending">Pendiente</span></div><button type="button" data-go="bandeja" id="inboxQuickLink" hidden class="btn btn-secondary" style="width:100%;margin-top:14px">▤ Abrir Bandeja WhatsApp →</button></div>
             </div>
           </section>
 
-          <!-- SECCIÓN: CONTACTOS -->
           <section data-section="contactos" class="page-section" hidden>
-            <div class="page-head">
-              <div><span class="eyebrow">DIRECTORIO</span><h1>Contactos</h1><p class="muted">Una base segura y organizada para tu empresa.</p></div>
-              <div class="head-actions">
-                <button id="exportContacts" type="button" class="btn export-button">↓ Exportar CSV</button>
-                <button id="contactFormToggle" type="button" class="btn btn-primary">＋ Agregar contacto</button>
-              </div>
-            </div>
-
+            <div class="page-head"><div><span class="eyebrow">DIRECTORIO</span><h1>Contactos</h1><p class="muted">Una base segura y organizada para tu empresa.</p></div><div class="head-actions"><button id="exportContacts" type="button" class="btn export-button">↓ Exportar CSV</button> <button id="contactFormToggle" class="btn btn-primary">＋ Agregar contacto</button></div></div>
             <div class="contact-context card" id="contactStatusPanel" aria-live="polite">
-              <div>
-                <strong id="contactSummaryTitle">Cargando contactos...</strong>
-                <p class="muted" id="contactSummaryText">Los contactos se guardan primero en tu empresa. Para campañas comerciales se requiere autorización.</p>
-              </div>
-              <button type="button" id="showPendingContacts" class="btn btn-secondary">Ver pendientes</button>
+  <div><strong id="contactSummaryTitle">Cargando contactos...</strong><p class="muted" id="contactSummaryText">Los contactos se guardan primero en tu empresa. Para campañas comerciales se requiere autorización.</p></div>
+  <button type="button" id="showPendingContacts" class="btn btn-secondary">Ver pendientes</button>
+</div>
+<div id="contactFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nuevo contacto</h2><button type="button" class="icon-btn" data-hide="contactFormPanel">✕</button></div>
+              <form id="contactForm" class="form-grid"><div class="field"><label for="contactName">Nombre completo</label><input id="contactName" required minlength="2" maxlength="160" placeholder="Nombre del contacto"></div><div class="field"><label for="contactPhone">Celular con indicativo</label><input id="contactPhone" required placeholder="+573229432085 o 3229432085"></div><div class="field"><label for="contactOrigin">Origen de los datos</label><input id="contactOrigin" placeholder="Formulario, compra, referido..."></div><div class="field"><label for="contactSource">Prueba o fuente del consentimiento</label><input id="contactSource" placeholder="Formulario web 29/10, solicitud del cliente..."></div><label class="check-row span-all"><input id="contactConsent" type="checkbox"> Confirmo que esta persona autorizó expresamente a la empresa a enviarle mensajes por WhatsApp.</label><div class="span-all"><button type="submit" class="btn btn-primary">Guardar contacto</button></div></form>
             </div>
-
-            <div id="contactFormPanel" class="card edit-panel" hidden>
-              <div class="card-header"><h2>Nuevo contacto</h2><button type="button" class="icon-btn" data-hide="contactFormPanel" aria-label="Cerrar formulario">✕</button></div>
-              <form id="contactForm" class="form-grid">
-                <div class="field"><label for="contactName">Nombre completo</label><input id="contactName" required minlength="2" maxlength="160" placeholder="Nombre del contacto"></div>
-                <div class="field"><label for="contactPhone">Celular con indicativo</label><input id="contactPhone" type="tel" inputmode="tel" required placeholder="+573229432085 o 3229432085"></div>
-                <div class="field"><label for="contactOrigin">Origen de los datos</label><input id="contactOrigin" placeholder="Formulario, compra, referido..."></div>
-                <div class="field"><label for="contactSource">Prueba o fuente del consentimiento</label><input id="contactSource" placeholder="Formulario web 29/10, solicitud del cliente..."></div>
-                <label class="check-row span-all"><input id="contactConsent" type="checkbox"> Confirmo que esta persona autorizó expresamente a la empresa a enviarle mensajes por WhatsApp.</label>
-                <div class="span-all"><button type="submit" class="btn btn-primary">Guardar contacto</button></div>
-              </form>
-            </div>
-
             <div id="consentFormPanel" class="card edit-panel" hidden>
-              <div class="card-header">
-                <div><span class="eyebrow">AUTORIZACIÓN DE MENSAJES</span><h2>Registrar permiso de <span id="consentContactTitle"></span></h2></div>
-                <button type="button" class="icon-btn" data-hide="consentFormPanel" aria-label="Cerrar">✕</button>
-              </div>
-              <p class="muted">Solo registra el permiso si el contacto autorizó previamente a esta empresa a enviarle mensajes por WhatsApp. Guardaremos la fecha y la fuente de esa autorización.</p>
-              <form id="consentForm">
-                <input type="hidden" id="consentContactId">
-                <div class="form-grid">
-                  <div class="field"><label for="consentDate">Fecha y hora de la autorización</label><input id="consentDate" type="datetime-local" required></div>
-                  <div class="field"><label for="consentEvidence">Fuente o evidencia verificable</label><input id="consentEvidence" minlength="6" maxlength="500" required placeholder="Formulario, conversación del cliente, enlace o registro"></div>
-                </div>
-                <label class="check-row"><input type="checkbox" id="consentVerified" required> Confirmo que he verificado que el destinatario autorizó mensajes de esta empresa.</label>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary" id="saveConsent">Guardar autorización</button>
-                  <button type="button" class="btn btn-secondary" data-hide="consentFormPanel">Cancelar</button>
-                </div>
-              </form>
-            </div>
-
-            <div class="card import-panel">
-              <div>
-                <strong>Importación desde Excel</strong>
-                <p class="muted">Aceptamos <b>Excel .xlsx</b> y <b>CSV UTF-8</b>. Detectamos automáticamente nombres y celulares, incluso sin encabezados.</p>
-                <label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label>
-                <div class="field import-source">
-                  <label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label>
-                  <input id="importSource" placeholder="Ej. Formulario web, fecha y enlace">
-                </div>
-              </div>
-              <label class="btn btn-secondary file-button">↑ Importar Excel o CSV<input id="csvFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label>
-            </div>
-
-            <div class="card">
-              <div class="table-head">
-                <h2>Base de contactos <span id="contactsCount" class="count-badge">0</span></h2>
-                <select id="contactFilter" aria-label="Filtrar contactos">
-                  <option value="all">Todos</option>
-                  <option value="pending">Sin autorización</option>
-                  <option value="allowed">Autorizados</option>
-                  <option value="excluded">Excluidos</option>
-                </select>
-                <input id="contactSearch" class="search-box" type="search" placeholder="Buscar nombre o teléfono..." aria-label="Buscar nombre o teléfono">
-              </div>
-              <div class="table-scroll">
-                <table>
-                  <thead><tr><th>CONTACTO</th><th>TELÉFONO</th><th>AUTORIZACIÓN</th><th>ESTADO</th><th>ACCIONES</th></tr></thead>
-                  <tbody id="contactRows"></tbody>
-                </table>
-              </div>
-              <div id="contactsEmpty" class="empty-state" hidden>No hay contactos para mostrar.</div>
-              <div id="contactPager" class="contact-pager">
-                <span id="contactDisplayCount">Mostrando contactos...</span>
-                <button type="button" id="contactLoadMore" class="btn btn-secondary" hidden>Mostrar más contactos</button>
-              </div>
-              <p class="small-notice">Respeta las autorizaciones y solicitudes de exclusión. Las bases compradas o sin consentimiento no son aptas para campañas de marketing.</p>
-            </div>
+  <div class="card-header"><div><span class="eyebrow">AUTORIZACIÓN DE MENSAJES</span><h2>Registrar permiso de <span id="consentContactTitle"></span></h2></div><button type="button" class="icon-btn" data-hide="consentFormPanel" aria-label="Cerrar">✕</button></div>
+  <p class="muted">Solo registra el permiso si el contacto autorizó previamente a esta empresa a enviarle mensajes por WhatsApp. Guardaremos la fecha y la fuente de esa autorización.</p>
+  <form id="consentForm">
+    <input type="hidden" id="consentContactId">
+    <div class="form-grid">
+      <div class="field"><label for="consentDate">Fecha y hora de la autorización</label><input id="consentDate" type="datetime-local" required></div>
+      <div class="field"><label for="consentEvidence">Fuente o evidencia verificable</label><input id="consentEvidence" minlength="6" maxlength="500" required placeholder="Formulario, conversación del cliente, enlace o registro"></div>
+    </div>
+    <label class="check-row"><input type="checkbox" id="consentVerified" required> Confirmo que he verificado que el destinatario autorizó mensajes de esta empresa.</label>
+    <div class="form-actions"><button type="submit" class="btn btn-primary" id="saveConsent">Guardar autorización</button><button type="button" class="btn btn-secondary" data-hide="consentFormPanel">Cancelar</button></div>
+  </form>
+</div>
+<div class="card import-panel"><div><strong>Importación desde Excel</strong><p class="muted">Aceptamos <b>Excel .xlsx</b> y <b>CSV UTF-8</b>. Detectamos automáticamente nombres y celulares, incluso sin encabezados.</p><label class="check-row"><input type="checkbox" id="importConsent"> Tengo autorización verificable de todos los contactos a importar.</label><div class="field import-source"><label for="importSource">Fuente del consentimiento (obligatoria si se marca autorización)</label><input id="importSource" placeholder="Ej. Formulario web, fecha y enlace"></div></div><label class="btn btn-secondary file-button">↑ Importar Excel o CSV<input id="csvFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label></div>
+            <div class="card"><div class="table-head"><h2>Base de contactos <span id="contactsCount" class="count-badge">0</span></h2><select id="contactFilter" aria-label="Filtrar contactos"><option value="all">Todos</option><option value="pending">Sin autorización</option><option value="allowed">Autorizados</option><option value="excluded">Excluidos</option></select><input id="contactSearch" class="search-box" type="search" placeholder="Buscar nombre o teléfono..."></div><div class="table-scroll"><table><thead><tr><th>CONTACTO</th><th>TELÉFONO</th><th>AUTORIZACIÓN</th><th>ESTADO</th><th></th></tr></thead><tbody id="contactRows"></tbody></table></div><div id="contactsEmpty" class="empty-state" hidden>No hay contactos para mostrar.</div>
+<div id="contactPager" class="contact-pager"><span id="contactDisplayCount">Mostrando contactos...</span><button type="button" id="contactLoadMore" class="btn btn-secondary" hidden>Mostrar más contactos</button></div><p class="small-notice">Respeta las autorizaciones y solicitudes de exclusión. Las bases compradas o sin consentimiento no son aptas para campañas de marketing.</p></div>
           </section>
 
-          <!-- SECCIÓN: CAMPAÑAS -->
           <section data-section="campanas" class="page-section" hidden>
-            <div class="page-head">
-              <div><span class="eyebrow">MARKETING COMERCIAL</span><h1>Campañas</h1><p class="muted">Mensajes personalizados y seguimiento de contactos autorizados.</p></div>
-              <button id="campaignFormToggle" type="button" class="btn btn-primary">＋ Crear campaña</button>
-            </div>
-
-            <div id="campaignFormPanel" class="card edit-panel" hidden>
-              <div class="card-header"><h2>Nueva campaña asistida</h2><button class="icon-btn" type="button" data-hide="campaignFormPanel" aria-label="Cerrar panel">✕</button></div>
+            <div class="page-head"><div><span class="eyebrow">MARKETING COMERCIAL</span><h1>Campañas</h1><p class="muted">Mensajes personalizados y seguimiento de contactos autorizados.</p></div><button id="campaignFormToggle" class="btn btn-primary">＋ Crear campaña</button></div>
+            <div id="campaignFormPanel" class="card edit-panel" hidden><div class="card-header"><h2>Nueva campaña asistida</h2><button class="icon-btn" type="button" data-hide="campaignFormPanel">✕</button></div>
               <form id="campaignForm">
-                <div class="field">
-                  <label for="campaignName">Nombre de la campaña</label>
-                  <input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Internet para recién mudados, Software para negocios...">
+  <div class="field">
+    <label for="campaignName">Nombre de la campaña</label>
+    <input id="campaignName" required maxlength="120" minlength="2" placeholder="Ej. Internet para recién mudados, Software para negocios...">
+  </div>
+  <div class="message-composer">
+    <div class="message-composer-heading">
+      <div><span class="eyebrow">ESTRUCTURA A TU ELECCIÓN</span><h3>Diseña tu mensaje de venta</h3>
+      <p class="muted">Elige una idea inicial y cambia absolutamente todo: saludo, producto, beneficios, precio y llamado a la acción.</p></div>
+    </div>
+    <div class="field">
+      <label for="campaignMessagePreset">¿Qué vas a ofrecer?</label>
+      <select id="campaignMessagePreset">
+        <option value="personalizado" selected>✍️ Mensaje desde cero</option>
+        <option value="software">💻 Software y plataformas</option>
+        <option value="datafono">💳 Datáfonos y soluciones de cobro</option>
+        <option value="internet">🌐 Internet y televisión</option>
+        <option value="streaming">🎬 Streaming y entretenimiento</option>
+      </select>
+    </div>
+    <div class="message-editor-grid">
+      <div class="field message-editor">
+        <div class="message-editor-label"><label for="campaignText">Tu mensaje comercial</label><small id="campaignMessageCounter">0 de 4.000 caracteres</small></div>
+        <textarea id="campaignText" required minlength="3" maxlength="4000" rows="12" placeholder="Hola, {nombre} 👋&#10;&#10;Te cuento sobre nuestra oferta de...&#10;&#10;✅ Beneficio 1&#10;✅ Beneficio 2&#10;💰 Valor: ...&#10;&#10;¿Te comparto más información?"></textarea>
+        <div class="message-variable-toolbar">
+          <span>Personalizar:</span>
+          <button type="button" data-insert-variable="{nombre}" class="message-variable">{nombre}</button>
+          <button type="button" data-insert-variable="{empresa}" class="message-variable">{empresa}</button>
+        </div>
+        <p class="hint">Para destacar texto en WhatsApp usa *negrita* y _cursiva_. Los mensajes no se envían automáticamente.</p>
+      </div>
+      <div class="message-preview-panel">
+        <div class="message-preview-top"><strong><span class="message-preview-icon">✦</span> Vista previa</strong><small>Ejemplo para un cliente</small></div>
+        <div class="message-preview-chat"><div id="campaignMessagePreview" class="message-preview-bubble">Escribe tu mensaje y aparecerá aquí.</div></div>
+        <p id="campaignMessageWarning" class="message-warning" hidden>Reemplaza los campos entre corchetes antes de guardar el mensaje.</p>
+      </div>
+    </div>
+    <p id="campaignMessagePresetNotice" class="hint" hidden>Al seleccionar otra propuesta se reemplazará el texto que estés editando.</p>
+  </div>
+  <div class="message-composer-actions">
+    <button class="btn btn-primary" id="campaignSaveButton" type="submit">Guardar campaña</button>
+    <button class="btn btn-secondary" id="campaignCancelEdit" type="button" hidden>Cancelar edición</button>
+  </div>
+</form></div>
+            <div class="campaign-grid" id="campaignCards"></div><div id="campaignsEmpty" class="card empty-state" hidden>Aún no tienes campañas. Crea la primera para comenzar.</div>
+            <div id="campaignDetail" class="card" hidden>
+  <div class="card-header campaign-detail-header">
+    <div>
+      <span class="eyebrow">GESTIÓN DE CAMPAÑA</span><h2 id="detailTitle">Campaña</h2>
+      <p id="detailHint" class="muted"></p>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-secondary" type="button" id="campaignEditMessage">✎ Editar mensaje</button>
+      <button class="btn btn-primary" type="button" id="campaignAddContacts">＋ Agregar contactos</button>
+      <button class="btn btn-secondary" type="button" id="exportCampaignReport">↓ Exportar informe</button>
+      <button class="btn btn-secondary" type="button" id="closeDetail">Cerrar</button>
+    </div>
+  </div>
+  <p id="detailConsentNotice" class="detail-notice" hidden></p>
+
+  <section id="queuePanel" class="queue-panel" aria-labelledby="queueHeading">
+    <div class="queue-panel-heading">
+      <div>
+        <span class="eyebrow">ENVÍO ASISTIDO · CONTROL DE RITMO</span>
+        <h3 id="queueHeading">Tandas de WhatsApp</h3>
+        <p>Organiza hasta 50 contactos autorizados por tanda. Cada conversación se abre individualmente y el envío lo confirmas tú en WhatsApp.</p>
+      </div>
+      <span id="queueStatus" class="queue-badge">Sin tanda</span>
+    </div>
+    <div id="queueStartPanel" class="queue-start">
+      <div class="queue-settings">
+        <div class="field">
+          <label for="queueBatchSize">Tamaño de la tanda</label>
+          <select id="queueBatchSize">
+            <option value="10">10 contactos</option>
+            <option value="25">25 contactos</option>
+            <option value="50" selected>50 contactos</option>
+          </select>
+        </div>
+        <div class="queue-delay">
+          <span>Intervalo entre confirmaciones</span>
+          <strong>120 segundos</strong>
+          <small>El reloj comienza cuando confirmas que enviaste el mensaje.</small>
+        </div>
+      </div>
+      <p class="queue-availability" id="queueAvailable"></p>
+      <button id="queueStart" class="btn btn-primary" type="button">▶ Preparar tanda</button>
+    </div>
+    <div id="queueRunPanel" class="queue-run" hidden>
+      <div class="queue-progress-info">
+        <span id="queueCounter" aria-live="polite">0 de 0 confirmados</span>
+        <strong id="queueTime">Listo para abrir</strong>
+      </div>
+      <div class="queue-progress-track" role="progressbar" aria-label="Progreso de tanda" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="queueProgress">
+        <div id="queueProgressFill"></div>
+      </div>
+      <div class="queue-current-contact">
+        <span class="eyebrow">SIGUIENTE CONTACTO</span>
+        <strong id="queueCurrentName">—</strong>
+        <small id="queueCurrentPhone"></small>
+        <p id="queueStepInfo" aria-live="polite">Prepara el mensaje cuando esté habilitado.</p>
+      </div>
+      <div class="queue-control-actions">
+        <button id="queueOpenNext" type="button" class="btn btn-primary">Abrir chat en WhatsApp</button>
+        <button id="queueConfirmSent" type="button" class="btn btn-primary" hidden>✓ Ya envié el mensaje</button>
+        <button id="queueSkip" type="button" class="btn btn-secondary">Omitir contacto</button>
+        <button id="queuePause" type="button" class="btn btn-secondary">Ⅱ Pausar</button>
+        <button id="queueResume" type="button" class="btn btn-primary" hidden>▶ Continuar</button>
+        <button id="queueStop" type="button" class="btn btn-secondary">Detener tanda</button>
+      </div>
+      <p class="small-notice" id="queueComplianceNotice">El sistema no envía nada automáticamente. Abre cada conversación cuando corresponda. Confirma «Ya envié» solamente después de enviar tú mismo el mensaje en WhatsApp. Respeta las solicitudes de no contacto.</p>
+    </div>
+    <div id="queueDonePanel" class="queue-done" hidden>
+      <strong>✓ Tanda finalizada</strong>
+      <p id="queueDoneDescription">Prepara otra tanda para continuar.</p>
+      <button id="queueNextBatch" type="button" class="btn btn-primary">＋ Preparar siguiente tanda</button>
+    </div>
+  </section>
+  <div id="campaignAssignPanel" class="campaign-picker" hidden>
+    <div class="picker-intro">
+      <div><span class="eyebrow">PASO 1 · SELECCIONAR DESTINATARIOS</span><h3>Agregar contactos de tu empresa</h3>
+        <p>Asigna contactos a esta campaña. Los contactos sin permiso pueden organizarse aquí, pero el botón de WhatsApp permanecerá bloqueado hasta registrar su autorización.</p>
+      </div>
+      <button id="cancelCampaignAssign" class="icon-btn" type="button" aria-label="Cerrar selector">✕</button>
+    </div>
+    <div class="picker-toolbar">
+      <input id="campaignContactSearch" type="search" placeholder="Buscar nombre o celular…" aria-label="Buscar contactos para campaña">
+      <select id="campaignContactFilter" aria-label="Filtrar contactos para campaña">
+        <option value="todos">Todos los disponibles</option>
+        <option value="autorizados">Con autorización</option>
+        <option value="pendientes">Sin autorización</option>
+      </select>
+    </div>
+    <div class="picker-selection-bar">
+      <button id="campaignSelectAll" type="button" class="btn btn-secondary">✓ Seleccionar todos los encontrados</button>
+      <button id="campaignClearSelection" type="button" class="btn btn-secondary">Limpiar selección</button>
+      <strong id="campaignSelectedCount" aria-live="polite">0 seleccionados</strong>
+    </div>
+    <div id="campaignPickerRows" class="picker-rows"></div>
+    <div id="campaignPickerEmpty" class="empty-state" hidden>No hay contactos disponibles con ese filtro.</div>
+    <div class="picker-footer">
+      <span id="campaignPickerCount" class="muted"></span>
+      <button id="campaignPickerMore" class="btn btn-secondary" type="button" hidden>Ver más</button>
+      <button id="campaignSaveSelected" class="btn btn-primary" type="button">Agregar seleccionados a campaña</button>
+    </div>
+    <p class="small-notice">Agregar contactos no envía mensajes ni constituye consentimiento. Los contactos excluidos no aparecen en este selector.</p>
+  </div>
+  <div class="campaign-assigned-header">
+    <h3>Contactos de esta campaña <span id="campaignAssignedCount" class="count-badge">0</span></h3>
+  </div>
+  <div class="table-scroll">
+    <table><thead><tr><th>CONTACTO</th><th>CELULAR</th><th>AUTORIZACIÓN</th><th>GESTIÓN</th><th>ACCIONES</th></tr></thead><tbody id="targetRows"></tbody></table>
+  </div>
+  <div class="campaign-target-pager"><span id="campaignTargetCount"></span><button id="campaignTargetLoadMore" class="btn btn-secondary" type="button" hidden>Mostrar más</button></div>
+  <p class="small-notice">Abrir WhatsApp no equivale a enviar o entregar el mensaje. Registra «Contactado» solo cuando lo confirmes. Para números colombianos, verifica que no sea festivo y respeta el horario comercial aplicable.</p>
+</div>
+          </section>
+
+
+          <section data-section="equipo" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">COLABORADORES</span><h1>Equipo comercial</h1><p class="muted">Invita asesores o administradores a trabajar en la misma empresa.</p></div></div>
+            <div class="two-col">
+              <div class="card" id="teamInvitePanel"><h2>Invitar colaborador</h2><p class="muted">El enlace solo funcionará si el invitado entra con el correo indicado y lo confirma.</p>
+                <form id="inviteForm">
+                  <div class="field"><label for="inviteEmail">Correo del colaborador</label><input id="inviteEmail" type="email" required placeholder="asesor@empresa.com"></div>
+                  <div class="field"><label for="inviteRole">Rol</label><select id="inviteRole"><option value="asesor">Asesor · gestionar contactos y campañas</option><option value="admin">Administrador · gestionar contactos y campañas</option></select></div>
+                  <button type="submit" class="btn btn-primary">Generar invitación</button>
+                </form>
+                <div id="inviteLinkPanel" hidden class="invite-link-box"><div class="field"><label for="inviteLink">Enlace de invitación</label><input id="inviteLink" readonly></div><button id="copyInvite" type="button" class="btn btn-secondary">Copiar enlace</button></div>
+              </div>
+              <div class="card"><h2>Acceso y seguridad</h2><p class="muted">El propietario administra la empresa. Un asesor puede ver los contactos autorizados y crear campañas asistidas; no puede borrar bases completas.</p><div class="channel-status"><div class="channel-icon">✓</div><div><strong>Tu rol actual</strong><small id="memberRoleLabel">Consultando permisos...</small></div></div><div class="channel-status"><div class="channel-icon">☏</div><div><strong>Acceso por correo confirmado</strong><small>Las invitaciones caducan después de 7 días</small></div></div></div>
+            </div>
+            <div class="card" style="margin-top:20px" id="membersPanel">
+              <div class="card-header"><h2>Colaboradores activos</h2><span class="mini-badge">Permisos por empresa</span></div>
+              <div class="table-scroll"><table><thead><tr><th>USUARIO</th><th>ROL</th><th>FECHA DE ACCESO</th><th>ACCESO</th></tr></thead><tbody id="memberRows"></tbody></table></div>
+            </div>
+            <div class="card" style="margin-top:20px" id="invitesPanel"><div class="card-header"><h2>Invitaciones</h2><span class="mini-badge">Acceso restringido</span></div><div class="table-scroll"><table><thead><tr><th>CORREO</th><th>ROL</th><th>FECHA DE INVITACIÓN</th><th>ESTADO</th><th>ACCIÓN</th></tr></thead><tbody id="inviteRows"></tbody></table></div></div>
+          </section>
+
+          <section data-section="bandeja" class="page-section wa-inbox-section" hidden>
+            <div class="page-head wa-inbox-pagehead">
+              <div><span class="eyebrow">CENTRO DE ATENCIÓN · MIRED360SERVICIOS</span>
+                <h1>Bandeja de WhatsApp</h1>
+                <p class="muted">Conversaciones recibidas en el número corporativo +57 313 393 8312. Consulta, atiende y da seguimiento desde un mismo lugar.</p>
+              </div>
+              <div class="head-actions">
+                <span class="wa-inbox-live"><span></span> API oficial conectada</span>
+                <button type="button" class="btn btn-secondary" id="inboxRefresh">↻ Actualizar</button>
+              </div>
+            </div>
+            <div style="padding:14px 18px;margin:12px 0;border:1px solid #d6e2ee;border-radius:12px"><strong>Informes de mensajes masivos</strong><p id="inboxBatchReportLabel" class="muted" style="margin:7px 0">Consultando la última base...</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button id="apiBatchExportExcel" type="button" class="btn btn-secondary">⬇ Descargar resultados Excel</button><button id="apiBatchExportPDF" type="button" class="btn btn-secondary">⬇ Descargar resultados PDF</button></div></div>
+            <div class="wa-inbox-stats">
+              <div class="wa-inbox-stat"><div class="wa-stat-icon">◉</div><div><span>Conversaciones</span><strong id="inboxConversationCount">—</strong></div></div>
+              <div class="wa-inbox-stat"><div class="wa-stat-icon green">●</div><div><span>Sin leer</span><strong id="inboxUnreadCount">—</strong></div></div>
+              <div class="wa-inbox-stat"><div class="wa-stat-icon blue">◇</div><div><span>Atención humana</span><strong id="inboxHumanCount">—</strong></div></div>
+            </div>
+            <div class="wa-inbox-shell" id="inboxShell">
+              <aside class="wa-inbox-sidebar" aria-label="Lista de conversaciones">
+                <div class="wa-inbox-side-top">
+                  <div class="wa-inbox-side-title">
+                    <div><h2>Mensajes</h2><small>Tu línea empresarial</small></div>
+                    <span id="inboxLastSync" class="wa-sync-indicator">Sin sincronizar</span>
+                  </div>
+                  <label class="wa-inbox-search" for="inboxSearch"><span>⌕</span><input id="inboxSearch" placeholder="Buscar nombre o número" autocomplete="off" aria-label="Buscar conversaciones"></label>
+                  <div class="wa-inbox-filters" role="group" aria-label="Filtrar conversaciones">
+                    <button type="button" data-inbox-filter="todos" class="wa-filter active">Todos</button>
+                    <button type="button" data-inbox-filter="nuevos" class="wa-filter">Sin leer</button>
+                    <button type="button" data-inbox-filter="humano" class="wa-filter">En atención</button>
+                  </div>
                 </div>
-                <div class="message-composer">
-                  <div class="message-composer-heading">
+                <div id="inboxList" class="wa-inbox-list" role="list" aria-label="Conversaciones recientes">
+                  <div class="wa-inbox-list-empty">Actualiza para consultar los mensajes recibidos.</div>
+                </div>
+                <div class="wa-inbox-side-foot">Conexión corporativa verificada. Actualización aproximada cada 20 segundos.</div>
+              </aside>
+              <div class="wa-inbox-chat" id="inboxChatColumn">
+                <div id="inboxWelcome" class="wa-inbox-welcome">
+                  <div class="wa-inbox-welcome-icon">▤</div>
+                  <h2>Tu centro de conversaciones</h2>
+                  <p>Selecciona un cliente para ver su historial de mensajes y responder desde WhatsApp Cloud API.</p>
+                  <div class="wa-welcome-points"><span>◉ Historial organizado</span><span>◇ Control de atención IA / humana</span><span>✓ Datos protegidos</span></div>
+                </div>
+                <div id="inboxConversation" class="wa-inbox-conversation" hidden>
+                  <div class="wa-inbox-chat-header">
+                    <button id="inboxBack" type="button" class="wa-inbox-back" aria-label="Volver a conversaciones">‹</button>
+                    <div class="wa-inbox-chat-avatar" id="inboxChatAvatar">M</div>
+                    <div class="wa-inbox-chat-person"><strong id="inboxChatName">Contacto</strong><small id="inboxChatPhone">Número</small></div>
+                    <span id="inboxChatMode" class="wa-inbox-mode-chip">IA activa</span>
+                  </div>
+                  <div class="wa-inbox-agent-bar">
                     <div>
-                      <span class="eyebrow">ESTRUCTURA A TU ELECCIÓN</span>
-                      <h3>Diseña tu mensaje de venta</h3>
-                      <p class="muted">Elige una idea inicial y cambia absolutamente todo: saludo, producto, beneficios, precio y llamado a la acción.</p>
+                      <strong id="inboxAttentionLabel">Atención automática</strong>
+                      <small id="inboxAttentionHint">MIRED360 IA puede responder a este cliente.</small>
                     </div>
+                    <button id="voiceDial" type="button" class="btn btn-primary">Llamar por WhatsApp</button>
+                    <button id="inboxToggleHuman" type="button" class="btn btn-secondary wa-inbox-agent-btn">Atender personalmente</button>
+                  </div>
+                  <div class="wa-inbox-thread" id="inboxThread" role="log" aria-live="polite" aria-label="Historial de mensajes de WhatsApp"></div>
+                  <div id="inboxTemplatePanel" hidden class="card" style="padding:14px;margin:12px 0;border:1px solid #cddcf7;background:#f4f8ff">
+                    <strong>Reabrir conversación con Meta</strong>
+                    <p class="muted" style="margin:6px 0 10px">Cuando pasen 24 horas, envía la plantilla aprobada de Claro Hogar. El contacto debe tener autorización comercial registrada.</p>
+                    <label class="check-row" style="margin-bottom:9px"><input type="checkbox" id="inboxTemplateConsent"> Confirmo que el cliente autorizó mensajes comerciales.</label>
+                    <div class="field" style="margin:9px 0"><label for="inboxConsentSource">Fuente del consentimiento (si aún no está registrado)</label><input type="text" id="inboxConsentSource" maxlength="240" placeholder="Ej. Cliente solicitó información en formulario, fecha"></div>
+                    <button id="inboxSendTemplate" type="button" class="btn btn-primary">Enviar plantilla aprobada por Meta</button>
+                    <p id="inboxTemplateStatus" class="muted" style="margin:8px 0 0;font-size:.84rem" role="status"></p>
+                  </div>
+                  <form id="inboxReplyForm" class="wa-inbox-composer">
+                    <div id="inboxWindowNotice" class="wa-inbox-window-notice">Abre un chat para consultar la ventana de atención.</div>
+                    <div class="wa-inbox-reply-row">
+                      <label for="inboxReply" class="sr-only">Escribir respuesta</label>
+                      <textarea id="inboxReply" maxlength="4000" rows="2" placeholder="Escribe una respuesta profesional..." disabled></textarea>
+                      <button id="inboxSend" type="submit" class="wa-inbox-send" disabled aria-label="Enviar mensaje por WhatsApp">➤</button>
+                    </div>
+                    <div class="wa-inbox-composer-foot"><span>Mensajes oficiales · solo dentro de la ventana de 24 horas</span><span id="inboxReplyCount">0 / 4.000</span></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <p class="wa-inbox-disclaimer">Bandeja exclusiva de MIRED360SERVICIOS. Las empresas que se registren en el SaaS no pueden acceder a estas conversaciones ni utilizar este número. Los mensajes comerciales iniciados por la empresa requieren plantillas aprobadas y autorización previa.</p>
+          </section>
+
+          <section data-section="integraciones" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">CANALES</span><h1>Integraciones</h1><p class="muted">Tus herramientas comerciales en un mismo lugar.</p></div></div>
+            <div id="inboxIntegrationLink" class="card" hidden style="padding:18px 20px;margin-bottom:18px;border:1px solid #cfece4;background:#f6fcf9">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                <div style="min-width:200px;flex:1">
+                  <span class="eyebrow">CENTRO DE ATENCIÓN CONECTADO</span>
+                  <h2 style="font-size:1.15rem;margin:8px 0 4px">▤ Bandeja WhatsApp · MIRED360</h2>
+                  <p class="muted" style="margin:0;font-size:.85rem">Consulta mensajes recibidos, continúa conversaciones dentro de las 24 horas y cambia de IA a asesor humano. Número 3133938312.</p>
+                </div>
+                <button type="button" class="btn btn-primary" data-go="bandeja">Abrir conversaciones →</button>
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="card"><div class="large-channel">◎</div><h2>WhatsApp normal / Business</h2><p class="muted">Operación asistida desde el teléfono o WhatsApp Web, sin automatizaciones no oficiales. La plataforma prepara el mensaje y abre el chat; tú decides si enviarlo.</p><span class="status available">Disponible</span></div>
+              <div class="card"><div class="large-channel">☁</div><h2>WhatsApp Cloud API</h2><p class="muted">Conexión oficial de Meta. Se necesitan token vigente, número registrado, webhook firmado y plantillas aprobadas. La conexión de MIRED360 aún no está verificada; no habilita envíos automáticos.</p><span class="status pending">Conexión verificada · plantillas pendientes</span></div>
+            </div>
+            <div id="apiOwnerPanel" class="card api-control-panel" hidden>
+              <div class="card-header api-control-head">
+                <div><span class="eyebrow">SOLO ADMINISTRADOR MIRED360</span><h2>Diagnóstico de WhatsApp Cloud API</h2><p class="muted">Comprueba la conexión de nuestro número antiguo sin enviar ningún mensaje y sin revelar credenciales.</p></div>
+                <button id="apiCheckStatus" type="button" class="btn btn-primary">Comprobar conexión</button>
+              </div>
+              <div class="api-status-grid">
+                <div class="api-status-item"><small>Estado con Meta</small><strong id="apiConnectionStatus">Sin comprobar</strong></div>
+                <div class="api-status-item"><small>Número esperado</small><strong>+57 313 393 8312</strong></div>
+                <div class="api-status-item"><small>Número devuelto por Meta</small><strong id="apiPhoneObserved">Sin comprobar</strong></div>
+                <div class="api-status-item"><small>Verificación del webhook</small><strong id="apiWebhookStatus">Sin comprobar</strong></div>
+              </div>
+              <p id="apiStatusDescription" class="muted" role="status">La conexión del número 3133938312 es independiente de tu WhatsApp Business 3229432085. Esta herramienta no envía mensajes.</p>
+              <div class="api-setup-panel">
+                <h3>Pasos para terminar de reactivar</h3>
+                <ol>
+                  <li>En <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer">Meta for Developers</a>, revisa que el número antiguo esté asociado a la aplicación.</li>
+                  <li>Genera un token nuevo de usuario del sistema, con los permisos de WhatsApp necesarios, desde tu cuenta empresarial de Meta.</li>
+                  <li>En <a href="https://supabase.com/dashboard/project/lpiusomsuswdcraoozdn/settings/functions" target="_blank" rel="noopener noreferrer">Supabase → Edge Function Secrets</a>, guarda los valores <code>WHATSAPP_ACCESS_TOKEN</code>, <code>WHATSAPP_PHONE_NUMBER_ID</code>, <code>META_APP_SECRET</code> y <code>WHATSAPP_VERIFY_TOKEN</code>. No los pegues en el chat ni en GitHub.</li>
+                  <li>En Meta, configura la URL del webhook siguiente con el mismo <code>WHATSAPP_VERIFY_TOKEN</code> que guardaste en Supabase. Suscribe los eventos necesarios.</li>
+                  <li>Pulsa «Comprobar conexión» otra vez. Una verificación positiva no autoriza enviar campañas hasta revisar plantillas, permisos y consentimiento.</li>
+                </ol>
+                <label for="apiWebhookUrl" class="api-webhook-label">URL del webhook (se puede compartir con Meta)</label>
+                <div class="api-webhook-copy">
+                  <input id="apiWebhookUrl" readonly value="https://lpiusomsuswdcraoozdn.supabase.co/functions/v1/whatsapp-webhook">
+                  <button id="apiCopyWebhook" type="button" class="btn btn-secondary">Copiar URL</button>
+                </div>
+              </div>
+              <p class="small-notice">Diagnóstico exclusivo de MIRED360. Las empresas clientes del SaaS no heredan el número ni el token corporativo.</p>
+              <section class="template-workspace" id="apiTemplateWorkspace" aria-labelledby="templateWorkspaceTitle">
+                <div class="template-workspace-head">
+                  <div>
+                    <span class="eyebrow">WHATSAPP CLOUD API · PRIMERA PLANTILLA</span>
+                    <h3 id="templateWorkspaceTitle">Internet Claro Hogar — plantilla oficial</h3>
+                    <p>Envía esta propuesta a revisión de Meta y consulta su estado. Una plantilla enviada a revisión no equivale a una plantilla aprobada.</p>
+                  </div>
+                  <span class="template-status-pill" id="apiTemplateStatus">Sin consultar</span>
+                </div>
+                <div class="template-meta-row">
+                  <span><strong>Identificador:</strong> <code>mired360_claro_hogar_info_v1</code></span>
+                  <span><strong>Categoría:</strong> Marketing</span>
+                  <span><strong>Idioma:</strong> Español (Colombia)</span>
+                </div>
+                <div class="template-preview-frame">
+                  <span class="eyebrow">CONTENIDO PROPUESTO PARA META</span>
+                  <div class="template-preview-bubble">Hola, <strong>[Nombre del cliente]</strong> 👋
+
+Te saluda MIRED360SERVICIOS.
+
+Tenemos opciones de Internet Claro Hogar para tu vivienda. Podemos consultar la cobertura, los planes y las condiciones disponibles en tu dirección.
+
+¿Te gustaría recibir información?
+
+Si no deseas recibir más mensajes comerciales, responde SALIR.</div>
+                  <p class="hint">El nombre se personaliza con la variable oficial <code>{{1}}</code>. Meta revisa y aprueba el contenido antes de permitir iniciar conversaciones.</p>
+                </div>
+                <div class="template-actions">
+                  <button id="apiTemplateRefresh" class="btn btn-secondary" type="button">Actualizar estado en Meta</button>
+                  <button id="apiTemplateCreate" class="btn btn-primary" type="button">Solicitar aprobación a Meta</button>
+                </div>
+                <p id="apiTemplateResult" class="template-result" role="status">La consulta no ha comenzado. Ningún mensaje se enviará al crear esta plantilla.</p>
+                <div class="api-test-send">
+                  <h4>Prueba individual, solo después de la aprobación</h4>
+                  <p>Selecciona una campaña y un contacto de tu empresa que tenga autorización comercial registrada. Meta puede cobrar la entrega de mensajes de marketing.</p>
+                  <div class="api-test-fields">
+                    <div class="field"><label for="apiTestCampaign">Campaña</label>
+                      <select id="apiTestCampaign"><option value="">Selecciona una campaña</option></select>
+                    </div>
+                    <div class="field"><label for="apiTestContact">Contacto con autorización comercial registrada</label>
+                      <select id="apiTestContact"><option value="">Selecciona un contacto</option></select>
+                    </div>
+                  </div>
+                  <p id="apiContactAvailability" class="api-contact-availability" role="status">Cargando contactos autorizados…</p>
+                  <div class="api-contact-actions">
+                    <button id="apiAssignTestContact" type="button" class="btn btn-secondary" hidden>＋ Vincular a esta campaña</button>
+                    <button id="apiOpenContactForm" type="button" class="btn btn-secondary">＋ Registrar contacto autorizado</button>
+                  </div>
+                  <p class="small-notice">Los contactos de prueba deben estar registrados en tu empresa, tener evidencia de autorización comercial y estar vinculados a la campaña antes de enviar. Agregar o vincular un contacto no envía mensajes.</p>
+                  <label class="api-test-confirm"><input id="apiTestConsentConfirm" type="checkbox"> <span>Confirmo que esta persona autorizó recibir mensajes comerciales de MIRED360SERVICIOS y que puedo demostrarlo.</span></label>
+                  <button id="apiTemplateTestSend" class="btn btn-primary" type="button" disabled>Enviar una prueba por API</button>
+                  <p class="small-notice" id="apiTemplateTestResult">La plataforma enviará únicamente un mensaje cuando pulses este botón y confirmes la operación. Evitará enviarlo dos veces al mismo contacto en la misma campaña.</p>
+                </div>
+                <section class="api-delivery-report" aria-labelledby="apiDeliveryTitle">
+                  <div class="api-delivery-report-head">
+                    <div>
+                      <span class="eyebrow">INFORME REAL DE META</span>
+                      <h4 id="apiDeliveryTitle">Seguimiento de entregas</h4>
+                      <p>Comprueba quién recibió la plantilla y qué contactos requieren verificación. La aceptación de Meta no significa entrega.</p>
+                    </div>
+                    <button id="apiDeliveryRefresh" type="button" class="btn btn-secondary">↻ Consultar entregas</button>
+                  </div>
+                  <div class="api-delivery-metrics">
+                    <div><small>Pruebas registradas</small><strong id="apiDeliveryTotal">—</strong></div>
+                    <div><small>Entregados</small><strong id="apiDeliverySuccess">—</strong></div>
+                    <div><small>No entregados</small><strong id="apiDeliveryFailed">—</strong></div>
+                    <div><small>Pendientes</small><strong id="apiDeliveryPending">—</strong></div>
+                  </div>
+                  <div id="apiDeliveryRows" class="api-delivery-list" role="list">
+                    <p class="api-delivery-empty">Pulsa «Consultar entregas» para cargar los resultados de Meta.</p>
+                  </div>
+                  <p id="apiDeliveryHint" class="api-delivery-explainer" role="status">Si aparece el error 131026, confirma el número y que el cliente tenga WhatsApp activo. No reenvíes automáticamente a ese contacto.</p>
+                  <div class="api-delivery-fallback">
+                    <div>
+                      <strong>¿El cliente no recibe el mensaje?</strong>
+                      <p>Invítalo por llamada, SMS o correo a escribir primero al WhatsApp corporativo. De esa forma podrás atenderlo dentro de la ventana de 24 horas. No uses este enlace para enviar mensajes sin autorización.</p>
+                    </div>
+                    <button id="apiCopyCustomerLink" type="button" class="btn btn-secondary">Copiar enlace de atención</button>
+                  </div>
+                </section>
+                <section id="apiBatchPanel" class="card" style="margin-top:22px;padding:22px;border:1px solid #d5e2fa;background:#f8fbff">
+                  <span class="eyebrow">CAMPAÑAS API · EXCEL</span>
+                  <h3 style="margin:8px 0">2. Cargar y enviar</h3>
+                  <p class="muted">Carga el Excel una sola vez. Se guarda toda la base; el sistema procesa <strong>máximo 30 contactos por día</strong>, <strong>uno cada 120 segundos</strong>. Los pendientes se conservan para continuar otro día con tu autorización.</p>
+                  <div style="padding:16px;border:2px solid #8eafe5;border-radius:12px;background:#eef5ff;margin:14px 0">
+                    <strong style="display:block;margin-bottom:10px">Control manual de la campaña</strong>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                      <button id="apiBatchPause" type="button" class="btn btn-danger" disabled style="font-weight:800;min-height:44px">Pausar envíos</button>
+                      <button id="apiBatchResume" type="button" class="btn btn-primary" disabled style="font-weight:800;min-height:44px">Continuar envíos</button>
+                      <button id="apiBatchRefresh" type="button" class="btn btn-secondary">Actualizar progreso</button>
+                    </div>
+                    <div id="apiBatchDaily" role="status" style="font-weight:700;margin-top:12px">Consultando los envíos de hoy...</div>
+                    <progress id="apiBatchProgress" max="100" value="0" style="width:100%;height:14px;margin-top:10px"></progress>
+                    <div id="apiBatchStatus" role="status" class="muted" style="margin-top:9px">Consultando la campaña...</div>
                   </div>
                   <div class="field">
-                    <label for="campaignMessagePreset">¿Qué vas a ofrecer?</label>
-                    <select id="campaignMessagePreset">
-                      <option value="personalizado" selected>✍️ Mensaje desde cero</option>
-                      <option value="software">💻 Software y plataformas</option>
-                      <option value="datafono">💳 Datáfonos y soluciones de cobro</option>
-                      <option value="internet">🌐 Internet y televisión</option>
-                      <option value="streaming">🎬 Streaming y entretenimiento</option>
-                    </select>
+                    <label for="apiBatchFile">Archivo Excel o CSV</label>
+                    <input id="apiBatchFile" type="file" accept=".xlsx,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                   </div>
-                  <div class="message-editor-grid">
-                    <div class="field message-editor">
-                      <div class="message-editor-label"><label for="campaignText">Tu mensaje comercial</label><small id="campaignMessageCounter">0 de 4.000 caracteres</small></div>
-                      <textarea id="campaignText" required minlength="3" maxlength="4000" rows="12" placeholder="Hola, {nombre} 👋&#10;&#10;Te cuento sobre nuestra oferta de...&#10;&#10;✅ Beneficio 1&#10;✅ Beneficio 2&#10;💰 Valor: ...&#10;&#10;¿Te comparto más información?"></textarea>
-                      <div class="message-variable-toolbar">
-                        <span>Personalizar:</span>
-                        <button type="button" data-insert-variable="{nombre}" class="message-variable">{nombre}</button>
-                        <button type="button" data-insert-variable="{empresa}" class="message-variable">{empresa}</button>
-                      </div>
-                      <p class="hint">Para destacar texto en WhatsApp usa *negrita* y _cursiva_. Los mensajes no se envían automáticamente.</p>
-                    </div>
-                    <div class="message-preview-panel">
-                      <div class="message-preview-top"><strong><span class="message-preview-icon" aria-hidden="true">✦</span> Vista previa</strong><small>Ejemplo para un cliente</small></div>
-                      <div class="message-preview-chat"><div id="campaignMessagePreview" class="message-preview-bubble">Escribe tu mensaje y aparecerá aquí.</div></div>
-                      <p id="campaignMessageWarning" class="message-warning" hidden>Reemplaza los campos entre corchetes antes de guardar el mensaje.</p>
-                    </div>
+                  <p id="apiBatchPreview" role="status" class="muted" style="margin:8px 0">Selecciona el archivo para revisar los contactos.</p>
+                  <p class="small-notice">La fecha, el archivo y tu declaración de autorización se registran automáticamente. Conserva los comprobantes reales de consentimiento de cada cliente.</p>
+                  <label class="check-row" style="margin:12px 0"><input type="checkbox" id="apiBatchConsent"> Confirmo que los clientes de este Excel autorizaron recibir ofertas de MIRED360SERVICIOS por WhatsApp.</label>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0">
+                    <button id="apiBatchStart" type="button" class="btn btn-primary" disabled>Guardar base y comenzar hasta 30 hoy</button>
                   </div>
-                  <p id="campaignMessagePresetNotice" class="hint" hidden>Al seleccionar otra propuesta se reemplazará el texto que estés editando.</p>
-                </div>
-                <div class="message-composer-actions">
-                  <button class="btn btn-primary" id="campaignSaveButton" type="submit">Guardar campaña</button>
-                  <button class="btn btn-secondary" id="campaignCancelEdit" type="button" hidden>Cancelar edición</button>
-                </div>
-              </form>
+                  <p class="small-notice">Se utilizará la plantilla aprobada <code>mired360_claro_hogar_info_v1</code>. Meta puede cobrar por mensaje y decidir no entregarlo. Mantén la página abierta; puedes pausar el proceso.</p>
+                </section>
+                <p class="small-notice">Los envíos a clientes requieren autorización verificable. Respeta solicitudes SALIR y revisa los errores de entrega antes de iniciar otra campaña.</p>
+              </section>
             </div>
-
-            <div class="campaign-grid" id="campaignCards"></div>
-            <div id="campaignsEmpty" class="card empty-state" hidden>Aún no tienes campañas. Crea la primera para comenzar.</div>
-
-            <div id="campaignDetail" class="card" hidden>
-              <div class="card-header campaign-detail-header">
-                <div>
-                  <span class="eyebrow">GESTIÓN DE CAMPAÑA</span>
-                  <h2 id="detailTitle">Campaña</h2>
-                  <p id="detailHint" class="muted"></p>
-                </div>
-                <div class="detail-actions">
-                  <button class="btn btn-secondary" type="button" id="campaignEditMessage">✎ Editar mensaje</button>
-                  <button class="btn btn-primary" type="
+            <div id="apiTenantNotice" class="card" hidden><h2>Conexión independiente para cada empresa</h2><p class="muted">La integración oficial de WhatsApp Cloud API para clientes aún no está disponible. Mientras tanto, utiliza las campañas asistidas con contactos autorizados. Nunca compartimos el número o las credenciales de MIRED360 entre empresas.</p></div>
+          </section>
+          <section data-section="planes" class="page-section" hidden><div class="page-head"><div><span class="eyebrow">SUSCRIPCIONES</span><h1>Planes comerciales</h1><p class="muted">Inicia con el plan asistido. La activación y pago son verificados por un administrador.</p></div></div><div id="licenseInfo" class="card license-info"></div><div class="price-grid"><article class="card price-card"><h2>Emprendedor</h2><div class="price">$49.900 <span>/mes</span></div><p>Contactos y campañas asistidas.</p><button id="requestStarter" type="button" class="btn btn-primary">Solicitar activación por WhatsApp</button></article><article class="card price-card featured"><h2>Profesional</h2><div class="price">$129.900 <span>/mes</span></div><p>API oficial y equipos, cuando esté integrada.</p><span class="status pending">Próximamente</span></article><article class="card price-card"><h2>Empresa</h2><div class="price">$299.900 <span>/mes</span></div><p>Gestión avanzada y sucursales.</p><span class="status pending">Próximamente</span></article></div><p class="small-notice">Plan Emprendedor disponible mediante gestión comercial y verificación manual del pago. Los planes con API oficial aún no se venden. No hay pagos dentro del panel.</p></section>
+          <section data-section="administracion" class="page-section" hidden>
+            <div class="page-head"><div><span class="eyebrow">ADMINISTRACIÓN GENERAL</span><h1>Empresas y licencias</h1><p class="muted">Solo el administrador autorizado puede activar suscripciones. Verifica el pago antes de habilitar un plan.</p></div><button id="refreshAdmin" class="btn btn-secondary">Actualizar datos</button></div>
+            <div class="card"><div class="table-scroll"><table><thead><tr><th>EMPRESA</th><th>PLAN</th><th>ESTADO</th><th>VIGENCIA</th><th>ACTIVAR DESPUÉS DEL PAGO</th></tr></thead><tbody id="adminRows"></tbody></table></div></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <aside id="voicePanel" hidden aria-label="Llamada de WhatsApp" style="position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;color:#152b38;padding:12px;border-radius:12px;box-shadow:0 3px 24px #0003;width:max-content;max-width:95vw">
+    <span id="voiceState" role="status"></span>
+    <button id="voiceEnd" type="button" class="btn btn-secondary">Colgar</button>
+    <audio id="voiceAudio" autoplay playsinline></audio>
+  </aside>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+  <script type="module" src="./app.js?v=20261125-owner-inbox"></script>
+</body>
+</html>
