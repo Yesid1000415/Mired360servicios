@@ -1769,9 +1769,18 @@ async function inboxLoadList({quiet=false}={}){
   try{
     const result=await inboxRequest('GET',{action:'list',search:$('inboxSearch').value.trim()});
     if(serial!==inboxState.requestSerial)return;
-    inboxState.conversations=result.conversations||[];
+    const priorRows=inboxState.conversations;
+    const priorPhones=new Set(priorRows.map(row=>row.telefono));
+    const priorUnread=new Map(priorRows.map(row=>[row.telefono,Number(row.no_leidos||0)]));
+    const nextRows=result.conversations||[];
+    const hasNewConversation=nextRows.some(row=>!priorPhones.has(row.telefono));
+    const hasMoreUnread=nextRows.some(row=>Number(row.no_leidos||0)>(priorUnread.get(row.telefono)||0));
+    inboxState.conversations=nextRows;
     inboxState.moreMayExist=Boolean(result.more_may_exist);
     inboxRenderList();
+    if(!$('inboxSearch').value.trim()&&(!quiet||hasNewConversation||hasMoreUnread)){
+      $('inboxList').scrollTop=0;
+    }
   }catch(error){
     $('inboxLastSync').textContent='Sin conexión';
     if(!quiet)toast(error?.message||'No fue posible obtener las conversaciones.',true);
